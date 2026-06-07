@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amsterdam 🌷 Zoznam miest</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F2;
+  --white: #FFFFFF;
+  --ink: #1A1714;
+  --ink2: #6B6560;
+  --ink3: #AEA9A4;
+  --border: #E8E4DE;
+  --border2: #D4CFC8;
+  --accent: #C17B4A;
+
+  --c-coffee:  #7C5C3E; --c-coffee-bg:  #F5EDE4; --c-coffee-border:  #D4B89A;
+  --c-cs:      #4A7C59; --c-cs-bg:      #EAF3ED; --c-cs-border:      #9DCAAD;
+  --c-brown:   #8B6914; --c-brown-bg:   #FBF4E3; --c-brown-border:   #D4B45A;
+  --c-gastro:  #C14A4A; --c-gastro-bg:  #FBEDED; --c-gastro-border:  #E4A5A5;
+  --c-nakupy:  #4A6E8C; --c-nakupy-bg:  #E8EFF5; --c-nakupy-border:  #9BBDD4;
+  --c-zazitok: #7B4A8C; --c-zazitok-bg: #F2EAF5; --c-zazitok-border: #C49DD4;
+  --c-hidden:  #3D7A6E; --c-hidden-bg:  #E5F2F0; --c-hidden-border:  #8CC4BC;
+  --c-miesta:  #6E5C3D; --c-miesta-bg:  #F2EDE4; --c-miesta-border:  #C4AF8C;
+  --c-natura:  #4A7A3D; --c-natura-bg:  #EAF2E8; --c-natura-border:  #9DC49A;
+  --c-speakeasy:#2C3E6B; --c-speakeasy-bg:#EAEDf5; --c-speakeasy-border:#8B96C4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 14px; }
+
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.header-top h1 { font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 400; letter-spacing: -0.02em; }
+.header-top .sub { font-size: 12px; color: var(--ink3); }
+.stats-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.stat-pill { font-size: 11px; padding: 2px 9px; border-radius: 20px; background: var(--bg); color: var(--ink2); border: 1px solid var(--border2); font-weight: 500; }
+.stat-pill.hl { background: #FBF4E3; color: #8B6914; border-color: #D4B45A; }
+
+.filters {
+  padding: 9px 14px;
+  display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none;
+  background: var(--white); border-bottom: 1px solid var(--border);
+}
+.filters::-webkit-scrollbar { display: none; }
+.fbtn {
+  font-size: 11.5px; font-family: 'DM Sans', sans-serif;
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border2); background: var(--white); color: var(--ink2);
+  cursor: pointer; white-space: nowrap; transition: all .14s;
+}
+.fbtn:hover { background: var(--bg); color: var(--ink); }
+.fbtn.on { background: var(--ink); color: var(--white); border-color: var(--ink); font-weight: 500; }
+
+.content { padding: 12px 12px 48px; }
+
+.section { margin-bottom: 12px; background: var(--white); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+
+.sec-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; cursor: pointer; user-select: none;
+  border-bottom: 1px solid var(--border); transition: background .12s;
+}
+.sec-header:hover { background: var(--bg); }
+.sec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sec-label { font-size: 12.5px; font-weight: 500; flex: 1; }
+.sec-count { font-size: 11px; color: var(--ink3); }
+.sec-chev { font-size: 11px; color: var(--ink3); transition: transform .2s; display: inline-block; }
+.sec-chev.open { transform: rotate(180deg); }
+
+.items { display: none; }
+.items.open { display: block; }
+
+.item {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.item:last-child { border-bottom: none; }
+.item:hover { background: #FAFAF8; }
+.item.done { opacity: .5; }
+
+.item-top {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px 0;
+  cursor: pointer;
+}
+
+.item-check {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; background: var(--white);
+}
+.item.done .item-check { background: var(--ink); border-color: var(--ink); }
+.item.done .item-check::after { content: ''; width: 5px; height: 5px; background: var(--white); border-radius: 50%; }
+
+.item-main { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; font-weight: 500; line-height: 1.3; cursor: pointer; }
+.item.done .item-name { text-decoration: line-through; color: var(--ink3); }
+.item-addr { font-size: 11.5px; color: var(--ink3); margin-top: 1px; }
+
+.expand-btn {
+  font-size: 11px; color: var(--ink3); cursor: pointer;
+  padding: 0; background: none; border: none;
+  flex-shrink: 0; margin-top: 3px;
+  transition: color .12s;
+  font-family: 'DM Sans', sans-serif;
+}
+.expand-btn:hover { color: var(--ink2); }
+
+.item-detail {
+  display: none;
+  padding: 0 14px 10px 40px;
+}
+.item-detail.open { display: block; }
+
+.item-desc {
+  font-size: 12.5px; color: var(--ink2); line-height: 1.6;
+  margin-bottom: 7px; margin-top: 6px;
+  font-style: italic;
+}
+
+.item-tags { display: flex; gap: 4px; flex-wrap: wrap; padding-bottom: 2px; }
+.tag { font-size: 10.5px; padding: 1px 7px; border-radius: 20px; }
+.tag-free  { background: #EAF3DE; color: #3B6D11;  border: 1px solid #C0DD97; }
+.tag-paid  { background: #FBF4E3; color: #8B6914;  border: 1px solid #D4B45A; }
+.tag-book  { background: #FBEDED; color: #A32D2D;  border: 1px solid #E4A5A5; }
+.tag-tip   { background: #E8EFF5; color: #185FA5;  border: 1px solid #9BBDD4; }
+.tag-punk  { background: #F2EAF5; color: #6B3480;  border: 1px solid #C49DD4; }
+.tag-day   { background: #F2EDE4; color: #6E5C3D;  border: 1px solid #C4AF8C; }
+
+.add-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 14px; color: var(--ink3); font-size: 12px;
+  cursor: pointer; transition: all .12s;
+  border-top: 1px dashed var(--border2);
+  background: none; border-left: none; border-right: none; border-bottom: none;
+  width: 100%; font-family: 'DM Sans', sans-serif;
+}
+.add-row:hover { background: var(--bg); color: var(--accent); }
+
+.empty { padding: 24px 16px; text-align: center; color: var(--ink3); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>Amsterdam 🌷</h1>
+    <span class="sub">13–15 júna 2026</span>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+</div>
+
+<div class="filters" id="filters"></div>
+<div class="content" id="content"></div>
+
+<script>
+const CATS = [
+  { id:'coffee',  label:'Coffee & matcha',      dot:'var(--c-coffee)'  },
+  { id:'cs',      label:'Coffee shop',           dot:'var(--c-cs)'      },
+  { id:'brown',   label:'Brown café',            dot:'var(--c-brown)'   },
+  { id:'gastro',  label:'Gastro',                dot:'var(--c-gastro)'  },
+  { id:'nakupy',  label:'Nákupy & trhy',         dot:'var(--c-nakupy)'  },
+  { id:'zazitok', label:'Zážitky & aktivity',    dot:'var(--c-zazitok)' },
+  { id:'hidden',  label:'Hidden gems',           dot:'var(--c-hidden)'  },
+  { id:'miesta',  label:'Miesta & architektúra', dot:'var(--c-miesta)'  },
+  { id:'natura',  label:'Príroda & parky',       dot:'var(--c-natura)'  },
+];
+
+const DATA = [
+  { id:1,  cat:'coffee',  name:'Chun Cafe',
+    addr:'Viac pobočiek v centre',
+    desc:'Bubble tea reťazec — čierny čaj s mliekom a tapiokovými guličkami. Výborné na horúci letný deň pri potulkách mestom.',
+    tags:['~€4–5'] },
+
+  { id:2,  cat:'cs', name:'Coffeeshop Rookies',
+    addr:'Korte Leidsedwarsstraat 145–147',
+    desc:'Legendárny coffeeshop od roku 1992 priamo pri Leidseplein. Meno dostali preto, lebo boli vtedy najmladší prevádzkovatelia v meste. Reggae a dub funk hudba, priestranné interiéry pre 85 ľudí, mix miestnych a turistov. Otvorené 8:30–01:00.',
+    tags:['pri Leidseplein'] },
+  { id:3,  cat:'cs', name:'Tha Dogg House',
+    addr:'Marnixstraat 333 (+ Oudebrugsteeg 26)',
+    desc:'Snoop Doggov oficiálny coffeeshop — pôvodne sa volal S.W.E.D. (Smoke Weed Every Day), mesto mu zakázalo názov. West Coast hip-hop, Death Row merch, Snoopove klipy na obrazovkách. Výhľad na kanál zo zadnej časti. Skôr turistické, ceny vyššie — ale unikátny zážitok.',
+    tags:['turistické'] },
+
+  { id:4,  cat:'brown', name:"Café 't Smalle",
+    addr:'Egelantiersgracht 12, Jordaan',
+    desc:'Jeden z najautentickejších brown café v Amsterdame — od roku 1786. Tmavé drevo, sviečky, starí miestni pri pive. Žiadny Instagram filter. Terasa pri kanáli.',
+    tags:['Jordaan','miestni'] },
+  { id:5,  cat:'brown', name:'Café de Dokter',
+    addr:'Rozenboomsteeg 4, Centrum',
+    desc:'Najmenší bar v Amsterdame — doslova. Úzka miestnosť, historický interiér, obrovský výber whisky. Zažívaš pocit ako keby si vstúpil do iného storočia.',
+    tags:['hidden gem'] },
+  { id:6,  cat:'brown', name:"In 't Aepjen",
+    addr:'Zeedijk 1, Centrum',
+    desc:'Od roku 1519 — historicky tu spávali mornári, ktorí nemali peniaze na izbu. Platili opicami (vandrefi), odtiaľ názov "Opica". Jeden z dvoch zostávajúcich drevených domov v Amsterdame.',
+    tags:['hidden gem','od 1519'] },
+
+  { id:7,  cat:'gastro', name:'Fabel Friet',
+    addr:'Runstraat 1',
+    desc:'TikTok senzácia — dvaja študenti začali s pojazným stánkom, teraz majú stálu prevádzku. Čerstvé holandské Agria zemiaky krájané každý deň, vyprážané na objednávku. Podávajú s parmezánom Reggiano a domácou truffle majonézou. Pozor — bývajú dlhé rady!',
+    tags:['~€4–6','rady!','must-try'] },
+  { id:8,  cat:'gastro', name:'FEBO automat',
+    addr:'Po celom meste (30+ pobočiek)',
+    desc:'Ikonický holandský automat od roku 1941 — malé presklené dvierka v stene, za nimi teplé jedlo. Zaplatiť, otvoriť, vziať. Kroket (ragú v strúhanke), kaassoufflé (roztavený syr v lístkovom ceste), frikandel. Kultový zážitok.',
+    tags:['~€2–3','24/7','must-try'] },
+  { id:9,  cat:'gastro', name:'Bitterballen',
+    addr:'V každom brown café a Foodhallene',
+    desc:'Kultová holandská pochúťka — vyprážané guľky plnené hovädzím alebo teľacím ragú, chrumkavé zvonku. Podávajú sa s horčicou. Prvá vec ktorú treba vyskúšať po prílete.',
+    tags:['~€5–8','must-try'] },
+  { id:10, cat:'gastro', name:'Foodhallen',
+    addr:'Hannie Dankbaarpassage 16',
+    desc:'Street food hala v historickej tramvajovej remíze z roku 1902. Desiatky stánkov — ramen, bitterballen, indonézske satay, burgers, koktejly. Najlepšia večerná atmosféra v meste, otvárať začínajú o 12:00.',
+    tags:['~€10–20','So večer','otv. 12–01'] },
+  { id:11, cat:'gastro', name:'Stroopwafel Workshop',
+    addr:'Albert Cuypstraat 194',
+    desc:'Hodinový workshop výroby vlastných stroopwafelov — vaflíte, plníte karamelom, ozdobujete podľa fantázie. Hodnotenie 4.9/5, hostia ako Franziska a Vince robia zážitok незабутній. Treba vopred rezervovať!',
+    tags:['~€25/os','rezervácia!','🎲 losovanie'] },
+  { id:12, cat:'gastro', name:"Brouwerij 't IJ",
+    addr:'Funenkade 7',
+    desc:'Pivovar priamo v základni mlyna De Gooyer — najvyšší veterný mlyn v Holandsku. Ochutnávacia doska 5 rôznych pív, každé iné. Terasa pred mlynom je ikonická na fotky. Unikát, ktorý inde nezažijete.',
+    tags:['~€10–15','So 18:00','otv. 14:00'] },
+  { id:13, cat:'gastro', name:"Tony's Chocolonely",
+    addr:'Oudebrugsteeg 15',
+    desc:'Ikonická holandská čokoládovňa s etickým posolstvom — boj proti detskej práci v kakao priemysle. Nerovnomerne rozdelené tabuľky symbolizujú nerovnosť v systéme. Množstvo neobvyklých príchutí.',
+    tags:['~€5–8'] },
+  { id:14, cat:'gastro', name:'Dumplings Amsterdam',
+    addr:'Dim Sum Court (Nieuwmarkt) / Bao & Broth (Jordaan)',
+    desc:'Dva najlepšie odporúčané bary na dumplings v meste. Dim Sum Court na Nieuwmarkt je klasika — rýchly lacný obed. Bao & Broth v Jordaane je elegantnejší.',
+    tags:['~€8–12'] },
+  { id:15, cat:'gastro', name:'Patatje oorlog',
+    addr:'Zo stánkov po celom meste',
+    desc:'Holandská klasika — hranolky ("oorlog" = vojna) zapoliate arašidovou omáčkou, majonézou a niekedy aj cibuľkou. Vyzerá divoko, chutí úžasne. Musíš vyskúšať zo stánku na ulici.',
+    tags:['~€3–5','must-try'] },
+  { id:16, cat:'gastro', name:'Haring (surový sleď)',
+    addr:'Zo stánkov pri kanáloch',
+    desc:'Holandská tradícia — surový sleď s cibuľkou a uhorkovým nálevom. Holanďania ho držia za chvost a jedia celý v stoji. Vyskúšaj aspoň raz! Stánky sú pri centrálnych kanáloch a trhoch.',
+    tags:['~€3–4','must-try'] },
+  { id:17, cat:'gastro', name:'Albert Cuyp Markt — jedlo',
+    addr:'Albert Cuypstraat, De Pijp',
+    desc:'Na trhu samotnom: stroopwafely čerstvo upečené priamo pred tebou (oveľa lacnejšie ako v obchodoch), kibbeling (vyprážaná ryba), gözleme king (turecké zemiakové placky s maslom a plnkou). Syry za zhruba pol ceny oproti cheese shopom.',
+    tags:['lacné','Po–So 9:30–17h'] },
+
+  { id:18, cat:'nakupy', name:'Albert Cuyp Markt',
+    addr:'Albert Cuypstraat, De Pijp',
+    desc:'Najväčší pouličný trh v Amsterdame — 100 rokov tradície v štvrti De Pijp. Čerstvé ovocie, zelenina, kvety, syr, oblečenie, suveníry. Autentická amsterdamská atmosféra ďaleko od turistických trás.',
+    tags:['zadarmo vstup','Po–So 9:30–17h'] },
+  { id:19, cat:'nakupy', name:'Waterlooplein — blší trh',
+    addr:'Waterlooplein, Centrum',
+    desc:'Historický blší trh od roku 1882 — vintage oblečenie, starožitnosti, second-hand nálezy za pár eur. Autentický zážitok. Kvalita kolíše, ale nájsť poklad je súčasť zábavy.',
+    tags:['zadarmo vstup','Po–So','🎲 losovanie'] },
+  { id:20, cat:'nakupy', name:'Rumors Vintage',
+    addr:'Haarlemmerstraat 29 + 99',
+    desc:'Najlepší vintage výber v Amsterdame — oblečenie od 50s po 90s, od Dr. Martens cez kožené bundy po retro šaty. Dve predajne na tej istej ulici. Celá Haarlemmerstraat je vintage raj pri Centraal Station.',
+    tags:['lacné'] },
+  { id:21, cat:'nakupy', name:'Zipper Vintage',
+    addr:'Haarlemmerstraat 8',
+    desc:'Americký vintage štýl od roku 1979 — cheerleader svetre, prom šaty, baseballové bundy. Ikonická adresa pre milovníkov americkej retro módy.',
+    tags:['lacné'] },
+  { id:22, cat:'nakupy', name:'Cheese Museum + shop',
+    addr:'Prinsengracht 112',
+    desc:'Malé múzeum histórie syra — vstup zadarmo. V priľahlom obchode zadarmo ochutnávky rôznych druhov syra. Pozor: v cheese shopoch v centre sú ceny oveľa vyššie ako na Albert Cuyp Markti.',
+    tags:['zadarmo','ochutnávky free'] },
+
+  { id:23, cat:'zazitok', name:'Canal boat / plavba',
+    addr:'Viac operátorov pri Centraal',
+    desc:'Luxury canal cruise s unlimited nápojmi a občerstvením (GetYourGuide, cca €35/os). Alternatíva: turistická loďka zo Centraal (~€15), alebo si požičajte vlastnú kanálovú loďku bez patentky (~€50/hod pre skupinu).',
+    tags:['~€15–50','🎲 losovanie'] },
+  { id:24, cat:'zazitok', name:'XtraCold Icebar',
+    addr:'Amstelstraat 194, pri Rembrandtplein',
+    desc:'Celý bar postavený z ľadu vrátane pohárov — stála teplota -10°C. V cene vstupného (online ~€22,50) sú 3 drinky a požičanie teplej bundy + rukavíc. Vstup do ľadového sveta inšpirovaného výpravou na Severný pól z roku 1596. Rezervovať aspoň 2 týždne vopred!',
+    tags:['~€22–28','rezervácia!','🎲 losovanie'] },
+  { id:25, cat:'zazitok', name:'Fabrique des Lumières',
+    addr:'Pazzanistraat 37, Westergas',
+    desc:'Najväčšie imerzné umelecké centrum v Holandsku — v historickej plynárni. Steny až 17 metrov vysoké, 100+ projektorov. Diela Van Gogha, Vermeera, Rembrandta ožijú v 360° projekcii s hudbou. Skvelé aj v daždi.',
+    tags:['~€14–18','🎲 losovanie'] },
+  { id:26, cat:'zazitok', name:'Zaanse Schans',
+    addr:'Zaandam — 20 min vlakom',
+    desc:'Historická dedinka s funkčnými veternými mlynmi zo 18.–19. storočia. Sprinter vlak zo Centraal smer Koog-Zaandijk (~€4,50 jednosmerný, 15 min). Vstup do dediny zadarmo, vnútro mlynov a múzeá sa platia zvlášť. Reálne pol dňa výlet.',
+    tags:['~€4,50 vlak','pol dňa výlet'] },
+  { id:27, cat:'zazitok', name:'Cannabis Museum',
+    addr:'Damstraat 6, Centrum',
+    desc:'3 poschodia histórie a kultúry konopy — zaujímavé aj pre nezasvätených. Pekné umenie, kuriozity, diorámy. Goody bag s darčekmi v cene vstupného ~€12.',
+    tags:['~€12','🎲 losovanie'] },
+  { id:28, cat:'zazitok', name:'Free Ferry Centraal → Noord',
+    addr:'Pier za Centraal Station (výstup sever)',
+    desc:'Bezplatný trajekt cez rieku IJ na sever mesta. Odchádza každých 6 minút, trvá ~10 minút. Krásny výhľad na Amsterdam z vody. Na druhej strane: EYE Film Museum, A\'DAM Lookout, NDSM Werf.',
+    tags:['zadarmo','Po 11:00'] },
+
+  { id:29, cat:'hidden', name:'Begijnhof',
+    addr:'Gedempte Begijnensloot (skrytý vchod)',
+    desc:'Stredoveký skrytý dvor uprostred mesta — jedna z najkrajších tajných záhrad v Európe. Hľadaj nenápadnú drevenú bránu z Gedempte Begijnensloot. Väčšina turistov prechádza okolo bez povšimnutia. Kaplnka z 15. storočia, domy begínok.',
+    tags:['zadarmo','hidden gem'] },
+  { id:30, cat:'hidden', name:'Jordaan — štvrť',
+    addr:'Západne od Centrum',
+    desc:'Pôvodne robotnícka štvrť, dnes najromantickejšia časť Amsterdamu. Úzke uličky s kvetinami, kanály s hausbótmi, hnedé kaviarne bez turistov. Sem chodia miestni. Najlepší Amsterdam aký uvidíte.',
+    tags:['zadarmo'] },
+  { id:31, cat:'hidden', name:'Zevenlandenhuizen',
+    addr:'Roemer Visscherstraat 20–34, pri Vondelparku',
+    desc:'Sedem domov v štýle siedmich európskych krajín postavených vedľa seba v roku 1894. Architekt Tjeerd Kuipers zachytil nemecký, francúzsky, španielsky, taliansky, ruský, holandský a anglický štýl. Názvy krajín sú vypísané nad dverami. Anglický dom je dnes hotel.',
+    tags:['zadarmo','foto'] },
+
+  { id:32, cat:'miesta', name:"A'DAM Lookout",
+    addr:'IJpromenade 4, Noord',
+    desc:'Vyhliadková veža na streche A\'DAM Tower v Noorde — panoráma 360° na celý Amsterdam. Ikonické červené hojdačky na terase (zadarmo na fotky). Adrenalínový swing — hojdačka vyčnievajúca zo strechy nad prázdnotou. Free ferry zo Centraal, smer Buiksloterweg.',
+    tags:['~€14','swing extra'] },
+  { id:33, cat:'miesta', name:'EYE Film Museum',
+    addr:'IJpromenade 1, Noord',
+    desc:'Futuristická biela budova ako zmrazená vlna na brehu rieky IJ. Výhľad z terasy na Centraal Station je jeden z najkrajších v Amsterdame. Terasa a lobby zadarmo, výstavy za vstupné. Vedľa A\'DAM Lookout — ideálne skombinovať.',
+    tags:['terasa free','Po 11:15'] },
+  { id:34, cat:'miesta', name:'NDSM Werf',
+    addr:'NDSM-Plein, Noord',
+    desc:'Obrovský opustený lodiačsky dok z éry priemyslovej revolúcie premenený na street art galériu a kreatívny hub. Obrovské muraly, umelecké štúdiá, bary, reštaurácie, organizujú sa tu festivaly. Zadarmo, free ferry zo Centraal smer NDSM.',
+    tags:['zadarmo','🎲 losovanie'] },
+  { id:35, cat:'miesta', name:'Red Light District',
+    addr:'De Wallen, Centrum',
+    desc:'Ikonická štvrť — historická architektúra z 15. storočia, najstaršie kanály mesta. Cez deň fascinujúca, večer po 22:00 úplne iná atmosféra. Prechádzka zadarmo — stačí chodiť a nasávať atmosféru.',
+    tags:['zadarmo','So večer'] },
+  { id:36, cat:'miesta', name:'Cheese Museum',
+    addr:'Prinsengracht 112',
+    desc:'Malé múzeum histórie syra v historickej budove pri Prinsengracht. Vstup zadarmo. V suteréne obchod s holandskými syrmi a zadarmo ochutnávkami.',
+    tags:['zadarmo'] },
+
+  { id:37, cat:'natura', name:'Vondelpark',
+    addr:'Vondelpark, Amsterdam-Zuid',
+    desc:'Najväčší park v Amsterdame — 47 hektárov. Divé zelené papagáje (áno, naozajstné!), kačice, labute, veveričky. Piknik na tráve, otvorené letné divadlo, kaviarne pri jazerách. Perfektné na sobotné poobede po prílete.',
+    tags:['zadarmo'] },
+  { id:38, cat:'natura', name:'Hortus Botanicus',
+    addr:'Plantage Middenlaan 2a',
+    desc:'Botanická záhrada z roku 1638 — jedna z najstarších na svete. Motýlí dom plný živých tropických motýľov, skleníky s palmami a kaktusy, orangéria s výbornou kávou. Pokojné útočisko pred ruchom mesta.',
+    tags:['~€10','otv. 10–17h','🎲 losovanie'] },
+  { id:39, cat:'natura', name:'ARTIS Zoo',
+    addr:'Plantage Kerklaan 38–40',
+    desc:'Zoo + akvárium + botanická záhrada — všetko obklopené kanálmi mesta. Červené pandy, motýlí dom, slony, levy, plameňiaky. Pocit ako by zoo bola súčasťou mesta, nie oddelená od neho. Cca 3–6 hodín.',
+    tags:['~€26/os','otv. 9–18h','🎲 losovanie'] },,
+
+  { id:40, cat:'zazitok', name:'Pedal Boat — šlapadlá na kanáloch',
+    addr:'Stromma: Rijksmuseum, Leidseplein, Keizersgracht, Anne Frank House',
+    desc:'Amsterdam je svetové číslo 1 v cyklistike — šlapadlá na kanáloch to kombinujú s vodou. Prenajmeš štvorsedadlovú loďku a šlapeš vlastnou trasou cez UNESCO kanály. Ideálne na skupinu 4 ľudí. Bez skúseností, bez patentky. Vietor do vlasov, výhľad na fasády priamo z vody. Operátor Stromma má 100 loďiek na 4 miestach v centre.',
+    tags:['~€23,50/hod','pre 4 os.','🎲 losovanie'] },
+
+  { id:41, cat:'zazitok', name:'Elektrická loďka bez kapitána',
+    addr:'Boats4rent (Jordaan) / Boaty (De Pijp) / Eco Boats / Canal Motorboats',
+    desc:'Požičáš si tichú elektrickú loďku — bez patentky, bez skúseností. Pred odchodom dostaneš krátky briefing. Môžeš si zobrať vlastné jedlo a pitie na palubu (piknik na kanáli!). Loďky pre 4–8 ľudí. Trasa podľa seba — kanály, zátiší, miestne štvrte bez turistov. Ceny: od €79 na 2 hod (Boats4rent) alebo €89 na 3 hod (Boaty). V týždni zľavy ~€10–20.',
+    tags:['~€79–99 / loďka','bez patentky','🎲 losovanie'] },
+
+  { id:42, cat:'hidden', name:'De Ceuvel',
+    addr:'Korte Papaverweg 4, Amsterdam Noord',
+    desc:'Bývalé lodenice na znečistenom pozemku premenené na ekologickú kreatívnu komunitu — jedna z najuniverzálnejších urban transformácií v Európe. Staré hausbóty vytiahnuté na súš slúžia ako ateliéry a kancelárie, rastliny čistia pôdu fytoremedáciou. Uprostred toho všetkého bohémska kaviareň-reštaurácia s terasou priamo nad vodou, plne rastlinné menu, lokálne ingrediencie. Otv. denne 11:00–00:00 (pi-so do 02:00). Free ferry zo Centraal.',
+    tags:['zadarmo vstup','Noord','hidden gem'] },,
+
+  { id:43, cat:'hidden', name:'Het Kleinste Huis — najmenší dom',
+    addr:'Oude Hoogstraat 22, Centrum (medzi Dam a Nieuwmarkt)',
+    desc:'Najužší dom v Európe — iba 2,02 metra šírky a 5 metrov hĺbky, celkovo 9 m². Postavený v roku 1738, dnes národná kultúrna pamiatka. Holanďania vtedy platili dane podľa šírky fasády — preto stavali čo najužšie. Dnes tu funguje rodinný čajový obchod s vyše 200 druhmi čajov a možnosťou posedenia na horných dvoch poschodiach. Vstup zadarmo.',
+    tags:['zadarmo','hidden gem','foto'] },
+
+  { id:44, cat:'hidden', name:'De Poezenboot — mačací hausbót',
+    addr:'Singel 38G, Centrum (10 min od Centraal)',
+    desc:'Jediný plávajúci útulok pre mačky na svete — funguje od roku 1966. Zakladateľka Henriette van Weelde začala s jednou mačkou pod stromom, dnes tu žije až 50 mačiek naraz čakajúcich na adopciu. Vstup voľný, ale len v obmedzených hodinách: ut, pi, so 13:00–15:00, max 6 návštevníkov naraz. Nie je to zoo — mačky sa správajú ako doma, niektoré maznavé, iné ignorujú celý svet. Donácia veľmi vítaná.',
+    tags:['zadarmo','ut/pi/so 13–15h','max 6 os.','hidden gem'] },,
+
+  { id:45, cat:'speakeasy', name:'Door 74',
+    addr:'Reguliersdwarsstraat 74, Centrum',
+    desc:'🚪 Vchod: Žiadna cedula, žiadne označenie — len číslo 74 na dverách. Zazvoníš, číhačka v dverách sa otvorí, niekto ťa prehliadne. Povieš koľko vás je a či máš rezerváciu. Ak áno, dvere sa otvoria do iného sveta. // Čím je výnimočný: Prvý a najprestížnejší speakeasy v Amsterdame — dvakrát na World\'s 50 Best Bar zozname. Art deco interiér s lisovanými cínovanými stropmi v štýle New Yorku 20. rokov. Koktailový lístok sa mení 4x ročne, každý má príbeh. Bartenderi ti spraví nápoj na mieru — povedz im čo máš rád. Vek 21+.',
+    tags:['rezervácia nutná!','~€15–18/drink','20:00–03:00'] },
+
+  { id:46, cat:'speakeasy', name:"Rosalia's Menagerie",
+    addr:'Kloveniersburgwal 20, De Wallen',
+    desc:'🚪 Vchod: Nenápadné dvere na jednom z najstarších kanálov Amsterdamu. Zazvoníš na zvonček — žiadne veľké označenie, len malý nápis. Prvý príde, prvý si sadne — bez rezervácie. // Čím je výnimočný: 17-storočný kanálový dom pretvorený na kabinet kuriozít. Sametové sedenie, tmavé drevo, predmety z celého sveta — ako keby si vstúpil do súkromnej zbierky zlatého veku. Pravdepodobne najväčší výber genevers (holandský predchodca ginu) v celom Holandsku. Cez tajné dvere priamo v bare je boutique hotel. Sezónne menu, lokálne spirits.',
+    tags:['bez rezervácie','~€12–15/drink','denne 18:00–00:30'] },
+
+  { id:47, cat:'speakeasy', name:'Hiding in Plain Sight (HPS)',
+    addr:'Rapenburg 18, roh Rapenburg & Peperstraat',
+    desc:'🚪 Vchod: Žiadna tabuľa, žiadne označenie pred dverami. Stojíš pred rohovou budovou a premýšľaš či si na správnom mieste. Potom zazvoníš — niekto otvorí. // Čím je výnimočný: Najautentickejší speakeasy podľa miestnych. Na stenách sú matematické rovnice z filmov a seriálov — ak uhádneš aspoň jednu, dostaneš free shot. Bartenderi sú legendárni: povedz im čo máš rád a nechaj ich prekvapiť. Pohár PB&J Old Fashioned je kultový. Žiadne flashky, žiadne selfie tyče — tu sa pije a rozpráva.',
+    tags:['~€13–16/drink','odporúčaná rez.','po–so 18:00–01:00'] },
+
+  { id:48, cat:'speakeasy', name:'Tales & Spirits',
+    addr:'Lijnbaanssteeg 5–7 (úzka ulička medzi Singel č.85 a Spui č.60)',
+    desc:'🚪 Vchod: Ukrytý v úzkej historickej uličke Lijnbaanssteeg — hľadáš ju medzi Singel a Spui. Žiadna rezervácia, first come first served. Pozor — keď je plno, jednoducho povedia "dnes nie". Choď skoro alebo neskoro. // Čím je výnimočný: Viacposchodová budova zo 16. storočia — tehlové múry, drevené trámy, vintage lustre. Bartenderi sú doslova choreografi: dym, efekty, špeciálne poháriky, netradiční servis. Koktajly majú príbehy — "What If…" daiquiri, "Walking Dead" v lebke (limitovaný 1x na osobu). Majú aj kuchyňu so small plates — môžeš tam stráviť celý večer.',
+    tags:['~€14–17/drink','bez rez. — príď skoro','str–ne 17:30–01:00'] },
+
+  { id:49, cat:'speakeasy', name:'Super Lyan',
+    addr:'Nieuwezijds Voorburgwal 3, pri Centraal Station',
+    desc:'🚪 Vchod: Otvorené dvere v 17-storočnom dome hneď pri Centraal — žiadne tajnosti, môžeš vojsť bez rezervácie. Nie klasický speakeasy, ale jeden z najzaujímavejších barov v meste. // Čím je výnimočný: Prvý amsterdamský bar Mr. Lyanova (Ryan Chetiyawardana) — svetoznámy bartender z Londýna. Neonové svetlá a tučná estetika kontrastujú s pôvodnými 17-storočnými črtami budovy. Beeswax Old Fashioned, playful riffs, low-waste filozofia. Vhodné pre skupiny s rôznymi vkusmi — koktajloví nerdi aj casual drinkers. Frosé margarita je legendárna.',
+    tags:['~€13–16/drink','bez rezervácie','denne od 12:00'] },
+
+  { id:50, cat:'speakeasy', name:'Bar Oldenhof',
+    addr:'Elandsgracht 84-H, Jordaan',
+    desc:'🚪 Vchod: V Jordaane hľadáš nenápadné dvere s malou tabuľkou. Zaklopeš alebo zazvoníš — žiadna veľká cedula. Kapacita je malá, takže odporúčajú zavolať vopred. // Čím je výnimočný: Najromantickejší koktailový bar v meste — tmavé panely, luster, hlboká whisky polica, stolový servis. Bartenderi sú učitelia: vysvetlia ti rozdiel rye vs bourbon kým ti miešajú nápoj. Perfektné klasiky aj signature koktaily. Pohoda, žiadny hluk, žiadna scéna. Ideálne na darčekový večer pre dvoch alebo solo s knihou.',
+    tags:['~€12–15/drink','odporúčaná rez.','Jordaan • 19:00–01:00'] },
+];
+
+const TAG_CLASS = {
+  'zadarmo':'tag-free','ochutnávky free':'tag-free','terasa free':'tag-free','lacné':'tag-free',
+  'rezervácia!':'tag-book',
+  'hidden gem':'tag-tip','must-try':'tag-tip','foto':'tag-tip','miestni':'tag-tip',
+  '🎲 losovanie':'tag-punk',
+};
+function tc(t){
+  if(TAG_CLASS[t]) return TAG_CLASS[t];
+  if(t.startsWith('~€')||t.includes('€')) return 'tag-paid';
+  if(/hod|večer|ráno|Po |So |Po–|otv\./.test(t)) return 'tag-day';
+  return 'tag-tip';
+}
+
+let doneSet = new Set(JSON.parse(localStorage.getItem('ams_done')||'[]'));
+let expandSet = new Set();
+let openSec = new Set(CATS.map(c=>c.id));
+let filter = 'all';
+
+function save(){ localStorage.setItem('ams_done', JSON.stringify([...doneSet])); }
+
+function renderStats(){
+  const total = DATA.length;
+  const doneN = DATA.filter(d=>doneSet.has(d.id)).length;
+  const freeN = DATA.filter(d=>d.tags.some(t=>['zadarmo','lacné','ochutnávky free','terasa free'].includes(t))).length;
+  const punkN = DATA.filter(d=>d.tags.includes('🎲 losovanie')).length;
+  document.getElementById('statsRow').innerHTML =
+    `<span class="stat-pill">${total} miest</span>
+     <span class="stat-pill">${freeN} zadarmo</span>
+     <span class="stat-pill hl">${punkN} 🎲 losovanie</span>
+     <span class="stat-pill">${doneN} hotových</span>`;
+}
+
+function renderFilters(){
+  const el = document.getElementById('filters');
+  el.innerHTML = [['all','Všetko'],...CATS.map(c=>[c.id,c.label])].map(([id,label])=>
+    `<button class="fbtn ${filter===id?'on':''}" onclick="setFilter('${id}')">${label}</button>`
+  ).join('');
+}
+
+function renderContent(){
+  const el = document.getElementById('content');
+  const activeCats = filter==='all' ? CATS : CATS.filter(c=>c.id===filter);
+  let html = '';
+  activeCats.forEach(cat => {
+    const items = DATA.filter(d=>d.cat===cat.id);
+    if(!items.length) return;
+    const doneCount = items.filter(d=>doneSet.has(d.id)).length;
+    const isOpen = openSec.has(cat.id);
+    html += `<div class="section">
+      <div class="sec-header" onclick="toggleSec('${cat.id}')">
+        <span class="sec-dot" style="background:${cat.dot}"></span>
+        <span class="sec-label">${cat.label}</span>
+        <span class="sec-count">${doneCount}/${items.length}</span>
+        <span class="sec-chev ${isOpen?'open':''}">▾</span>
+      </div>
+      <div class="items ${isOpen?'open':''}" id="items-${cat.id}">`;
+    items.forEach(item=>{
+      const isDone = doneSet.has(item.id);
+      const isExp = expandSet.has(item.id);
+      const tags = item.tags.map(t=>`<span class="tag ${tc(t)}">${t}</span>`).join('');
+      html += `<div class="item ${isDone?'done':''}" id="item-${item.id}">
+        <div class="item-top">
+          <div class="item-check" onclick="toggleDone(${item.id}, event)"></div>
+          <div class="item-main" onclick="toggleExp(${item.id})">
+            <div class="item-name">${item.name}</div>
+            ${item.addr ? `<div class="item-addr">📍 ${item.addr}</div>` : ''}
+          </div>
+          <button class="expand-btn" onclick="toggleExp(${item.id})">${isExp?'▴':'▾'}</button>
+        </div>
+        <div class="item-detail ${isExp?'open':''}">
+          <div class="item-desc">${item.desc}</div>
+          ${tags ? `<div class="item-tags">${tags}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += `<button class="add-row" onclick="addTo('${cat.id}','${cat.label}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Pridať miesto
+      </button></div></div>`;
+  });
+  el.innerHTML = html || '<div class="empty">Žiadne miesta v tejto kategórii.</div>';
+}
+
+function toggleDone(id, e){
+  e.stopPropagation();
+  doneSet.has(id)?doneSet.delete(id):doneSet.add(id);
+  save(); render();
+}
+
+function toggleExp(id){
+  expandSet.has(id)?expandSet.delete(id):expandSet.add(id);
+  renderContent();
+}
+
+function toggleSec(id){
+  openSec.has(id)?openSec.delete(id):openSec.add(id);
+  renderContent();
+}
+
+function setFilter(id){ filter=id; renderFilters(); renderContent(); }
+
+function addTo(catId, catLabel){
+  const name = prompt(`Nové miesto — "${catLabel}":\nNázov:`);
+  if(!name||!name.trim()) return;
+  const addr = prompt('Adresa:')||'';
+  const desc = prompt('Popis:')||'';
+  const tagsRaw = prompt('Tagy (čiarkou):')||'';
+  const tags = tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
+  DATA.push({id: Date.now(), cat:catId, name:name.trim(), addr, desc, tags});
+  render();
+}
+
+function render(){ renderStats(); renderFilters(); renderContent(); }
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Amsterdam · jún 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --text-1: #0f172a;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --border: #e2e8f0;
+      --surface: #f8fafc;
+      --white: #ffffff;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-xl: 0 24px 64px rgba(0,0,0,0.14), 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      background: #e8edf2;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── MAP ─────────────────────────────────────────────── */
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ─── TOP BAR ─────────────────────────────────────────── */
+    #top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 400;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid #F1F5F9;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px 8px;
+    }
+
+    .header-main { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+
+    .city-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.4px;
+      line-height: 1;
+    }
+
+    #place-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: #0F172A;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: none;
+      flex-shrink: 0;
+    }
+
+    /* ─── SEARCH ───────────────────────────────────────────── */
+    #search-wrap { position: relative; flex-shrink: 0; }
+    #search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #F1F5F9;
+      border: 1.5px solid transparent;
+      border-radius: 20px;
+      padding: 5px 12px;
+      width: 168px;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    #search-box:focus-within {
+      background: #fff;
+      border-color: #0F172A;
+      box-shadow: 0 0 0 3px rgba(15,23,42,0.06);
+    }
+    #search-box svg { flex-shrink: 0; color: #94A3B8; }
+    #search-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: #0F172A;
+      width: 100%;
+    }
+    #search-input::placeholder { color: #94A3B8; }
+    #search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 280px;
+      max-height: 320px;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.05);
+      z-index: 500;
+      display: none;
+      padding: 6px;
+    }
+    #search-results.open { display: block; }
+    .search-result {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .search-result:hover { background: #F1F5F9; }
+    .search-result-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .search-result-name { font-size: 13px; font-weight: 600; color: #0F172A; line-height: 1.25; }
+    .search-result-cat { font-size: 11px; color: #94A3B8; }
+    .search-result.visited .search-result-name { color: #94A3B8; text-decoration: line-through; }
+    .search-empty { padding: 16px; text-align: center; font-size: 12.5px; color: #94A3B8; }
+    @media (max-width: 767px) {
+      #search-box { width: 130px; }
+      #search-results { width: 240px; }
+    }
+
+    /* ─── DAY TABS ─────────────────────────────────────────── */
+    #day-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 0 18px 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #day-tabs::-webkit-scrollbar { display: none; }
+
+    .day-tab {
+      padding: 5px 14px;
+      border: 1.5px solid #E2E8F0;
+      background: transparent;
+      border-radius: 20px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748B;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .day-tab:hover { border-color: #94A3B8; color: #0F172A; }
+    .day-tab.active {
+      background: #0F172A;
+      border-color: #0F172A;
+      color: white;
+      font-weight: 700;
+    }
+
+    #itinerary-toggle {
+      margin-left: auto;
+      padding: 5px 14px;
+      border: 1.5px solid #0F172A;
+      background: #0F172A;
+      border-radius: 20px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.12s;
+    }
+    #itinerary-toggle:hover { transform: translateY(-1px); }
+
+    /* ─── CATEGORY CHIPS ───────────────────────────────────── */
+    #category-bar {
+      display: flex;
+      gap: 6px;
+      padding: 0 18px 9px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #category-bar::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: none;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.12s;
+      letter-spacing: 0.1px;
+    }
+    .cat-pill:hover { transform: translateY(-1px); }
+    .cat-pill.active { opacity: 1; }
+    .cat-pill.inactive { opacity: 0.18; }
+
+    /* ─── SIDEBAR / BOTTOM SHEET ──────────────────────────── */
+    #sidebar {
+      position: fixed;
+      top: calc(var(--topbar-h, 110px) + 8px);   /* below the top bar */
+      left: 12px;
+      bottom: 12px;
+      width: 376px;
+      background: var(--white);
+      z-index: 300;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+      transform: translateX(calc(-100% - 24px));
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    /* ── Hero photo area ── */
+    #sb-hero {
+      position: relative;
+      height: 210px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    #sb-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: background 0.3s ease;
+    }
+    #sb-hero-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.06) 0%,
+        rgba(0,0,0,0) 35%,
+        rgba(0,0,0,0.55) 75%,
+        rgba(0,0,0,0.78) 100%
+      );
+    }
+    #sb-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 30px;
+      height: 30px;
+      background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(8px);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background 0.15s;
+    }
+    #sb-close:hover { background: rgba(0,0,0,0.55); }
+
+    #sb-hero-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 16px;
+      z-index: 2;
+    }
+    #sb-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.28);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 6px;
+    }
+    #sb-hero-name {
+      font-size: 21px;
+      font-weight: 800;
+      color: white;
+      line-height: 1.2;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+
+    /* ── Sidebar body ── */
+    #sb-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 18px 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .sb-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 14px;
+    }
+    .sb-stars { color: #F59E0B; letter-spacing: 1px; font-size: 13px; }
+
+    .sb-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .sb-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+    .sb-chip-icon { font-size: 13px; }
+
+    .sb-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      color: #92400e;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .sb-note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+    .sb-desc {
+      font-size: 13.5px;
+      color: var(--text-2);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Plan section */
+    .sb-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 0 18px;
+    }
+    .sb-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+    .sb-plan-status {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .sb-plan-status.planned { color: #16A34A; }
+
+    .sb-plan-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .plan-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .plan-btn:hover { border-color: #94a3b8; color: var(--text-1); }
+    .plan-btn.sel-saturday { background: #EFF6FF; border-color: #93C5FD; color: #1D4ED8; font-weight: 600; }
+    .plan-btn.sel-sunday   { background: #FDF2F8; border-color: #F9A8D4; color: #BE185D; font-weight: 600; }
+    .plan-btn.sel-monday   { background: #EEF2FF; border-color: #A5B4FC; color: #4338CA; font-weight: 600; }
+    .plan-btn.sel-remove   { color: #EF4444; border-color: #FCA5A5; background: #FFF5F5; }
+    .plan-btn.sel-remove:hover { background: #FEE2E2; }
+
+    /* Visited toggle */
+    .sb-visited-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 11px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .sb-visited-btn:hover { border-color: #86EFAC; color: #16A34A; }
+    .sb-visited-btn.done { background: #F0FDF4; border-color: #86EFAC; color: #16A34A; }
+
+    /* Action buttons */
+    .sb-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-nav {
+      flex: 1;
+      padding: 11px 14px;
+      background: var(--text-1);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn-nav:hover { opacity: 0.85; }
+    .btn-icon {
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .btn-edit { background: var(--surface); color: var(--text-1); }
+    .btn-edit:hover { background: var(--border); }
+    .btn-del  { background: #FFF5F5; color: #EF4444; }
+    .btn-del:hover  { background: #FEE2E2; }
+
+    /* ─── ITINERARY PANEL ─────────────────────────────────── */
+    #itinerary-panel {
+      position: fixed;
+      top: calc(var(--topbar-h, 110px) + 8px);
+      left: 12px;
+      bottom: 12px;
+      width: 340px;
+      background: var(--white);
+      z-index: 250;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+      transform: translateX(calc(-100% - 24px));
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #itinerary-panel.open { transform: translateX(0); }
+
+    #itin-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #itin-title { font-size: 16px; font-weight: 800; color: var(--text-1); letter-spacing: -0.3px; }
+    #itin-sub { font-size: 11.5px; font-weight: 500; color: var(--text-3); margin-top: 3px; }
+    #itin-close {
+      width: 28px; height: 28px;
+      background: var(--surface);
+      border: none; border-radius: 50%;
+      font-size: 12px; color: var(--text-2); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    #itin-close:hover { background: var(--border); }
+
+    #itin-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .itin-empty {
+      padding: 28px 16px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-3);
+    }
+    .itin-stop {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 4px;
+    }
+    .itin-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    .itin-stop-main { flex: 1; min-width: 0; cursor: pointer; }
+    .itin-stop-name {
+      font-size: 13.5px; font-weight: 600; color: var(--text-1);
+      line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .itin-stop-cat {
+      font-size: 11px; color: var(--text-3);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .itin-stop.visited .itin-num { opacity: 0.5; }
+    .itin-stop.visited .itin-stop-name { color: var(--text-3); text-decoration: line-through; }
+    .itin-stop-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .itin-stop-actions button {
+      width: 24px; height: 24px;
+      border: none; background: transparent;
+      border-radius: 6px;
+      font-size: 14px; color: var(--text-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .itin-stop-actions button:hover:not(:disabled) { background: var(--surface); color: var(--text-1); }
+    .itin-stop-actions button:disabled { opacity: 0.25; cursor: default; }
+    .itin-stop-actions .itin-remove:hover { background: #FEE2E2; color: #EF4444; }
+    .itin-leg {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 0 2px 12px;
+      margin-left: 12px;
+      border-left: 2px dashed var(--border);
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
+    #itin-footer { flex-shrink: 0; padding: 0 16px 14px; }
+    .itin-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 14px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .itin-total span:last-child { color: var(--text-1); font-weight: 700; }
+
+    @media (max-width: 767px) {
+      #itinerary-panel {
+        top: auto; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 60vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        transform: translateY(110%);
+      }
+      #itinerary-panel.open { transform: translateY(0); }
+    }
+
+    /* ─── BOTTOM ACTIONS WRAPPER ──────────────────────────── */
+    #bottom-actions {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    @media (max-width: 767px) {
+      #bottom-actions { bottom: 18px; right: 14px; }
+    }
+
+    /* ─── FAB ─────────────────────────────────────────────── */
+    #fab {
+      height: 46px;
+      padding: 0 20px;
+      background: #0F172A;
+      color: white;
+      border: none;
+      border-radius: 23px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 20px rgba(15,23,42,0.28);
+      transition: transform 0.18s, background 0.15s, box-shadow 0.15s;
+    }
+    #fab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15,23,42,0.35);
+    }
+    #fab.adding { background: #EF4444; }
+    @media (max-width: 767px) {
+      #fab { height: 44px; padding: 0 16px; font-size: 12px; }
+    }
+
+    /* Adding banner */
+    #add-banner {
+      position: fixed;
+      bottom: 94px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,0.9);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 400;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    #add-banner.visible { opacity: 1; }
+
+    /* ─── MODAL ───────────────────────────────────────────── */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.4);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+    #modal-overlay.open { display: flex; }
+
+    #modal {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 460px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: var(--shadow-xl);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+    .modal-close {
+      width: 28px; height: 28px;
+      background: var(--surface);
+      border: none;
+      border-radius: 50%;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grp { margin-bottom: 14px; }
+    .form-grp label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-3);
+      margin-bottom: 5px;
+    }
+    .form-grp input,
+    .form-grp select,
+    .form-grp textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-1);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-grp input:focus,
+    .form-grp select:focus,
+    .form-grp textarea:focus {
+      border-color: var(--text-1);
+      box-shadow: 0 0 0 3px rgba(15,23,42,0.06);
+    }
+    .form-grp textarea { height: 72px; resize: vertical; }
+    .form-grp input.error { border-color: #EF4444; }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .modal-save {
+      flex: 1;
+      padding: 12px;
+      background: var(--text-1);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .modal-save:hover { opacity: 0.85; }
+    .modal-cancel {
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+    .modal-cancel:hover { background: var(--border); }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 767px) {
+      .top-row { padding: 10px 14px 7px; }
+      .app-title-text { font-size: 14px; }
+      #day-tabs { padding: 0 14px 7px; gap: 4px; }
+      .day-tab { font-size: 11px; padding: 4px 11px; }
+      #category-bar { padding: 0 14px 9px; gap: 5px; }
+      .cat-pill { font-size: 11px; padding: 4px 10px; }
+
+      #sidebar {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 74vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        transform: translateY(110%);
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.14);
+      }
+      #sidebar.open { transform: translateY(0); }
+      #sidebar::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px; height: 4px;
+        background: #CBD5E1;
+        border-radius: 2px;
+        z-index: 10;
+      }
+      #sb-hero { border-radius: var(--radius-xl) var(--radius-xl) 0 0; height: 170px; }
+      #fab { bottom: 20px; right: 16px; width: 48px; height: 48px; }
+      #add-banner { bottom: 80px; font-size: 12px; padding: 9px 16px; }
+    }
+
+    /* ─── SATELLITE COLOR CORRECTION (only in satellite mode) ─ */
+    .satellite-mode .leaflet-tile-pane {
+      filter: saturate(0.72) hue-rotate(-8deg) brightness(1.06) contrast(1.04);
+    }
+
+    /* ─── PIN INTERACTIONS ────────────────────────────────── */
+    /* Transform lives on the inner div so it never clobbers Leaflet's
+       positioning transform on .leaflet-marker-icon */
+    .pin-inner {
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: center bottom;
+    }
+    .leaflet-marker-icon:hover { z-index: 1000 !important; }
+    .leaflet-marker-icon:hover .pin-inner { transform: translateY(-3px) scale(1.06); }
+    .leaflet-marker-icon.pin-selected { z-index: 1001 !important; }
+    .leaflet-marker-icon.pin-selected .pin-inner { transform: scale(1.2) translateY(-2px); }
+    .leaflet-marker-icon.pin-selected:hover .pin-inner { transform: scale(1.22) translateY(-4px); }
+
+    /* ─── TILE SWITCHER ───────────────────────────────────── */
+    #tile-switcher {
+      position: fixed;
+      bottom: 24px;
+      left: 14px;
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 14px;
+      padding: 4px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+    }
+    .tile-btn {
+      padding: 6px 13px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748B;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tile-btn:hover { color: #0F172A; }
+    .tile-btn.active {
+      background: #0F172A;
+      color: white;
+      font-weight: 600;
+    }
+    @media (max-width: 767px) {
+      #tile-switcher { bottom: 18px; left: 10px; border-radius: 12px; }
+      .tile-btn { font-size: 11px; padding: 5px 10px; }
+    }
+
+    /* ─── POI POPUP ───────────────────────────────────────── */
+    .poi-popup .leaflet-popup-content-wrapper {
+      border-radius: 14px !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.14) !important;
+      border: 1px solid var(--border) !important;
+      padding: 0 !important;
+    }
+    .poi-popup .leaflet-popup-content {
+      margin: 14px 16px !important;
+      font-family: 'Inter', sans-serif !important;
+    }
+    .poi-popup .leaflet-popup-tip { display: none !important; }
+    .poi-popup .leaflet-popup-tip-container { display: none !important; }
+    .poi-popup .leaflet-popup-close-button {
+      top: 8px !important; right: 10px !important;
+      font-size: 16px !important; color: var(--text-3) !important;
+    }
+
+    /* Loading indicator */
+    #poi-loading {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,0.82);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 400;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    #poi-loading.visible { opacity: 1; }
+
+    /* ─── MY LOCATION ────────────────────────────────────── */
+    @keyframes loc-pulse {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      70%  { transform: scale(3);   opacity: 0; }
+      100% { transform: scale(3);   opacity: 0; }
+    }
+    .my-loc-wrap {
+      position: relative;
+      width: 18px;
+      height: 18px;
+    }
+    .my-loc-dot {
+      position: absolute;
+      inset: 0;
+      background: #4285F4;
+      border: 2.5px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(66,133,244,0.55);
+    }
+    .my-loc-ring {
+      position: absolute;
+      inset: 0;
+      background: #4285F4;
+      border-radius: 50%;
+      animation: loc-pulse 2s ease-out infinite;
+    }
+
+    #locate-btn {
+      width: 46px;
+      height: 46px;
+      background: white;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 23px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: background 0.15s, transform 0.15s;
+      color: var(--text-2);
+    }
+    #locate-btn:hover { background: #F8FAFC; transform: translateY(-2px); }
+    #locate-btn.active { color: #4285F4; border-color: #BFDBFE; background: #EFF6FF; }
+    @media (max-width: 767px) {
+      #locate-btn { width: 44px; height: 44px; font-size: 16px; }
+    }
+
+    /* Distance badge in sidebar */
+    .sb-distance {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1D4ED8;
+      margin-bottom: 14px;
+    }
+
+    /* ─── LEAFLET OVERRIDES ───────────────────────────────── */
+    .leaflet-bottom.leaflet-left { bottom: 96px; left: 14px; }
+    @media (max-width: 767px) { .leaflet-bottom.leaflet-left { bottom: 80px; left: 10px; } }
+
+    .leaflet-control-zoom {
+      border: none !important;
+      box-shadow: var(--shadow-md) !important;
+      border-radius: var(--radius-md) !important;
+      overflow: hidden;
+    }
+    .leaflet-control-zoom a {
+      width: 36px !important;
+      height: 36px !important;
+      line-height: 36px !important;
+      font-size: 17px !important;
+      color: var(--text-1) !important;
+      background: rgba(255,255,255,0.92) !important;
+    }
+    .leaflet-control-zoom a:hover { background: var(--white) !important; }
+    .leaflet-control-attribution {
+      background: rgba(255,255,255,0.75) !important;
+      backdrop-filter: blur(8px) !important;
+      border-radius: 6px !important;
+      font-size: 9.5px !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── TOP BAR ─────────────────────────────────────────── -->
+<div id="top-bar">
+  <div class="top-row">
+    <div class="header-main">
+      <div class="city-name">Amsterdam</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div id="search-wrap">
+        <div id="search-box">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          <input type="text" id="search-input" placeholder="Hľadať miesto…" autocomplete="off"
+            oninput="searchPlaces(this.value)" onfocus="searchPlaces(this.value)">
+        </div>
+        <div id="search-results"></div>
+      </div>
+      <span id="place-count">50 miest</span>
+      <button id="geocode-btn" onclick="geocodeAllPlaces()" title="Overiť polohy miest podľa adresy cez OpenStreetMap (s kontrolou ulice a čísla domu)"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;display:flex;align-items:center;gap:4px;">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        Overiť
+      </button>
+      <button id="photos-btn" onclick="fetchPhotos()" title="Natiahnuť fotky miest z Wikipédie (pre overené miesta; ostatné ostanú na farebnom pozadí)"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;display:flex;align-items:center;gap:4px;">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5L5 19"/></svg>
+        Fotky
+      </button>
+    </div>
+  </div>
+
+  <div id="day-tabs">
+    <button class="day-tab active" data-day="all">Všetky</button>
+    <button class="day-tab" data-day="saturday">Sob 13.6 🛬</button>
+    <button class="day-tab" data-day="sunday">Ned 14.6 🎲</button>
+    <button class="day-tab" data-day="monday">Pon 15.6 ✈️</button>
+    <button class="day-tab" data-day="unplanned">Neplánované</button>
+    <button id="itinerary-toggle" onclick="toggleItineraryPanel()" style="display:none;">📋 Itinerár</button>
+  </div>
+
+  <div id="category-bar"></div>
+</div>
+
+<!-- ─── MAP ─────────────────────────────────────────────── -->
+<div id="map"></div>
+
+<!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+<div id="sidebar">
+  <div id="sb-hero">
+    <div id="sb-hero-bg"></div>
+    <div id="sb-hero-grad"></div>
+    <button id="sb-close" onclick="closeSidebar()">✕</button>
+    <div id="sb-hero-footer">
+      <div id="sb-hero-badge"></div>
+      <div id="sb-hero-name"></div>
+    </div>
+  </div>
+  <div id="sb-body"></div>
+</div>
+
+<!-- ─── ITINERARY PANEL ──────────────────────────────────── -->
+<div id="itinerary-panel">
+  <div id="itin-header">
+    <div>
+      <div id="itin-title">Itinerár</div>
+      <div id="itin-sub"></div>
+    </div>
+    <button id="itin-close" onclick="closeItineraryPanel()">✕</button>
+  </div>
+  <div id="itin-body"></div>
+  <div id="itin-footer"></div>
+</div>
+
+<!-- ─── TILE SWITCHER ────────────────────────────────────── -->
+<div id="tile-switcher">
+  <button class="tile-btn active" data-type="standard" onclick="switchTileType('standard')">🗺️ Mapa</button>
+  <button class="tile-btn" data-type="satellite" onclick="switchTileType('satellite')">🛰️ Satelit</button>
+  <button class="tile-btn active" id="poi-toggle" onclick="togglePOIs()">📍 Miesta</button>
+</div>
+
+<!-- POI loading indicator -->
+<div id="poi-loading">Načítavam miesta…</div>
+
+<!-- ─── ADD BANNER ───────────────────────────────────────── -->
+<div id="add-banner">📍 Klikni na mapu kde chceš pridať miesto · ESC zruší</div>
+
+<!-- ─── BOTTOM ACTIONS (locate + FAB) ───────────────────── -->
+<div id="bottom-actions">
+  <button id="locate-btn" onclick="locateMe()" title="Moja aktuálna poloha">🎯</button>
+  <button id="fab" onclick="toggleAddMode()" title="Pridať nové miesto">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span id="fab-label">Pridať miesto</span>
+  </button>
+</div>
+
+<!-- ─── MODAL ────────────────────────────────────────────── -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Nové miesto</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="form-grp">
+      <label>Názov *</label>
+      <input type="text" id="f-name" placeholder="Napr. Vondelpark">
+    </div>
+    <div class="form-grp">
+      <label>Adresa (pre presnú polohu pri „Overiť")</label>
+      <input type="text" id="f-addr" placeholder="Napr. Prinsengracht 112">
+    </div>
+    <div class="form-row-2">
+      <div class="form-grp">
+        <label>Kategória</label>
+        <select id="f-category">
+          <option value="custom">📍 Vlastné</option>
+          <option value="letisko">✈️ Letisko</option>
+          <option value="ubytovanie">🏠 Ubytovanie</option>
+          <option value="coffee">☕ Coffee &amp; matcha</option>
+          <option value="cs">🌿 Coffee shop</option>
+          <option value="brown">🍺 Brown café</option>
+          <option value="gastro">🍽️ Gastro</option>
+          <option value="nakupy">🛍️ Nákupy &amp; trhy</option>
+          <option value="zazitok">✨ Zážitky &amp; aktivity</option>
+          <option value="hidden">💎 Hidden gems</option>
+          <option value="miesta">🏛️ Miesta &amp; architektúra</option>
+          <option value="natura">🌳 Príroda &amp; parky</option>
+          <option value="speakeasy">🚪 Speakeasy</option>
+        </select>
+      </div>
+      <div class="form-grp">
+        <label>Cena</label>
+        <input type="text" id="f-price" placeholder="Zadarmo / ~€10">
+      </div>
+    </div>
+    <div class="form-grp">
+      <label>Popis</label>
+      <textarea id="f-description" placeholder="Krátky popis miesta..."></textarea>
+    </div>
+    <div class="form-grp">
+      <label>Vlastná poznámka</label>
+      <input type="text" id="f-note" placeholder="Napr. rezervácia nutná!">
+    </div>
+    <div class="form-row-2">
+      <div class="form-grp">
+        <label>Otváracie hodiny</label>
+        <input type="text" id="f-hours" placeholder="9:00 – 18:00">
+      </div>
+      <div class="form-grp">
+        <label>Hodnotenie (1–5)</label>
+        <input type="number" id="f-rating" placeholder="4.5" min="1" max="5" step="0.1">
+      </div>
+    </div>
+    <div class="form-grp">
+      <label>Fotografia (URL)</label>
+      <input type="url" id="f-photo" placeholder="https://...jpg">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Zrušiť</button>
+      <button class="modal-save" onclick="savePlace()">Uložiť miesto</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+
+const CATS = {
+  'letisko':    { label: 'Letisko',              icon: '✈️',  color: '#0369A1', type: 'Letisko · Amsterdam Schiphol' },
+  'ubytovanie': { label: 'Ubytovanie',           icon: '🏠',  color: '#BE185D', type: 'Ubytovanie · B&B' },
+  'coffee':    { label: 'Coffee & matcha',      icon: '☕',  color: '#FBBF24', type: 'Kaviareň & matcha' },
+  'cs':        { label: 'Coffee shop',           icon: '🌿', color: '#8DC63F', type: 'Coffee shop' },
+  'brown':     { label: 'Brown café',            icon: '🍺', color: '#F59E0B', type: 'Brown café' },
+  'gastro':    { label: 'Gastro',                icon: '🍽️', color: '#F47821', type: 'Jedlo & gastro' },
+  'nakupy':    { label: 'Nákupy & trhy',         icon: '🛍️', color: '#5BB8D4', type: 'Nákupy & trhy' },
+  'zazitok':   { label: 'Zážitky & aktivity',    icon: '✨', color: '#E8437D', type: 'Zážitok & aktivita' },
+  'hidden':    { label: 'Hidden gems',           icon: '💎', color: '#9333EA', type: 'Hidden gem' },
+  'miesta':    { label: 'Miesta & architektúra', icon: '🏛️', color: '#2563EB', type: 'Miesto & architektúra' },
+  'natura':    { label: 'Príroda & parky',       icon: '🌳', color: '#22C55E', type: 'Príroda & park' },
+  'speakeasy': { label: 'Speakeasy',             icon: '🚪', color: '#1E293B', type: 'Speakeasy & koktajly' },
+  'custom':    { label: 'Vlastné',               icon: '📍', color: '#94A3B8', type: 'Vlastné miesto' },
+};
+
+// SVG icon paths (24×24 viewBox, stroke-only, clear & recognizable)
+const CAT_SVG_ICONS = {
+  // Paper airplane (send) — plane
+  'letisko':    `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`,
+  // Bed with pillow
+  'ubytovanie': `<rect x="2" y="13" width="20" height="8" rx="2"/><path d="M2 13V9a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v4"/><path d="M6 9h4m4 0h4"/>`,
+  // Coffee cup with handle + saucer
+  'coffee':    `<path d="M6 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M16 7h2a2 2 0 0 1 0 4h-2"/><line x1="3" y1="20" x2="21" y2="20"/>`,
+  // Two-leaf plant (Y shape = cannabis/plant)
+  'cs':        `<line x1="12" y1="22" x2="12" y2="11"/><path d="M12 11C9 11 5 8 5 4c4 0 8 3 7 7z"/><path d="M12 11C15 11 19 8 19 4c-4 0-8 3-7 7z"/>`,
+  // Beer mug with handle
+  'brown':     `<path d="M7 4h8l-1 16H8L7 4z"/><path d="M15 7h3a2 2 0 0 1 0 5h-3"/>`,
+  // 3-prong fork — unambiguous
+  'gastro':    `<line x1="9" y1="3" x2="9" y2="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="15" y1="3" x2="15" y2="9"/><path d="M9 9a3 3 0 0 0 6 0"/><line x1="12" y1="12" x2="12" y2="21"/>`,
+  // Shopping bag with handles + clasp
+  'nakupy':    `<path d="M6 2L4 8h16L18 2"/><path d="M4 8l2 12h12l2-12H4z"/><path d="M9.5 13a2.5 2.5 0 0 0 5 0"/>`,
+  // Lightning bolt (energy/activity)
+  'zazitok':   `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
+  // Diamond/gem shape
+  'hidden':    `<path d="M12 2l7 7-7 13L5 9z"/><line x1="5" y1="9" x2="19" y2="9"/>`,
+  // City skyline (3 buildings + roof line)
+  'miesta':    `<line x1="2" y1="20" x2="22" y2="20"/><rect x="3" y="13" width="5" height="7"/><rect x="9" y="8" width="6" height="12"/><rect x="16" y="13" width="5" height="7"/><path d="M2 13L6 8 9 8 12 3 15 8 18 8 22 13"/>`,
+  // Pine tree (triangle crown + trunk)
+  'natura':    `<path d="M12 3L3 16h18z"/><line x1="12" y1="16" x2="12" y2="21"/>`,
+  // Cocktail/martini glass (V + stem + base)
+  'speakeasy': `<path d="M4 4h16l-8 9z"/><line x1="12" y1="13" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/>`,
+  // Location pin
+  'custom':    `<circle cx="12" cy="9" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 8 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>`,
+};
+
+// Ikony pre KONKRÉTNE podniky (override nad kategóriou — line-style ako CAT_SVG_ICONS)
+const PLACE_ICON_SVG = {
+  // Burger — vrchná žemľa, plnka, spodná žemľa
+  burger: `<path d="M4 10a8 8 0 0 1 16 0z"/><path d="M4 13h16"/><path d="M5 16h14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/>`,
+  // Syr — klin s dierkami
+  cheese: `<path d="M3 13L20 8v10H3z"/><circle cx="12" cy="13.5" r="1.1"/><circle cx="16" cy="11.5" r="0.9"/><circle cx="15.5" cy="15.5" r="0.9"/>`,
+};
+// Priradenie podniku → ikona (ostatné miesta používajú ikonu kategórie)
+const PLACE_ICONS = {
+  53: 'burger',   // The Beef Chief
+  54: 'burger',   // Ter Marsch & Co
+  55: 'burger',   // Bar-B Burgers 'N' Beers
+  58: 'cheese',   // Henri Willig & Old Amsterdam — syry
+  22: 'cheese',   // Cheese Museum + shop
+  36: 'cheese',   // Cheese Museum
+  64: 'cheese',   // Fromagerie Abraham Kef
+};
+// Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
+function placeIcon(p) {
+  return (p && PLACE_ICONS[p.id] && PLACE_ICON_SVG[PLACE_ICONS[p.id]])
+    || CAT_SVG_ICONS[p && p.category] || CAT_SVG_ICONS.custom;
+}
+
+const DAY_LABELS = {
+  saturday: 'Sob 13.6 🛬',
+  sunday:   'Ned 14.6 🎲',
+  monday:   'Pon 15.6 ✈️',
+};
+
+const GRADIENTS = {
+  'letisko':    'linear-gradient(135deg,#E0F2FE,#0369A1)',
+  'ubytovanie': 'linear-gradient(135deg,#FCE7F3,#BE185D)',
+  'coffee':    'linear-gradient(135deg,#FEF3C7,#FBBF24)',
+  'cs':        'linear-gradient(135deg,#ECFDF5,#8DC63F)',
+  'brown':     'linear-gradient(135deg,#FFFBEB,#F59E0B)',
+  'gastro':    'linear-gradient(135deg,#FFF7ED,#F47821)',
+  'nakupy':    'linear-gradient(135deg,#E0F7FA,#5BB8D4)',
+  'zazitok':   'linear-gradient(135deg,#FDF2F8,#E8437D)',
+  'hidden':    'linear-gradient(135deg,#F5F3FF,#9333EA)',
+  'miesta':    'linear-gradient(135deg,#EFF6FF,#2563EB)',
+  'natura':    'linear-gradient(135deg,#F0FDF4,#22C55E)',
+  'speakeasy': 'linear-gradient(135deg,#F1F5F9,#1E293B)',
+  'custom':    'linear-gradient(135deg,#F1F5F9,#94A3B8)',
+};
+
+// ═══════════════════════════════════════════════════
+//  VERIFIED LOCATIONS (geocoded via Nominatim by street
+//  address — far more accurate than business-name search)
+//  id → { lat, lng, addr }
+// ═══════════════════════════════════════════════════
+
+const PLACE_FIXES = {
+  // Concepts / multi-location / areas — no single address; reset to curated points
+  1:  { lat:52.3632, lng:4.8824 },   // Chun Cafe (viac pobočiek)
+  8:  { lat:52.3731, lng:4.8943 },   // FEBO (viac pobočiek)
+  9:  { lat:52.3609, lng:4.8706 },   // Bitterballen (jedlo)
+  14: { lat:52.3724, lng:4.9012 },   // Dumplings (Dim Sum Court, Nieuwmarkt)
+  15: { lat:52.3561, lng:4.8986 },   // Patatje oorlog (jedlo)
+  16: { lat:52.3785, lng:4.8999 },   // Haring (jedlo)
+  23: { lat:52.3783, lng:4.9005 },   // Canal boat (operátori pri Centraal)
+  30: { lat:52.3749, lng:4.8828 },   // Jordaan (štvrť)
+  35: { lat:52.3736, lng:4.8997 },   // Red Light District (oblasť)
+  40: { lat:52.3599, lng:4.8852 },   // Pedal boat (operátori)
+  41: { lat:52.3752, lng:4.8820 },   // Elektrická loďka (operátori)
+  // Verified by street address
+  2:  { lat:52.3629726, lng:4.8852410, addr:'Korte Leidsedwarsstraat 145' },
+  3:  { lat:52.3726966, lng:4.8761181, addr:'Marnixstraat 333' },
+  4:  { lat:52.3767194, lng:4.8841388, addr:'Egelantiersgracht 12' },
+  5:  { lat:52.3692549, lng:4.8908118, addr:'Rozenboomsteeg 4' },
+  6:  { lat:52.3763121, lng:4.9001456, addr:'Zeedijk 1' },
+  7:  { lat:52.3688209, lng:4.8840324, addr:'Runstraat 1' },
+  10: { lat:52.3669479, lng:4.8682000, addr:'Hannie Dankbaarpassage 16' },
+  11: { lat:52.3559272, lng:4.8957163, addr:'Albert Cuypstraat 194' },
+  12: { lat:52.3666977, lng:4.9263471, addr:'Funenkade 7' },
+  13: { lat:52.3755177, lng:4.8968668, addr:'Oudebrugsteeg 15' },
+  17: { lat:52.3552329, lng:4.8917785, addr:'Albert Cuypstraat' },
+  18: { lat:52.3552329, lng:4.8917785, addr:'Albert Cuypstraat' },
+  19: { lat:52.3684453, lng:4.9017859, addr:'Waterlooplein' },
+  20: { lat:52.3795112, lng:4.8935161, addr:'Haarlemmerstraat 29' },
+  21: { lat:52.3794592, lng:4.8939573, addr:'Haarlemmerstraat 8' },
+  22: { lat:52.3763796, lng:4.8842275, addr:'Prinsengracht 112' },
+  24: { lat:52.3664159, lng:4.8999753, addr:'Amstel 194' },
+  25: { lat:52.3861071, lng:4.8721438, addr:'Pazzanistraat 37' },
+  26: { lat:52.4750534, lng:4.8179761, addr:'Zaanse Schans, Zaandam' },
+  27: { lat:52.3722883, lng:4.8942720, addr:'Damstraat 6' },
+  28: { lat:52.3789010, lng:4.9005805, addr:'Amsterdam Centraal' },
+  29: { lat:52.3693959, lng:4.8899560, addr:'Begijnhof' },
+  31: { lat:52.3616299, lng:4.8775515, addr:'Roemer Visscherstraat 20' },
+  32: { lat:52.3838564, lng:4.9021028, addr:'Overhoeksplein' },
+  33: { lat:52.3843350, lng:4.9008120, addr:'IJpromenade 1' },
+  34: { lat:52.4003737, lng:4.8929539, addr:'NDSM-plein' },
+  36: { lat:52.3763796, lng:4.8842275, addr:'Prinsengracht 112' },
+  37: { lat:52.3571974, lng:4.8641190, addr:'Vondelpark' },
+  38: { lat:52.3670055, lng:4.9078974, addr:'Plantage Middenlaan 2a' },
+  39: { lat:52.3669615, lng:4.9125816, addr:'Plantage Kerklaan 38' },
+  42: { lat:52.3931510, lng:4.9107584, addr:'Korte Papaverweg 4' },
+  43: { lat:52.3712349, lng:4.8976721, addr:'Oude Hoogstraat 22' },
+  44: { lat:52.3781319, lng:4.8931082, addr:'Singel 38' },
+  45: { lat:52.3659380, lng:4.8935926, addr:'Reguliersdwarsstraat 74' },
+  46: { lat:52.3717192, lng:4.8990243, addr:'Kloveniersburgwal 20' },
+  47: { lat:52.3717100, lng:4.9076664, addr:'Rapenburg 18' },
+  48: { lat:52.3760977, lng:4.8917919, addr:'Lijnbaanssteeg 5' },
+  49: { lat:52.3774228, lng:4.8957163, addr:'Nieuwezijds Voorburgwal 3' },
+  50: { lat:52.3696587, lng:4.8802785, addr:'Elandsgracht 84' },
+  51: { lat:52.3105000, lng:4.7683000, addr:'Amsterdam Airport Schiphol' },
+  52: { lat:52.3622302, lng:4.8984063, addr:'Prinsengracht 1049' },
+};
+
+// Curated Wikipedia article titles → správna fotka (overené ručne, aby sa nikdy
+// nenatiahla zlá fotka). Miesta, ktoré tu nie sú, ostávajú na kategóriovom gradiente.
+const WIKI_PHOTOS = {
+  9:  { title:'Bitterballen',                    lang:'en' },  // jedlo
+  11: { title:'Stroopwafel',                     lang:'en' },  // jedlo
+  12: { title:"Brouwerij 't IJ",                 lang:'en' },
+  13: { title:"Tony's Chocolonely",              lang:'en' },
+  8:  { title:'FEBO',                            lang:'nl' },
+  15: { title:'Patatje oorlog',                  lang:'nl' },  // jedlo
+  16: { title:'Hollandse Nieuwe',                lang:'nl' },  // haring
+  18: { title:'Albert Cuyp Market',              lang:'en' },
+  19: { title:'Waterlooplein',                   lang:'en' },
+  26: { title:'Zaanse Schans',                   lang:'en' },
+  27: { title:'Hash, Marihuana & Hemp Museum',   lang:'en' },
+  29: { title:'Begijnhof, Amsterdam',            lang:'en' },
+  30: { title:'Jordaan',                         lang:'en' },
+  31: { title:'Zevenlandenhuizen',               lang:'nl' },
+  32: { title:"A'DAM Toren",                     lang:'nl' },
+  33: { title:'EYE Film Institute Netherlands',  lang:'en' },
+  34: { title:'NDSM',                            lang:'en' },
+  35: { title:'De Wallen',                       lang:'en' },
+  37: { title:'Vondelpark',                      lang:'en' },
+  38: { title:'Hortus Botanicus (Amsterdam)',    lang:'en' },
+  39: { title:'Artis',                           lang:'nl' },
+  42: { title:'De Ceuvel',                       lang:'nl' },
+  57: { title:'Bloemenmarkt',                    lang:'en' },
+  68: { title:'Café Papeneiland',                lang:'nl' },
+  71: { title:'De Sluyswacht',                   lang:'nl' },
+  78: { title:'NEMO (museum)',                   lang:'en' },
+  89: { title:'Damrak',                          lang:'en' },  // tancujúce domy
+  90: { title:'He Hua Temple',                   lang:'en' },
+};
+
+// ═══════════════════════════════════════════════════
+//  DEFAULT DATA
+// ═══════════════════════════════════════════════════
+
+const DEFAULTS = [
+  // ── LETISKO ──────────────────────────────────────────────
+  { id:51, name:'Amsterdam Schiphol (AMS)', category:'letisko', lat:52.3105, lng:4.7683,
+    description:'✈️ <b>Odlet:</b> So 13.6 · KL1324 · KRK→AMS · 11:50 – 13:50 · Boeing 737-700 · Economy · 2h00<br><br>✈️ <b>Návrat:</b> Po 15.6 · KL1329 · AMS→KRK · 16:40 – 18:30 · Embraer 175 · Economy · 1h50',
+    note:'KLM · Podľa rádu · Terminal 3',
+    price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── UBYTOVANIE ───────────────────────────────────────────
+  { id:52, name:'A B&B Amsterdam', category:'ubytovanie', lat:52.3622302, lng:4.8984063,
+    description:'Izba s manželskou posteľou a súkromnou kúpeľňou. 2 dospelí, 2 noci.<br><br>🛬 <b>Check-in:</b> So 13.6.2026 · 15:00 – 20:00<br>🛫 <b>Check-out:</b> Po 15.6.2026 · 07:00 – 11:00',
+    note:'Prinsengracht 1049, 1017 JE Amsterdam',
+    price:null, hours:'Check-in: 15:00–20:00 · Check-out: 07:00–11:00', rating:null, photo:null, day:null, isCustom:false },
+
+  // ── COFFEE & MATCHA ──────────────────────────────────────
+  { id:1, name:'Chun Cafe', category:'coffee', lat:52.3632, lng:4.8824,
+    description:'Bubble tea reťazec — čierny čaj s mliekom a tapiokovými guličkami. Výborné na horúci letný deň pri potulkách mestom. Viac pobočiek v centre.',
+    note:'Viac pobočiek v centre', price:'~€4–5', hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── COFFEE SHOP ──────────────────────────────────────────
+  { id:2, name:'Coffeeshop Rookies', category:'cs', lat:52.3622, lng:4.8821,
+    description:'Legendárny coffeeshop od roku 1992 priamo pri Leidseplein. Meno dostali preto, lebo boli vtedy najmladší prevádzkovatelia v meste. Reggae a dub funk hudba, priestranné interiéry pre 85 ľudí, mix miestnych a turistov.',
+    note:'Korte Leidsedwarsstraat 145–147', price:null, hours:'8:30–01:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:3, name:"Tha Dogg House", category:'cs', lat:52.3644, lng:4.8831,
+    description:"Snoop Doggov oficiálny coffeeshop — pôvodne sa volal S.W.E.D. West Coast hip-hop, Death Row merch, Snoopove klipy na obrazovkách. Výhľad na kanál zo zadnej časti.",
+    note:'Marnixstraat 333', price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── BROWN CAFÉ ───────────────────────────────────────────
+  { id:4, name:"Café 't Smalle", category:'brown', lat:52.3763, lng:4.8821,
+    description:'Jeden z najautentickejších brown café v Amsterdame — od roku 1786. Tmavé drevo, sviečky, starí miestni pri pive. Žiadny Instagram filter. Terasa pri kanáli.',
+    note:'Egelantiersgracht 12, Jordaan', price:null, hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+  { id:5, name:'Café de Dokter', category:'brown', lat:52.3713, lng:4.8921,
+    description:'Najmenší bar v Amsterdame — doslova. Úzka miestnosť, historický interiér, obrovský výber whisky. Zažívaš pocit ako keby si vstúpil do iného storočia.',
+    note:'Rozenboomsteeg 4, Centrum · hidden gem', price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:6, name:"In 't Aepjen", category:'brown', lat:52.3744, lng:4.9001,
+    description:"Od roku 1519 — historicky tu spávali mornári, ktorí nemali peniaze na izbu. Platili opicami (vandrefi), odtiaľ názov 'Opica'. Jeden z dvoch zostávajúcich drevených domov v Amsterdame.",
+    note:'Zeedijk 1, Centrum · od 1519', price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── GASTRO ───────────────────────────────────────────────
+  { id:7, name:'Fabel Friet', category:'gastro', lat:52.3663, lng:4.8837,
+    description:'TikTok senzácia — čerstvé holandské Agria zemiaky krájané každý deň, vyprážané na objednávku. Podávajú s parmezánom Reggiano a domácou truffle majonézou. Pozor — bývajú dlhé rady!',
+    note:'Runstraat 1 · must-try! Čakaj na rad', price:'~€4–6', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:8, name:'FEBO automat', category:'gastro', lat:52.3731, lng:4.8943,
+    description:'Ikonický holandský automat od roku 1941 — malé presklené dvierka v stene, za nimi teplé jedlo. Kroket (ragú v strúhanke), kaassoufflé (roztavený syr), frikandel. Kultový zážitok.',
+    note:'30+ pobočiek po celom meste', price:'~€2–3', hours:'24/7', rating:null, photo:null, day:null, isCustom:false },
+  { id:9, name:'Bitterballen', category:'gastro', lat:52.3609, lng:4.8706,
+    description:'Kultová holandská pochúťka — vyprážané guľky plnené hovädzím ragú, chrumkavé zvonku. Podávajú sa s horčicou. Prvá vec ktorú treba vyskúšať po prílete.',
+    note:'V každom brown café a Foodhallene · must-try', price:'~€5–8', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:10, name:'Foodhallen', category:'gastro', lat:52.3604, lng:4.8698,
+    description:'Street food hala v historickej tramvajovej remíze z roku 1902. Desiatky stánkov — ramen, bitterballen, indonézske satay, burgers, koktejly. Najlepšia večerná atmosféra v meste.',
+    note:'Hannie Dankbaarpassage 16', price:'~€10–20', hours:'12:00–01:00', rating:4.4, photo:null, day:null, isCustom:false },
+  { id:11, name:'Stroopwafel Workshop', category:'gastro', lat:52.3558, lng:4.9002,
+    description:'Hodinový workshop výroby vlastných stroopwafelov — vaflíte, plníte karamelom, ozdobujete podľa fantázie. Hodnotenie 4.9/5. Treba vopred rezervovať!',
+    note:'Albert Cuypstraat 194 · ⚠️ Rezervácia nutná!', price:'~€25/os', hours:'Podľa rezervácie', rating:4.9, photo:null, day:null, isCustom:false },
+  { id:12, name:"Brouwerij 't IJ", category:'gastro', lat:52.3658, lng:4.9222,
+    description:'Pivovar priamo v základni mlyna De Gooyer — najvyšší veterný mlyn v Holandsku. Ochutnávacia doska 5 rôznych pív. Terasa pred mlynom je ikonická na fotky.',
+    note:'Funenkade 7 · otv. od 14:00', price:'~€10–15', hours:'Denne 14:00–20:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:13, name:"Tony's Chocolonely", category:'gastro', lat:52.3742, lng:4.8995,
+    description:"Ikonická holandská čokoládovňa s etickým posolstvom — boj proti detskej práci v kakao priemysle. Nerovnomerne rozdelené tabuľky symbolizujú nerovnosť. Množstvo neobvyklých príchutí.",
+    note:'Oudebrugsteeg 15', price:'~€5–8', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:14, name:'Dumplings Amsterdam', category:'gastro', lat:52.3724, lng:4.9012,
+    description:'Dim Sum Court na Nieuwmarkt je klasika — rýchly lacný obed. Bao & Broth v Jordaane je elegantnejší. Najlepšie dumplings v meste.',
+    note:'Dim Sum Court, Nieuwmarkt', price:'~€8–12', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:15, name:'Patatje oorlog', category:'gastro', lat:52.3561, lng:4.8986,
+    description:"Holandská klasika — hranolky zapoliate arašidovou omáčkou, majonézou a cibuľkou. Vyzerá divoko, chutí úžasne. Musíš vyskúšať zo stánku na ulici.",
+    note:'Stánky po celom meste · must-try', price:'~€3–5', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:16, name:'Haring (surový sleď)', category:'gastro', lat:52.3785, lng:4.8999,
+    description:'Holandská tradícia — surový sleď s cibuľkou a uhorkovým nálevom. Holanďania ho držia za chvost a jedia celý v stoji. Vyskúšaj aspoň raz!',
+    note:'Stánky pri kanáloch a trhoch · must-try', price:'~€3–4', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:17, name:'Albert Cuyp Markt — jedlo', category:'gastro', lat:52.3560, lng:4.8987,
+    description:'Na trhu: stroopwafely čerstvo upečené priamo pred tebou (oveľa lacnejšie ako v obchodoch), kibbeling (vyprážaná ryba), gözleme king (turecké zemiakové placky). Syry za pol ceny oproti cheese shopom.',
+    note:'Albert Cuypstraat, De Pijp · Po–So 9:30–17h', price:'lacné', hours:'Po–So 9:30–17:00', rating:null, photo:null, day:null, isCustom:false },
+
+  // ── NÁKUPY & TRHY ────────────────────────────────────────
+  { id:18, name:'Albert Cuyp Markt', category:'nakupy', lat:52.3562, lng:4.8991,
+    description:'Najväčší pouličný trh v Amsterdame — 100 rokov tradície v štvrti De Pijp. Čerstvé ovocie, zelenina, kvety, syr, oblečenie, suveníry. Autentická amsterdamská atmosféra ďaleko od turistických trás.',
+    note:'Albert Cuypstraat, De Pijp', price:'Zadarmo vstup', hours:'Po–So 9:30–17:00', rating:4.4, photo:null, day:null, isCustom:false },
+  { id:19, name:'Waterlooplein — blší trh', category:'nakupy', lat:52.3671, lng:4.9009,
+    description:'Historický blší trh od roku 1882 — vintage oblečenie, starožitnosti, second-hand nálezy za pár eur. Autentický zážitok. Kvalita kolíše, ale nájsť poklad je súčasť zábavy.',
+    note:'Waterlooplein, Centrum', price:'Zadarmo vstup', hours:'Po–So', rating:4.2, photo:null, day:null, isCustom:false },
+  { id:20, name:'Rumors Vintage', category:'nakupy', lat:52.3797, lng:4.8956,
+    description:'Najlepší vintage výber v Amsterdame — oblečenie od 50s po 90s, od Dr. Martens cez kožené bundy po retro šaty. Dve predajne na tej istej ulici.',
+    note:'Haarlemmerstraat 29 + 99', price:'lacné', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:21, name:'Zipper Vintage', category:'nakupy', lat:52.3796, lng:4.8944,
+    description:'Americký vintage štýl od roku 1979 — cheerleader svetre, prom šaty, baseballové bundy. Ikonická adresa pre milovníkov americkej retro módy.',
+    note:'Haarlemmerstraat 8', price:'lacné', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:22, name:'Cheese Museum + shop', category:'nakupy', lat:52.3752, lng:4.8849,
+    description:'Malé múzeum histórie syra — vstup zadarmo. V priľahlom obchode zadarmo ochutnávky rôznych druhov syra. Ceny oveľa nižšie ako v cheese shopoch v turistickom centre.',
+    note:'Prinsengracht 112', price:'Zadarmo vstup + ochutnávky', hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── ZÁŽITKY & AKTIVITY ───────────────────────────────────
+  { id:23, name:'Canal boat / plavba', category:'zazitok', lat:52.3783, lng:4.9005,
+    description:'Luxury canal cruise s unlimited nápojmi a občerstvením (~€35/os). Alternatíva: turistická loďka (~€15), alebo si požičaj vlastnú kanálovú loďku bez patentky (~€50/hod pre skupinu).',
+    note:'Viac operátorov pri Centraal Station', price:'~€15–50', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:24, name:'XtraCold Icebar', category:'zazitok', lat:52.3664, lng:4.8971,
+    description:'Celý bar postavený z ľadu vrátane pohárov — stála teplota -10°C. V cene vstupného sú 3 drinky a požičanie teplej bundy + rukavíc. Vstup do ľadového sveta inšpirovaného výpravou na Severný pól z roku 1596.',
+    note:'Amstelstraat 194, pri Rembrandtplein · ⚠️ Rezervovať 2 týždne vopred!', price:'~€22–28', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:25, name:'Fabrique des Lumières', category:'zazitok', lat:52.3870, lng:4.8688,
+    description:'Najväčšie imerzné umelecké centrum v Holandsku — v historickej plynárni. Steny až 17 metrov vysoké, 100+ projektorov. Diela Van Gogha, Vermeera, Rembrandta ožijú v 360° projekcii s hudbou.',
+    note:'Pazzanistraat 37, Westergas', price:'~€14–18', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:26, name:'Zaanse Schans', category:'zazitok', lat:52.4718, lng:4.8175,
+    description:'Historická dedinka s funkčnými veternými mlynmi zo 18.–19. storočia. Sprinter vlak zo Centraal smer Koog-Zaandijk (~€4,50 jednosmerný, 15 min). Vstup do dediny zadarmo.',
+    note:'Zaandam — 20 min vlakom zo Centraal', price:'~€4,50 vlak', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:27, name:'Cannabis Museum', category:'zazitok', lat:52.3727, lng:4.8990,
+    description:'3 poschodia histórie a kultúry konopy — zaujímavé aj pre nezasvätených. Pekné umenie, kuriozity, diorámy. Goody bag s darčekmi v cene vstupného.',
+    note:'Damstraat 6, Centrum', price:'~€12', hours:'Denne 10:00–22:00', rating:4.2, photo:null, day:null, isCustom:false },
+  { id:28, name:'Free Ferry Centraal → Noord', category:'zazitok', lat:52.3792, lng:4.9003,
+    description:'Bezplatný trajekt cez rieku IJ na sever mesta. Odchádza každých 6 minút, trvá ~10 minút. Krásny výhľad na Amsterdam z vody. Na druhej strane: EYE Film Museum, A\'DAM Lookout, NDSM Werf.',
+    note:'Pier za Centraal Station (výstup sever)', price:'Zadarmo', hours:'Denne od ~6:00 každých 6 min', rating:4.8, photo:null, day:null, isCustom:false },
+  { id:40, name:'Pedal Boat — šlapadlá', category:'zazitok', lat:52.3599, lng:4.8852,
+    description:'Štvorsedadlová loďka a šlapeš vlastnou trasou cez UNESCO kanály. Ideálne na skupinu 4 ľudí. Bez skúseností, bez patentky. Vietor do vlasov, výhľad na fasády priamo z vody.',
+    note:'Stromma: Rijksmuseum, Leidseplein, Keizersgracht', price:'~€23,50/hod', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:41, name:'Elektrická loďka bez kapitána', category:'zazitok', lat:52.3752, lng:4.8820,
+    description:'Požičáš si tichú elektrickú loďku — bez patentky, bez skúseností. Môžeš si zobrať vlastné jedlo a pitie na palubu (piknik na kanáli!). Loďky pre 4–8 ľudí.',
+    note:'Boats4rent (Jordaan) / Boaty (De Pijp)', price:'~€79–99/loďka', hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── HIDDEN GEMS ──────────────────────────────────────────
+  { id:29, name:'Begijnhof', category:'hidden', lat:52.3694, lng:4.8907,
+    description:'Stredoveký skrytý dvor uprostred mesta — jedna z najkrajších tajných záhrad v Európe. Hľadaj nenápadnú drevenú bránu z Gedempte Begijnensloot. Väčšina turistov prechádza okolo bez povšimnutia.',
+    note:'Gedempte Begijnensloot (skrytý vchod)', price:'Zadarmo', hours:'9:00–17:00', rating:4.6, photo:null, day:null, isCustom:false },
+  { id:30, name:'Jordaan — štvrť', category:'hidden', lat:52.3749, lng:4.8828,
+    description:'Pôvodne robotnícka štvrť, dnes najromantickejšia časť Amsterdamu. Úzke uličky s kvetinami, kanály s hausbótmi, hnedé kaviarne bez turistov. Sem chodia miestni.',
+    note:'Západne od Centrum', price:'Zadarmo', hours:'Vždy', rating:4.8, photo:null, day:null, isCustom:false },
+  { id:31, name:'Zevenlandenhuizen', category:'hidden', lat:52.3611, lng:4.8742,
+    description:'Sedem domov v štýle siedmich európskych krajín postavených vedľa seba v roku 1894. Architekt Tjeerd Kuipers zachytil nemecký, francúzsky, španielsky, taliansky, ruský, holandský a anglický štýl.',
+    note:'Roemer Visscherstraat 20–34, pri Vondelparku', price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:42, name:'De Ceuvel', category:'hidden', lat:52.4012, lng:4.9132,
+    description:'Bývalé lodenice premenené na ekologickú kreatívnu komunitu. Staré hausbóty vytiahnuté na súš slúžia ako ateliéry. Bohémska kaviareň-reštaurácia s terasou priamo nad vodou, plne rastlinné menu.',
+    note:'Korte Papaverweg 4, Noord · free ferry zo Centraal', price:'Zadarmo vstup', hours:'Denne 11:00–00:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:43, name:'Het Kleinste Huis', category:'hidden', lat:52.3721, lng:4.9011,
+    description:'Najužší dom v Európe — iba 2,02 metra šírky a 5 metrov hĺbky. Postavený v roku 1738. Holanďania platili dane podľa šírky fasády. Dnes rodinný čajový obchod s 200+ druhmi čajov.',
+    note:'Oude Hoogstraat 22, Centrum', price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:44, name:'De Poezenboot', category:'hidden', lat:52.3771, lng:4.8951,
+    description:'Jediný plávajúci útulok pre mačky na svete — funguje od roku 1966. Zakladateľka Henriette van Weelde začala s jednou mačkou pod stromom, dnes tu žije až 50 mačiek čakajúcich na adopciu.',
+    note:'Singel 38G · ut/pi/so 13:00–15:00, max 6 os.', price:'Zadarmo', hours:'Ut, Pi, So 13:00–15:00', rating:null, photo:null, day:null, isCustom:false },
+
+  // ── MIESTA & ARCHITEKTÚRA ────────────────────────────────
+  { id:32, name:"A'DAM Lookout", category:'miesta', lat:52.3842, lng:4.9002,
+    description:"Vyhliadková veža na streche A'DAM Tower v Noorde — panoráma 360° na celý Amsterdam. Ikonické červené hojdačky na terase. Adrenalínový swing — hojdačka vyčnievajúca zo strechy nad prázdnotou.",
+    note:'IJpromenade 4, Noord · free ferry zo Centraal', price:'~€14', hours:'Denne 10:00–22:00', rating:4.4, photo:null, day:null, isCustom:false },
+  { id:33, name:'EYE Film Museum', category:'miesta', lat:52.3836, lng:4.9007,
+    description:'Futuristická biela budova ako zmrazená vlna na brehu rieky IJ. Výhľad z terasy na Centraal Station je jeden z najkrajších v Amsterdame. Terasa a lobby zadarmo, výstavy za vstupné.',
+    note:'IJpromenade 1, Noord', price:'Terasa zadarmo', hours:'Denne 10:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:34, name:'NDSM Werf', category:'miesta', lat:52.4008, lng:4.8975,
+    description:'Obrovský opustený lodiačsky dok premenený na street art galériu a kreatívny hub. Obrovské muraly, umelecké štúdiá, bary, reštaurácie, organizujú sa tu festivaly.',
+    note:'NDSM-Plein, Noord · free ferry zo Centraal smer NDSM', price:'Zadarmo', hours:'Vždy otvorené', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:35, name:'Red Light District', category:'miesta', lat:52.3736, lng:4.8997,
+    description:'Ikonická štvrť — historická architektúra z 15. storočia, najstaršie kanály mesta. Cez deň fascinujúca, večer po 22:00 úplne iná atmosféra. Prechádzka zadarmo.',
+    note:'De Wallen, Centrum', price:'Zadarmo', hours:'Vždy', rating:4.1, photo:null, day:null, isCustom:false },
+  { id:36, name:'Cheese Museum', category:'miesta', lat:52.3754, lng:4.8852,
+    description:'Malé múzeum histórie syra v historickej budove pri Prinsengracht. Vstup zadarmo. V suteréne obchod s holandskými syrmi a zadarmo ochutnávkami.',
+    note:'Prinsengracht 112', price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
+
+  // ── PRÍRODA & PARKY ──────────────────────────────────────
+  { id:37, name:'Vondelpark', category:'natura', lat:52.3580, lng:4.8680,
+    description:'Najväčší park v Amsterdame — 47 hektárov. Divé zelené papagáje, kačice, labute, veveričky. Piknik na tráve, otvorené letné divadlo, kaviarne pri jazerách.',
+    note:'Vondelpark, Amsterdam-Zuid', price:'Zadarmo', hours:'Vždy otvorené', rating:4.7, photo:null, day:null, isCustom:false },
+  { id:38, name:'Hortus Botanicus', category:'natura', lat:52.3665, lng:4.9071,
+    description:'Botanická záhrada z roku 1638 — jedna z najstarších na svete. Motýlí dom plný živých tropických motýľov, skleníky s palmami a kaktusy, orangéria s výbornou kávou.',
+    note:'Plantage Middenlaan 2a', price:'~€10', hours:'Denne 10:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:39, name:'ARTIS Zoo', category:'natura', lat:52.3664, lng:4.9163,
+    description:'Zoo + akvárium + botanická záhrada — všetko obklopené kanálmi mesta. Červené pandy, motýlí dom, slony, levy, plameňiaky. Pocit ako by zoo bola súčasťou mesta.',
+    note:'Plantage Kerklaan 38–40', price:'~€26/os', hours:'Denne 9:00–18:00', rating:4.5, photo:null, day:null, isCustom:false },
+
+  // ── SPEAKEASY & KOKTAJLY ─────────────────────────────────
+  { id:45, name:'Door 74', category:'speakeasy', lat:52.3663, lng:4.8952,
+    description:'Prvý a najprestížnejší speakeasy v Amsterdame — dvakrát na World\'s 50 Best Bar zozname. Art deco interiér s lisovanými cínovanými stropmi v štýle New Yorku 20. rokov. Koktailový lístok sa mení 4x ročne.',
+    note:'Reguliersdwarsstraat 74 · zazvoň, čakaj · ⚠️ Rezervácia nutná! · Vek 21+', price:'~€15–18/drink', hours:'20:00–03:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:46, name:"Rosalia's Menagerie", category:'speakeasy', lat:52.3726, lng:4.8996,
+    description:"17-storočný kanálový dom pretvorený na kabinet kuriozít. Sametové sedenie, tmavé drevo, predmety z celého sveta. Pravdepodobne najväčší výber genevers (holandský predchodca ginu) v celom Holandsku.",
+    note:'Kloveniersburgwal 20, De Wallen · bez rezervácie', price:'~€12–15/drink', hours:'Denne 18:00–00:30', rating:null, photo:null, day:null, isCustom:false },
+  { id:47, name:'Hiding in Plain Sight', category:'speakeasy', lat:52.3723, lng:4.9024,
+    description:'Najautentickejší speakeasy podľa miestnych. Na stenách sú matematické rovnice z filmov — ak uhádneš jednu, dostaneš free shot. Bartenderi sú legendárni. Žiadne flashky, žiadne selfie tyče.',
+    note:'Rapenburg 18 · zazvoň, žiadna tabuľa', price:'~€13–16/drink', hours:'Po–So 18:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:48, name:'Tales & Spirits', category:'speakeasy', lat:52.3703, lng:4.8893,
+    description:'Viacposchodová budova zo 16. storočia — tehlové múry, drevené trámy. Bartenderi sú choreografi: dym, efekty, špeciálne poháriky. Koktajly majú príbehy. Majú aj kuchyňu so small plates.',
+    note:'Lijnbaanssteeg 5–7 (medzi Singel a Spui) · príď skoro', price:'~€14–17/drink', hours:'Str–Ne 17:30–01:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:49, name:'Super Lyan', category:'speakeasy', lat:52.3789, lng:4.8957,
+    description:"Prvý amsterdamský bar Mr. Lyanova (Ryan Chetiyawardana) — svetoznámy bartender z Londýna. Neonové svetlá a tučná estetika kontrastujú s pôvodnými 17-storočnými črtami budovy. Low-waste filozofia.",
+    note:'Nieuwezijds Voorburgwal 3, pri Centraal · bez rezervácie', price:'~€13–16/drink', hours:'Denne od 12:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:50, name:'Bar Oldenhof', category:'speakeasy', lat:52.3722, lng:4.8800,
+    description:'Najromantickejší koktailový bar v meste — tmavé panely, luster, hlboká whisky polica, stolový servis. Bartenderi sú učitelia. Perfektné klasiky aj signature koktaily. Ideálne na darčekový večer.',
+    note:'Elandsgracht 84-H, Jordaan · odporúčaná rezervácia', price:'~€12–15/drink', hours:'19:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+
+  // ── PRIDANÉ 2026-06-04 (burgery, palacinky, trhy, pivovar) ───
+  { id:53, name:'The Beef Chief', category:'gastro', lat:52.3844986, lng:4.9288488,
+    description:'Kultové smash burgery, ktoré začínali ako food truck — dnes jedna z najobľúbenejších burgrární medzi miestnymi. Tenké, prudko opečené placky s chrumkavými okrajmi, výborné hranolky a uvoľnený lokálny vibe. Žiadna turistická pasca — sem chodia Amsterdamčania za burgerom. Sídlia v Transit Bare v Noorde.',
+    note:'Transit Bar · Aambeeldstraat 38, Noord', addr:'Aambeeldstraat 38',
+    price:'~€10–14', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+  { id:54, name:'Ter Marsch & Co', category:'gastro', lat:52.3703620, lng:4.8914301,
+    description:'Burgráreň s množstvom ocenení — ich burgery viackrát zvíťazili v európskych súťažiach o najlepší burger. Kvalitné mäso, prepracované kombinácie, prémiový zážitok. Keď chceš povedať: „dnes ideme na jeden z najlepších burgerov v Európe."',
+    note:'Kalverstraat 96, Centrum', addr:'Kalverstraat 96',
+    price:'~€14–18', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+  { id:55, name:"Bar-B Burgers 'N' Beers", category:'gastro', lat:52.3642742, lng:4.8842894,
+    description:'Menší podnik kúsok od Leidseplein s dôrazom na kvalitné mäso a craft pivo — vyše 40 druhov piva, niektoré si načapuješ priamo pri stole. Menej turistov, uvoľnená nálada, postav si vlastný burger.',
+    note:'Lange Leidsedwarsstraat 29, pri Leidseplein', addr:'Lange Leidsedwarsstraat 29',
+    price:'~€12–16', hours:null, rating:4.3, photo:null, day:null, isCustom:false },
+  { id:56, name:'Upstairs Pannenkoekenhuis', category:'gastro', lat:52.3693052, lng:4.8934207,
+    description:'Najmenšia palacinkáreň v Európe — len 4 stoly v dome z roku 1539. Strop pokrytý vyše 100 kanvičkami na čaj, schody nahor sú takmer zvislé. Tradičné holandské palacinky v rozprávkovej miniatúre.',
+    note:'Grimburgwal 2, Centrum · ⚠️ Rezervácia nutná, bývajú plní týždeň vopred! · LEN HOTOVOSŤ', addr:'Grimburgwal 2',
+    price:'~€8–12', hours:'Denne 12:00–18:00', rating:4.6, photo:null, day:null, isCustom:false },
+  { id:57, name:'Bloemenmarkt', category:'nakupy', lat:52.3669308, lng:4.8907645,
+    description:'Jediný plávajúci kvetinový trh na svete — od roku 1862 stojí na barkách pozdĺž kanála Singel. Tulipány, cibuľky, semienka aj suveníry. Tulipánové cibuľky s EÚ certifikátom môžeš legálne doviezť domov — pekný darček.',
+    note:'Singel (medzi Koningsplein a Muntplein)', addr:'Singel 600',
+    price:'Zadarmo vstup', hours:'Po–So 9:00–17:30 · Ne 11:00–17:30', rating:4.0, photo:null, day:null, isCustom:false },
+  { id:58, name:'Henri Willig & Old Amsterdam — syry', category:'nakupy', lat:52.3656665, lng:4.8856365,
+    description:'Holandské syry s ochutnávkami zadarmo — Henri Willig aj Old Amsterdam majú v centre viacero predajní. Skvelé na ochutnanie goudy, truffle či bylinkových syrov. Pozor: v turistickom centre sú predražené — rovnaké syry kúpiš na Albert Cuyp Markti za polovicu.',
+    note:'Leidsestraat (a ďalšie pobočky v centre) · ochutnávky zadarmo', addr:'Leidsestraat 27',
+    price:'Ochutnávky zadarmo', hours:null, rating:4.2, photo:null, day:null, isCustom:false },
+  { id:59, name:'The Nine Streets (De 9 Straatjes)', category:'nakupy', lat:52.3688508, lng:4.8849938,
+    description:'Deväť malebných uličiek zo 17. storočia v páse kanálov — pôvodne tu sídlili kožušníci (Huidenstraat, Reestraat, Berenstraat). New York Times ich nazval najkrajšou nákupnou štvrťou Amsterdamu: 250+ nezávislých butikov, žiadne reťazce, kaviarničky a vintage. Doslova vedľa vášho B&B na Prinsengracht — ideálne na sobotné poobedie!',
+    note:'Medzi Singel a Prinsengracht, Centrum · pár krokov od B&B', addr:'Huidenstraat',
+    price:'Zadarmo', hours:null, rating:4.7, photo:null, day:null, isCustom:false },
+  { id:60, name:'Oedipus Brewing', category:'gastro', lat:52.3852252, lng:4.9236797,
+    description:'Hravý craft pivovar s taproomom v industriálnej hale v Noorde — pestré experimentálne pivá, živá hudba a jazzové večery. Uvoľnená kreatívna atmosféra ďaleko od turistického centra. Sídli tu aj kuchyňa The Beef Chief.',
+    note:'Schaafstraat 21, Noord · Št–Ne, Pi+So od 14:00', addr:'Schaafstraat 21',
+    price:'~€5–7 pivo', hours:'Št–Ne · Pi–So od 14:00', rating:4.5, photo:null, day:null, isCustom:false },
+
+  // ── Pridané v session 2026-06-05 (id 61–80) ──────────────
+  // GASTRO — sladké & klasiky
+  { id:61, name:'Lanskroon', category:'gastro', lat:52.36776, lng:4.88928,
+    description:'Tradičná pekáreň od roku 1913 — preslávená stroopwafelmi, ktoré pečú čerstvé celý deň. Tu sú väčšie a hrubšie než trhové, s teplou karamelovou plnkou; na výber med, káva-karamel alebo figy. Drobné cukrárske umenie kúsok od Spui.',
+    note:'Singel 385, Centrum · stroopwafel od 1913', addr:'Singel 385',
+    price:'~€2–3', hours:'Po–So 8:00–19:00 · Ne 10:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:62, name:'Eetsalon Van Dobben', category:'gastro', lat:52.36631, lng:4.89530,
+    description:'Klasický holandský eetsalon od roku 1945 pri Rembrandtplein — formica pulty, čašníci v bielom. Legendárny broodje pekelvlees (nakladané hovädzie) a domáce krokety. Žiadne hipster trendy, len poctivá amsterdamská klasika, akú jedávajú miestni.',
+    note:'Korte Reguliersdwarsstraat 5–9 · od 1945', addr:'Korte Reguliersdwarsstraat 5',
+    price:'~€4–7', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+  { id:63, name:'Vlaams Friteshuis Vleminckx', category:'gastro', lat:52.36795, lng:4.88965,
+    description:"Najslávnejšie hranolky v Amsterdame — od roku 1957, belgický štýl, dvakrát vyprážané, chrumkavé zvonku a mäkké vnútri. Klasika je 'oorlog' (s majonézou, arašidovou omáčkou a cibuľkou). Len stánok cez okienko, takmer vždy rad — stojí za to.",
+    note:'Voetboogstraat 33, Centrum · od 1957 · očakávaj rad', addr:'Voetboogstraat 33',
+    price:'~€4–6', hours:'Denne 11:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:75, name:"Pat's Poffertjes", category:'gastro', lat:52.37520, lng:4.88840,
+    description:'Maličký stánok s čerstvými poffertjes — nadýchané holandské mini-palacinky pečené priamo pred tebou, posypané maslom a práškovým cukrom. Sladká klasika na cestu, kúsok od Jordaanu.',
+    note:'Oude Leliestraat 7, Centrum', addr:'Oude Leliestraat 7',
+    price:'~€5–8', hours:'Denne 10:00–20:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:76, name:'Van Stapele Koekmakerij', category:'gastro', lat:52.36850, lng:4.88840,
+    description:'Pekáreň jediného produktu — jedna dokonalá čokoládová sušienka s chrumkavým okrajom a roztečeným bielo-čokoládovým stredom, pečená čerstvá každú chvíľu. Predáva sa len tá. Často rad, ale vonia celá ulička. Kúp teplé a zjedz hneď.',
+    note:'Heisteeg 4, Centrum · len 1 sušienka', addr:'Heisteeg 4',
+    price:'~€2,5/ks', hours:'Denne 10:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
+  { id:77, name:'Broodje Gerard', category:'gastro', lat:52.35560, lng:4.89160,
+    description:'Štýlový sendvičový bar v De Pijp — kvalitné chlebíčky, dobrá káva a časopisy. Ideálne zbaliť si obed a vziať na piknik do neďalekého Sarphatiparku alebo na Albert Cuyp. Susedský favorit mimo turistických trás.',
+    note:'Gerard Doustraat 66H, De Pijp · na piknik', addr:'Gerard Doustraat 66',
+    price:'~€6–9', hours:'Denne 10:00–16:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:80, name:'Sea Salt & Chocolate', category:'gastro', lat:52.35070, lng:4.89620,
+    description:'Útulný dezertný podnik v Nieuwe Pijp — čokoládové dobroty, brownies, škoricové rolky a sladkosti s morskou soľou. Otvorené dlho do večera, ideálne na sladkú bodku po prechádzke De Pijp.',
+    note:'Sint Willibrordusstraat 58, De Pijp', addr:'Sint Willibrordusstraat 58',
+    price:'~€4–8', hours:'Po–Pi 10:00–22:00 · So–Ne 11:00–22:00', rating:4.4, photo:null, day:null, isCustom:false },
+
+  // NÁKUPY — syry
+  { id:64, name:'Fromagerie Abraham Kef', category:'nakupy', lat:52.37428, lng:4.88060,
+    description:'Kultová francúzska syráreň od roku 1953 — vône zrejúcich syrov, drevené police, odborné rady. Môžeš si dať aj posedenie s ochutnávkou syra a vína. Iný svet než holandská gouda — pre milovníkov syra povinná zastávka v Jordaane.',
+    note:'Marnixstraat 192, Jordaan · od 1953', addr:'Marnixstraat 192',
+    price:'~€5–15', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
+
+  // BROWN CAFÉ
+  { id:68, name:'Café Papeneiland', category:'brown', lat:52.37966, lng:4.88688,
+    description:'Jeden z najstarších brown café v meste — roh Prinsengrachtu a Brouwersgrachtu, od roku 1642. Krivé podlahy, delftské kachličky, sviečky. Slávny jablkový koláč (vraj si ho dal aj Bill Clinton). Posedenie pri kanáli ako z obrazu zo 17. storočia.',
+    note:'Prinsengracht 2 · od 1642 · jablkový koláč', addr:'Prinsengracht 2',
+    price:'~€4–6', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+  { id:70, name:"Café 't Hooischip", category:'brown', lat:52.36770, lng:4.90040,
+    description:"Maličký brown café priamo na brehu Amstelu pri Blauwbrug, oproti Opere — má históriu od 19. storočia. Domáce 'bitterballen', miestni štamgasti, pohľad na rieku. Autentický, neturistický kút na pivo pri vode.",
+    note:'Amstel 31 · pri Blauwbrug', addr:'Amstel 31',
+    price:'~€3–6', hours:'Denne od 10:00, Pi–So do 02:00', rating:4.3, photo:null, day:null, isCustom:false },
+  { id:71, name:'De Sluyswacht', category:'brown', lat:52.36918, lng:4.90230,
+    description:'Nakrivo stojaci drevený domček strážcu zdýmadla z roku 1695, hneď vedľa Rembrandtovho domu. Vyzerá ako z rozprávky — naklonený do strany. Terasa nad kanálom Oudeschans je jedno z najfotogenickejších miest na pivo v meste.',
+    note:'Jodenbreestraat 1 · od 1695 · pri Rembrandtovom dome', addr:'Jodenbreestraat 1',
+    price:'~€4–6', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+  { id:72, name:'Proeflokaal Arendsnest', category:'brown', lat:52.37968, lng:4.88930,
+    description:"'Proeflokaal' venovaný výhradne holandským pivám — ~30 čapovaných a vyše 100 fľaškových, všetky z Holandska. Elegantný interiér na kanáli Herengracht. Raj pre milovníkov craft piva, ktorí chcú ochutnať to, čo inde nedostanú.",
+    note:'Herengracht 90 · len holandské pivá', addr:'Herengracht 90',
+    price:'~€5–7 pivo', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
+
+  // COFFEE SHOP
+  { id:73, name:'Paradox Coffeeshop', category:'cs', lat:52.37520, lng:4.88245,
+    description:'Pohodový coffeeshop v Jordaane mimo turistickej vravy — známy čerstvými džúsmi, domácim jedlom a priateľskou rodinnou atmosférou. Svetlý, útulný, viac miesto na pokojné posedenie než párty.',
+    note:'Eerste Bloemdwarsstraat 2, Jordaan', addr:'Eerste Bloemdwarsstraat 2',
+    price:null, hours:'Denne 11:00–20:00', rating:4.4, photo:null, day:null, isCustom:false },
+
+  // ZÁŽITKY & AKTIVITY
+  { id:65, name:'The Quiet Rex', category:'zazitok', lat:52.39470, lng:4.90640,
+    description:'Netradičný tichý salónik pre dospelých (20+) v Noorde — čítaš, kreslíš či len vypneš v úplnom tichu, kým okolo voľne pobehuje šesť zakrslých králikov Mini Rex. Rezervácia nutná, platí sa za hodinu. Úplný protiklad hlučného centra — kuriozita na zážitok.',
+    note:'Papaverweg 177, Noord · 20+ · rezervácia nutná', addr:'Papaverweg 177',
+    price:'~€16–19 / hod', hours:'St–Pi 13:00–21:00 · So–Ne 11:00–19:00', rating:null, photo:null, day:null, isCustom:false },
+  { id:66, name:'Trajekt Centraal → Noord (zdarma)', category:'zazitok', lat:52.38090, lng:4.90130,
+    description:'Bezplatný trajekt GVB spoza Centraalu cez rieku IJ do Noordu (Buiksloterweg) — premáva nonstop, každých pár minút, plavba trvá ~3 minúty. Postav sa k zábradliu medzi miestnych s bicyklami. Najlacnejší „výhliadkový okruh" v meste a brána do Noordu (A\'DAM, EYE, NDSM).',
+    note:'Pont za Centraal → Buiksloterweg · zadarmo, nonstop', addr:'De Ruijterkade, Amsterdam Centraal',
+    price:'Zadarmo', hours:'Nonstop · každých pár min', rating:null, photo:null, day:null, isCustom:false },
+  { id:67, name:'City Beach Pllek', category:'zazitok', lat:52.40196, lng:4.89280,
+    description:'Mestská pláž a reštaurácia z lodných kontajnerov na NDSM v Noorde — piesočná pláž priamo pri IJ, ležadlá, sauna a jeden z najlepších výhľadov na západ slnka nad mestom. Cez deň brunch, večer DJ a ohne. Doplávaš sem zadarmo trajektom z Centraalu.',
+    note:'TT Neveritaweg 59, NDSM Noord · sunset spot', addr:'TT Neveritaweg 59',
+    price:'~€5–15', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+  { id:69, name:'Strand van Oost', category:'zazitok', lat:52.36300, lng:4.92150,
+    description:'Mestská pláž na streche v Amsterdame-Oost (House of Orchid pri Oosterparku a Tropenmuseu) — piesok, ležadlá, koktaily a výhľad na park. Letná oáza mimo turistických davov, super na popoludňajší drink, keď je teplo.',
+    note:'Linnaeusstraat 2C, Oost · strešná pláž', addr:'Linnaeusstraat 2C',
+    price:'~€5–12', hours:null, rating:4.0, photo:null, day:null, isCustom:false },
+
+  // MIESTA & ARCHITEKTÚRA
+  { id:74, name:'Prinsengracht 154 — úzky dom', category:'miesta', lat:52.37640, lng:4.88330,
+    description:'Mimoriadne úzky kanálový dom — jedna z najfotogenickejších a najtenších fasád na Prinsengrachte. Klasický amsterdamský motív s háčikom na sťahovanie nábytku v štíte. Krátka zastávka na peknú fotku počas prechádzky kanálmi.',
+    note:'Prinsengracht 154 · fotogenický úzky dom', addr:'Prinsengracht 154',
+    price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
+  { id:78, name:'NEMO Science Museum — strecha', category:'miesta', lat:52.37410, lng:4.91250,
+    description:'Veľká zelená „loď" vedy nad vodou pri Oosterdoku. Tip: na strešnú terasu (najväčšiu v Holandsku) sa dá vyjsť ZADARMO bez vstupenky do múzea — schodiskovitá strecha s panoramatickým výhľadom na centrum a v lete vodné prvky. Skvelé miesto na fotku aj oddych.',
+    note:'Oosterdok 2 · strecha ZADARMO bez vstupenky', addr:'Oosterdok 2',
+    price:'Strecha zadarmo', hours:'Strecha v otváracích hodinách múzea', rating:4.3, photo:null, day:null, isCustom:false },
+
+  // PRÍRODA & PARKY
+  { id:79, name:'Plameniaky zadarmo — Artisplein', category:'natura', lat:52.36710, lng:4.91370,
+    description:'Voľne prístupné námestie pri ZOO Artis (Artisplein), kam sa dostaneš ZADARMO bez vstupenky — a ponad plot vidíš ružové plameniaky a kolpíky. Stoly, kávový stánok a pokojná atmosféra pod starými stromami. Vstup z Plantage Kerklaan.',
+    note:'Artisplein, Plantage Kerklaan · plameniaky ZADARMO', addr:'Plantage Kerklaan 38',
+    price:'Zadarmo', hours:'Denne 7:00–22:30', rating:4.3, photo:null, day:null, isCustom:false },
+
+  // ── DÁVKA 2026-06-07 (id 81–90) ──────────────────────────
+  // GASTRO
+  { id:81, name:'The Pancake Bakery', category:'gastro', lat:52.37759, lng:4.88626,
+    description:'Legendárna palacinkáreň od roku 1973 v bývalom sklade Východoindickej spoločnosti (VOC) zo 17. storočia, kúsok od Anne Frank Huis. Vyše 75 druhov holandských pancakes — sladkých aj slaných, plus poffertjes. Útulné trámy a výhľad na Prinsengracht. Cez obed býva rad.',
+    note:'Prinsengracht 191 · od 1973 · 75+ druhov palaciniek', addr:'Prinsengracht 191',
+    price:'~€12–18', hours:'Denne 9:00–21:30', rating:4.4, photo:null, day:null, isCustom:false },
+  { id:82, name:"Rudi's Original Stroopwafels", category:'gastro', lat:52.35577, lng:4.89500,
+    description:'Kultový stánok s čerstvými stroopwafelmi priamo na trhu Albert Cuyp — pečú ich pred tebou, teplé, s tečúcim karamelom. Mnohí ich považujú za najlepšie v meste. Nájdeš ho v strede trhu oproti domu č. 182 (so zlatým anjelom na streche). Otvorené len v trhové dni.',
+    note:'Albert Cuyp Markt, oproti č. 182 · top stroopwafel', addr:'Albert Cuypstraat 182',
+    price:'~€2–3', hours:'Trhové dni Po–So ~10:00–17:00', rating:4.6, photo:null, day:null, isCustom:false },
+  { id:83, name:'BagelBoy', category:'gastro', lat:52.36862, lng:4.88876,
+    description:'Trendy sourdough bageláreň, ktorá zletela na sociálnych sieťach — kváskové bagely plnené až po okraj (pastrami, smotanový syr, losos). Niekoľko pobočiek po meste; táto je pri Spui. Cez obed býva rad — vezmi si so sebou a zjedz pri kanáli.',
+    note:'Spui 26 (+ ďalšie pobočky) · sourdough bagely', addr:'Spui 26',
+    price:'~€7–11', hours:'Denne 8:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:84, name:'brioche.', category:'gastro', lat:52.36738, lng:4.87177,
+    description:"Maličká francúzska „briocherie\" v Oud-West s pastelovo zelenou fasádou — všetko sa točí okolo masového brioche pečiva: croissanty, cinnamon rolls a nadýchané brioche sendviče. Mimo turistických trás, obľúbená medzi miestnymi.",
+    note:'Bilderdijkstraat 164H, Oud-West · zatv. Po–Ut', addr:'Bilderdijkstraat 164',
+    price:'~€4–9', hours:'St–Pi 8:00–17:30 · So–Ne 9:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+  { id:85, name:'NY Deli', category:'gastro', lat:52.37225, lng:4.89439,
+    description:'Skutočný newyorský deli v centre — vlastné údené mäso, čerstvý chlieb a sladkosti robené na mieste. Naložené pastrami a reuben sendviče, bagely a NYC cheesecake. Americké porcie kúsok od Dam. Otvorené dlho do noci.',
+    note:'Damstraat 10 · pastrami & NYC cheesecake', addr:'Damstraat 10',
+    price:'~€9–15', hours:'Po–Pi 10:00–23:30 · So–Ne do 00:30', rating:4.4, photo:null, day:null, isCustom:false },
+  { id:86, name:'Have A Roll', category:'gastro', lat:52.35636, lng:4.89983,
+    description:'Vegánska pekáreň posadnutá jedinou vecou — dokonalou škoricovou roličkou (cinnamon roll). Nadýchané, lepkavé, čerstvo pečené, viacero príchutí (klasik, pistácia, biela čokoláda). Maličký podnik v De Pijp, často sa vypredá. 100% rastlinné.',
+    note:'Van Woustraat 42, De Pijp · vegan cinnamon rolls', addr:'Van Woustraat 42',
+    price:'~€4–6', hours:'Denne 9:00–18:00', rating:4.6, photo:null, day:null, isCustom:false },
+  { id:87, name:'Saint-Jean', category:'gastro', lat:52.38032, lng:4.88429,
+    description:'Rastlinná (plant-based) pekáreň a deli v Jordaane so špeciálnou kávou — preslávená cronutmi a cruffinmi (croissant × muffin) plnenými krémom, napr. pistáciovým. Štýlový interiér, často rad pred otvorením — dobroty rýchlo zmiznú. 100% vegan.',
+    note:'Lindengracht 158H, Jordaan · cronut/cruffin · vegan', addr:'Lindengracht 158',
+    price:'~€4–7', hours:'Denne 9:00–17:00', rating:4.6, photo:null, day:null, isCustom:false },
+
+  // BROWN CAFÉ
+  { id:88, name:'Café Internationaal', category:'brown', lat:52.37616, lng:4.89962,
+    description:'Námornícke brown café od roku 1928 na začiatku Warmoesstraat pri Red Light District — antikvárny lodný dekor, vrúcna atmosféra, nad barom aj malý hotel. Jedno z najstarších kafé v štvrti, kde sa miešajú miestni s cestovateľmi z celého sveta.',
+    note:'Warmoesstraat 1-3 · od 1928 · námornícke kafé', addr:'Warmoesstraat 1',
+    price:'~€3–6', hours:null, rating:4.3, photo:null, day:null, isCustom:false },
+
+  // MIESTA & ARCHITEKTÚRA
+  { id:89, name:'The Dancing Houses (Damrak)', category:'miesta', lat:52.37630, lng:4.89790,
+    description:'„Tancujúce domy\" na Damraku — rad nakrivo naklonených kanálových domov zo 17. storočia, ktoré sa o seba opierajú a zrkadlia vo vode. Jeden z najfotografovanejších záberov Amsterdamu hneď od Centraalu. Najkrajšie zo strany vody (od mostíka cez Damrak). Zadarmo.',
+    note:'Damrak (východný breh vody, oproti č. 21–29) · tancujúce domy · foto spot', addr:'Damrak 21',
+    price:'Zadarmo', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+  { id:90, name:'China Town & He Hua chrám', category:'miesta', lat:52.37513, lng:4.90103,
+    description:'Amsterdamská Chinatown okolo Zeedijku pri Nieuwmarkte — ázijské reštaurácie, supermarkety a He Hua (Fo Guang Shan), najväčší čínsky budhistický chrám v Európe v tradičnom štýle (Zeedijk 106-118). Pestrá štvrť na prechádzku a obed; chrám je verejne prístupný.',
+    note:'Zeedijk · He Hua chrám (Zeedijk 106-118)', addr:'Zeedijk 106',
+    price:'Chrám zadarmo (dar)', hours:'Chrám St–Ne 12:00–17:00', rating:4.4, photo:null, day:null, isCustom:false },
+
+  // ── ZAKÚPENÁ PLAVBA (id 91) — Flagship Amsterdam ─────────
+  { id:91, name:'Flagship Amsterdam — plavba (Central Station)', category:'zazitok', lat:52.3782773, lng:4.8978208,
+    description:'🛥️ <b>Tvoja zakúpená plavba:</b> So 13.6.2026 · 20:00 · trvá 1 hodinu<br><br><b>Amsterdam Canal Cruise with Cheese &amp; Wine</b> — Flagship Amsterdam. Otvorená loď, živý sprievodca a kapitán, plavba po UNESCO kanáloch popri Anne Frank Huis, starom prístave a Amstele za súmraku.<br><br>🧀 <b>V cene:</b> 2 druhy holandského syra + <b>neobmedzene</b> víno, pivo a nealko nápoje.<br><br>📍 <b>Odjazd:</b> Prins Hendrikkade 33A, priamo pred Centraal (smer k vode/IJ). Príď ~10 min vopred — pri móle nie je čakáreň ani WC (využiť Centraal).',
+    note:'⚓ So 13.6 · 20:00 · Prins Hendrikkade 33A (pred Centraal) · ZAKÚPENÉ ✓', addr:'Prins Hendrikkade 33',
+    price:'Zakúpené ✓ (syr + neobmedzené nápoje)', hours:'So 13.6.2026 · 20:00 · 1 hod', rating:4.6, photo:null, day:'Sob', isCustom:false },
+
+  // MIESTA — tancujúce domy pri Amstele (Blauwbrug)
+  { id:92, name:'Dancing Houses pri Amstele (Blauwbrug)', category:'miesta', lat:52.36697, lng:4.89705,
+    description:'Druhý rad „tancujúcich domov" — historické kanálové domy zo 17. storočia na brehu rieky Amstel pri moste Blauwbrug (Amstel 102–112). Postupne sa naklonili, pretože ich drevené základové koly v mäkkej amsterdamskej pôde nerovnomerne klesli. Najkrajší pohľad je z protiľahlého brehu alebo priamo z Blauwbrug. Zadarmo.',
+    note:'Amstel 102–112, pri Blauwbrug · pohľad z protiľahlého brehu', addr:'Amstel 102',
+    price:'Zadarmo', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+
+  // ZÁŽITKY — slapadlá (pedal boat) Stromma
+  { id:93, name:'Slapadlá / Pedal boat (Stromma)', category:'zazitok', lat:52.36568, lng:4.88635,
+    description:'🚲🛶 <b>Slapadlá (pedal boat / waterfiets)</b> po amsterdamských kanáloch od Strommy — loďka pre max <b>4 osoby</b>, prenájom na <b>1 hodinu</b>. Vpredu dvaja šliapu, vzadu dvaja relaxujú (na ceste sa dá vymeniť). Skvelý spôsob, ako vidieť mesto z vody vlastným tempom.<br><br>💶 <b>Cena:</b> ~€23,50 za loďku (nie za osobu) + €20 vratná záloha. K dispozícii celoročne.<br><br>📍 <b>Nástupné miesto si vyberieš na mieste cez ich web</b> (Rijksmuseum, Leidseplein, Anne Frank Huis alebo Keizersgracht).<br><br>🔗 <a href="https://www.stromma.com/en-nl/amsterdam/sightseeing/canal-tours/pedal-boat/" target="_blank" rel="noopener">stromma.com — Pedal boat</a>',
+    note:'Keizersgracht 512 · Stromma slapadlá · 4 os / 1 hod · mólo vyberieš na mieste', addr:'Keizersgracht 512',
+    price:'~€23,50/loďka + €20 záloha', hours:'Celoročne', rating:4.3, photo:null, day:null, isCustom:false },
+
+];
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+
+let places = [];
+let markers = {};
+let map;
+let selectedId = null;
+let addingMode = false;
+let editingId = null;
+let tempMarker = null;
+let tempLatLng = null;
+let activeDay = 'all';
+let activeCats = new Set(Object.keys(CATS));
+let nextId = 100;
+let currentTileType = 'standard';
+let activeTileLayers = [];
+let poiMarkers = {};
+let poiCache = {};
+let poisEnabled = true;
+let poiQueryTimer = null;
+let userLatLng = null;
+let userMarker = null;
+let userAccCircle = null;
+let routeLine = null;
+
+// ═══════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════
+
+function load() {
+  try {
+    const raw = localStorage.getItem('amsterdam_v4');
+    if (raw) {
+      places = JSON.parse(raw);
+      nextId = Math.max(...places.map(p => p.id), 99) + 1;
+      migrate();
+      return;
+    }
+  } catch(e) {}
+  places = JSON.parse(JSON.stringify(DEFAULTS));
+  migrate();
+  save();
+}
+
+// Backfill new fields + apply verified coordinates (once) to older localStorage data
+function migrate() {
+  let changed = false;
+  // Apply the verified-coordinate correction only once, so the user can later
+  // drag/edit pins without them snapping back on every load.
+  const applyCoords = !localStorage.getItem('geo_fixed_2026_06');
+
+  places.forEach(p => {
+    if (p.visited === undefined) { p.visited = false; changed = true; }
+    if (p.order === undefined)   { p.order = null;    changed = true; }
+
+    const fix = PLACE_FIXES[p.id];
+    if (fix) {
+      if (fix.addr && p.addr !== fix.addr) { p.addr = fix.addr; changed = true; }
+      if (applyCoords && !p.isCustom && fix.lat) {
+        p.lat = fix.lat; p.lng = fix.lng; changed = true;
+      }
+    }
+  });
+
+  if (applyCoords) localStorage.setItem('geo_fixed_2026_06', '1');
+
+  // Inject newly added DEFAULTS places (by id) into existing localStorage — once.
+  // Runs only once (flag) so places the user later deletes won't reappear.
+  if (!localStorage.getItem('new_places_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (!have.has(d.id)) { places.push(JSON.parse(JSON.stringify(d))); changed = true; }
+    });
+    localStorage.setItem('new_places_2026_06', '1');
+    localStorage.removeItem('photos_v1_done'); // re-fetch photos so nové miesta dostanú fotku
+  }
+
+  // Druhá dávka (id 61–80) pridaná 2026-06-05 — vlastný flag, aby sa pushla aj do
+  // localStorage, kde už predošlá injekcia (new_places_2026_06) prebehla.
+  if (!localStorage.getItem('new_places_2026_06c')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 61 && d.id <= 80 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('new_places_2026_06c', '1');
+    localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
+  }
+
+  // Tretia dávka (id 81–90) pridaná 2026-06-07 — vlastný flag, aby sa pushla aj
+  // do localStorage, kde už predošlé injekcie prebehli.
+  if (!localStorage.getItem('new_places_2026_06d')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 81 && d.id <= 90 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('new_places_2026_06d', '1');
+    localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
+  }
+
+  // Zakúpená plavba Flagship (id 91) — vlastný flag, pushne sa aj do uloženej localStorage.
+  if (!localStorage.getItem('cruise_booking_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const c = DEFAULTS.find(d => d.id === 91);
+    if (c && !have.has(91)) { places.push(JSON.parse(JSON.stringify(c))); changed = true; }
+    localStorage.setItem('cruise_booking_2026_06', '1');
+  }
+
+  // One-off: oprava polohy plavby (id 91) podľa Google Maps pinu pre už uloženú verziu.
+  if (!localStorage.getItem('cruise_geofix_2026_06')) {
+    const c = places.find(p => p.id === 91);
+    if (c && !c.isCustom) { c.lat = 52.3782773; c.lng = 4.8978208; changed = true; }
+    localStorage.setItem('cruise_geofix_2026_06', '1');
+  }
+
+  // One-off: oprava polohy The Dancing Houses (id 89) na východný breh Damraku.
+  if (!localStorage.getItem('dancinghouses_geofix_2026_06')) {
+    const d = places.find(p => p.id === 89);
+    if (d && !d.isCustom) { d.lat = 52.37630; d.lng = 4.89790; d.addr = 'Damrak 21'; changed = true; }
+    localStorage.setItem('dancinghouses_geofix_2026_06', '1');
+  }
+
+  // Tancujúce domy pri Amstele (id 92) — vlastný flag, pushne sa aj do uloženej localStorage.
+  if (!localStorage.getItem('amstel_houses_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const a = DEFAULTS.find(d => d.id === 92);
+    if (a && !have.has(92)) { places.push(JSON.parse(JSON.stringify(a))); changed = true; }
+    localStorage.setItem('amstel_houses_2026_06', '1');
+  }
+
+  // Slapadlá Stromma (id 93) — vlastný flag, pushne sa aj do uloženej localStorage.
+  if (!localStorage.getItem('pedalboat_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const pb = DEFAULTS.find(d => d.id === 93);
+    if (pb && !have.has(93)) { places.push(JSON.parse(JSON.stringify(pb))); changed = true; }
+    localStorage.setItem('pedalboat_2026_06', '1');
+  }
+
+  // One-off: oprava polohy The Beef Chief (Transit Bar, Noord) pre už uloženú verziu
+  if (!localStorage.getItem('beefchief_fix_2026_06')) {
+    const bc = places.find(p => p.id === 53);
+    if (bc && !bc.isCustom) {
+      bc.lat = 52.3844986; bc.lng = 4.9288488; bc.addr = 'Aambeeldstraat 38';
+      bc.note = 'Transit Bar · Aambeeldstraat 38, Noord';
+      changed = true;
+    }
+    localStorage.setItem('beefchief_fix_2026_06', '1');
+  }
+
+  if (changed) save();
+}
+function save() { localStorage.setItem('amsterdam_v4', JSON.stringify(places)); }
+
+// ═══════════════════════════════════════════════════
+//  MAP
+// ═══════════════════════════════════════════════════
+
+function initMap() {
+  map = L.map('map', { center:[52.374,4.895], zoom:13, zoomControl:false });
+  L.control.zoom({ position: 'bottomleft' }).addTo(map);
+  switchTileType('standard');
+
+  map.on('moveend zoomend', debouncedLoadPOIs);
+
+  map.on('click', function(e) {
+    if (!addingMode) return;
+    tempLatLng = e.latlng;
+    if (tempMarker) map.removeLayer(tempMarker);
+    tempMarker = L.circleMarker(e.latlng, {
+      radius:9, color:'#0f172a', fillColor:'#0f172a', fillOpacity:0.45, weight:2.5,
+    }).addTo(map);
+    setAddingMode(false);
+    openModal(null);
+  });
+}
+
+function switchTileType(type) {
+  // Remove existing tile layers
+  activeTileLayers.forEach(l => map.removeLayer(l));
+  activeTileLayers = [];
+
+  if (type === 'satellite') {
+    const sat = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { attribution: '© Esri, Maxar, Earthstar Geographics', maxZoom: 19 }
+    );
+    const labels = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 19 }
+    );
+    sat.addTo(map);
+    labels.addTo(map);
+    activeTileLayers = [sat, labels];
+  } else {
+    // CartoDB Voyager — closest free equivalent to Google Maps standard
+    const std = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 19 }
+    );
+    std.addTo(map);
+    activeTileLayers = [std];
+  }
+
+  // Color correction only for satellite
+  document.getElementById('map').classList.toggle('satellite-mode', type === 'satellite');
+
+  currentTileType = type;
+
+  // Update switcher buttons
+  document.querySelectorAll('.tile-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.type === type)
+  );
+}
+
+// ═══════════════════════════════════════════════════
+//  MY LOCATION
+// ═══════════════════════════════════════════════════
+
+function locateMe() {
+  if (!navigator.geolocation) {
+    alert('Tvoj prehliadač nepodporuje geolokáciu.');
+    return;
+  }
+  const btn = document.getElementById('locate-btn');
+  btn.textContent = '⏳';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+      userLatLng = L.latLng(lat, lng);
+
+      // Remove old markers
+      if (userMarker)    map.removeLayer(userMarker);
+      if (userAccCircle) map.removeLayer(userAccCircle);
+
+      // Accuracy circle
+      userAccCircle = L.circle(userLatLng, {
+        radius: accuracy,
+        color: '#4285F4',
+        fillColor: '#4285F4',
+        fillOpacity: 0.08,
+        weight: 1,
+        opacity: 0.3,
+      }).addTo(map);
+
+      // Pulsing blue dot
+      userMarker = L.marker(userLatLng, {
+        icon: L.divIcon({
+          html: `<div class="my-loc-wrap"><div class="my-loc-ring"></div><div class="my-loc-dot"></div></div>`,
+          className: '',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        }),
+        zIndexOffset: 1000,
+      }).addTo(map);
+
+      userMarker.bindPopup(`<div style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#1D4ED8;">📍 Si tu</div>`, {
+        className: 'poi-popup', offset: [0, -4]
+      });
+
+      map.setView(userLatLng, Math.max(map.getZoom(), 15), { animate: true });
+
+      btn.textContent = '🎯';
+      btn.classList.add('active');
+
+      // Refresh sidebar distances if open
+      if (selectedId) openSidebar(selectedId);
+    },
+    (err) => {
+      btn.textContent = '🎯';
+      const msgs = {
+        1: 'Prístup k polohe zamietnutý. Povoľ ho v nastaveniach prehliadača.',
+        2: 'Polohu sa nepodarilo zistiť.',
+        3: 'Vypršal čas na zistenie polohy.',
+      };
+      alert(msgs[err.code] || 'Chyba geolokácie.');
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+  );
+}
+
+function formatDistance(meters) {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
+// ═══════════════════════════════════════════════════
+//  POI — OpenStreetMap Overpass API
+// ═══════════════════════════════════════════════════
+
+const OSM_TYPES = {
+  restaurant: { label:'Reštaurácia',  icon:'🍽️', color:'#EA580C', cat:'food' },
+  cafe:        { label:'Kaviareň',    icon:'☕',  color:'#92400E', cat:'food' },
+  bar:         { label:'Bar',         icon:'🍺',  color:'#B45309', cat:'food' },
+  pub:         { label:'Pub',         icon:'🍺',  color:'#B45309', cat:'food' },
+  fast_food:   { label:'Rýchle jedlo',icon:'🍔',  color:'#DC2626', cat:'food' },
+  bakery:      { label:'Pekáreň',     icon:'🥐',  color:'#D97706', cat:'food' },
+  museum:      { label:'Múzeum',      icon:'🏛️', color:'#7C3AED', cat:'hidden-gem' },
+  theatre:     { label:'Divadlo',     icon:'🎭',  color:'#6D28D9', cat:'hidden-gem' },
+  cinema:      { label:'Kino',        icon:'🎬',  color:'#5B21B6', cat:'hidden-gem' },
+  library:     { label:'Knižnica',    icon:'📚',  color:'#1D4ED8', cat:'hidden-gem' },
+  attraction:  { label:'Atrakcia',    icon:'⭐',  color:'#D97706', cat:'hidden-gem' },
+  viewpoint:   { label:'Vyhliadka',   icon:'👁️', color:'#059669', cat:'hidden-gem' },
+  park:        { label:'Park',        icon:'🌳',  color:'#16A34A', cat:'nature' },
+  hotel:       { label:'Hotel',       icon:'🏨',  color:'#475569', cat:'ubytovanie' },
+  hostel:      { label:'Hostel',      icon:'🛏️', color:'#64748B', cat:'ubytovanie' },
+};
+
+function getOsmType(tags) {
+  const a = tags.amenity || tags.tourism || tags.leisure;
+  return OSM_TYPES[a] || null;
+}
+
+// Multiple Overpass mirrors — tried in order, first success wins
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+];
+
+function makePOIIcon(color) {
+  return L.divIcon({
+    html: `<div style="width:11px;height:11px;background:${color};border-radius:50%;border:2.5px solid white;box-shadow:0 1px 5px rgba(0,0,0,0.32);"></div>`,
+    className: '',
+    iconSize: [11,11],
+    iconAnchor: [5.5,5.5],
+  });
+}
+
+function debouncedLoadPOIs() {
+  clearTimeout(poiQueryTimer);
+  poiQueryTimer = setTimeout(loadPOIs, 600);
+}
+
+async function loadPOIs() {
+  if (!poisEnabled) return;
+  if (map.getZoom() < 13) return;
+
+  const b = map.getBounds();
+  const bbox = `${b.getSouth().toFixed(4)},${b.getWest().toFixed(4)},${b.getNorth().toFixed(4)},${b.getEast().toFixed(4)}`;
+
+  const query = `[out:json][timeout:15];
+(
+  node["amenity"~"restaurant|cafe|bar|pub|fast_food|bakery|museum|theatre|cinema|library"]["name"](${bbox});
+  node["tourism"~"attraction|museum|viewpoint|hotel|hostel"]["name"](${bbox});
+  node["leisure"="park"]["name"](${bbox});
+)->._;
+out body;`;
+
+  const loadingEl = document.getElementById('poi-loading');
+  loadingEl.classList.add('visible');
+
+  let data = null;
+  let lastErr = null;
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'data=' + encodeURIComponent(query),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+      break; // success
+    } catch(e) {
+      lastErr = e;
+      console.warn(`POI endpoint failed (${endpoint}):`, e);
+    }
+  }
+
+  if (data) {
+    renderPOIs(data.elements.slice(0, 350));
+    loadingEl.classList.remove('visible');
+  } else {
+    console.warn('All POI endpoints failed:', lastErr);
+    loadingEl.textContent = 'Miesta sa nepodarilo načítať';
+    setTimeout(() => {
+      loadingEl.textContent = 'Načítavam miesta…';
+      loadingEl.classList.remove('visible');
+    }, 2500);
+  }
+}
+
+function renderPOIs(elements) {
+  // Remove POIs outside current bounds + remove old markers
+  const bounds = map.getBounds();
+  Object.keys(poiMarkers).forEach(id => {
+    const m = poiMarkers[id];
+    if (!bounds.contains(m.getLatLng())) {
+      map.removeLayer(m);
+      delete poiMarkers[id];
+    }
+  });
+
+  elements.forEach(el => {
+    if (poiMarkers[el.id]) return; // already shown
+    const type = getOsmType(el.tags);
+    if (!type) return;
+
+    poiCache[el.id] = { ...el.tags, lat: el.lat, lng: el.lon, osmId: el.id, type };
+
+    const marker = L.marker([el.lat, el.lon], {
+      icon: makePOIIcon(type.color),
+      zIndexOffset: -100,
+    });
+
+    marker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      const name = el.tags.name || 'Neznáme miesto';
+      const addr = [el.tags['addr:street'], el.tags['addr:housenumber']].filter(Boolean).join(' ');
+
+      const popup = L.popup({ className:'poi-popup', maxWidth:230, offset:[0,-2] })
+        .setLatLng([el.lat, el.lon])
+        .setContent(`
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:3px;padding-right:16px;">${name}</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:${addr?'4px':'10px'}">${type.icon} ${type.label}</div>
+            ${addr ? `<div style="font-size:11.5px;color:#94a3b8;margin-bottom:10px;">📍 ${addr}</div>` : ''}
+            <button
+              onclick="addPoiToList(${el.id})"
+              style="width:100%;padding:8px;background:#0f172a;color:white;border:none;border-radius:9px;font-family:Inter,sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;">
+              + Pridať do môjho plánu
+            </button>
+          </div>`)
+        .openOn(map);
+    });
+
+    if (poisEnabled) marker.addTo(map);
+    poiMarkers[el.id] = marker;
+  });
+}
+
+function addPoiToList(osmId) {
+  const poi = poiCache[osmId];
+  if (!poi) return;
+  map.closePopup();
+
+  // Pre-fill modal with OSM data
+  tempLatLng = { lat: poi.lat, lng: poi.lng };
+  editingId = null;
+
+  document.getElementById('modal-title').textContent = 'Pridať miesto z mapy';
+  document.getElementById('f-name').value        = poi.name || '';
+  document.getElementById('f-category').value    = poi.type?.cat || 'custom';
+  document.getElementById('f-price').value       = '';
+  document.getElementById('f-description').value = '';
+  document.getElementById('f-note').value        = '';
+  document.getElementById('f-hours').value       = poi.opening_hours || '';
+  document.getElementById('f-rating').value      = '';
+  document.getElementById('f-photo').value       = '';
+
+  document.getElementById('f-name').classList.remove('error');
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 80);
+}
+
+function togglePOIs() {
+  poisEnabled = !poisEnabled;
+  const btn = document.getElementById('poi-toggle');
+  btn.classList.toggle('active', poisEnabled);
+
+  Object.values(poiMarkers).forEach(m => {
+    if (poisEnabled) m.addTo(map);
+    else map.removeLayer(m);
+  });
+
+  if (poisEnabled) loadPOIs();
+}
+
+// ═══════════════════════════════════════════════════
+//  CATEGORY BAR
+// ═══════════════════════════════════════════════════
+
+// Order of chips in the filter bar — 'custom' excluded; letisko & ubytovanie at the end
+const CAT_BAR_ORDER = ['coffee','cs','brown','gastro','nakupy','zazitok','hidden','miesta','natura','speakeasy','letisko','ubytovanie'];
+
+function buildCategoryBar() {
+  const bar = document.getElementById('category-bar');
+  bar.innerHTML = CAT_BAR_ORDER.map(key => {
+    const c = CATS[key];
+    const svgIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${CAT_SVG_ICONS[key] || ''}</svg>`;
+    return `<button class="cat-pill active" data-cat="${key}"
+      style="background:${c.color};"
+      onclick="toggleCat('${key}')">
+      ${svgIcon} ${c.label}
+    </button>`;
+  }).join('');
+}
+
+function updateCatPills() {
+  document.querySelectorAll('.cat-pill').forEach(el => {
+    const on = activeCats.has(el.dataset.cat);
+    el.classList.toggle('active', on);
+    el.classList.toggle('inactive', !on);
+  });
+}
+
+// Solo filter: clicking a category shows ONLY that category;
+// clicking the already-soloed category again shows all categories.
+function toggleCat(cat) {
+  if (activeCats.size === 1 && activeCats.has(cat)) {
+    activeCats = new Set(Object.keys(CATS)); // reset → show everything
+  } else {
+    activeCats = new Set([cat]);
+  }
+  updateCatPills();
+  refreshMarkers();
+}
+
+function buildDayTabs() {
+  document.querySelectorAll('#day-tabs .day-tab').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#day-tabs .day-tab').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      activeDay = this.dataset.day;
+      updateItineraryUI();
+      refreshMarkers();
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════
+
+function searchPlaces(q) {
+  const results = document.getElementById('search-results');
+  q = q.trim().toLowerCase();
+  if (!q) { results.classList.remove('open'); results.innerHTML = ''; return; }
+
+  const matches = places
+    .filter(p => p.name.toLowerCase().includes(q))
+    .slice(0, 8);
+
+  if (!matches.length) {
+    results.innerHTML = '<div class="search-empty">Žiadne miesto nenájdené</div>';
+    results.classList.add('open');
+    return;
+  }
+
+  results.innerHTML = matches.map(p => {
+    const cat = CATS[p.category] || CATS.custom;
+    const svg = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${placeIcon(p)}</svg>`;
+    return `<div class="search-result ${p.visited ? 'visited' : ''}" onclick="selectSearchResult(${p.id})">
+        <div class="search-result-icon" style="background:${cat.color}">${svg}</div>
+        <div>
+          <div class="search-result-name">${p.name}</div>
+          <div class="search-result-cat">${cat.label}${p.day ? ' · ' + DAY_LABELS[p.day] : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+  results.classList.add('open');
+}
+
+function selectSearchResult(id) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('search-results').classList.remove('open');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-input').blur();
+  map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15), { animate: true });
+  openSidebar(id);
+}
+
+function closeSearch() {
+  document.getElementById('search-results').classList.remove('open');
+}
+
+// Close search dropdown on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap')) closeSearch();
+});
+
+// ═══════════════════════════════════════════════════
+//  PINS
+// ═══════════════════════════════════════════════════
+
+function makePinIcon(place, seq = null) {
+  const cat = CATS[place.category] || CATS.custom;
+  const c = cat.color;
+  const iconPath = placeIcon(place);
+
+  // Top-right corner badge: visited (check) takes priority over planned (dot)
+  let badge = '';
+  if (place.visited) {
+    badge = `<circle cx="34" cy="6" r="6.5" fill="#16A34A" stroke="white" stroke-width="2"/>
+             <path d="M31 6l2 2 4-4" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  } else if (place.day && seq === null) {
+    badge = `<circle cx="34" cy="6" r="5.5" fill="#22C55E" stroke="white" stroke-width="2"/>`;
+  }
+
+  // In itinerary mode show the stop's order number instead of the category glyph
+  const center = (seq !== null)
+    ? `<text x="20" y="20" text-anchor="middle" dominant-baseline="central"
+             font-family="Inter, sans-serif" font-size="17" font-weight="800" fill="white">${seq}</text>`
+    : `<g transform="translate(12.5 12.5) scale(0.625)" fill="none" stroke="white"
+           stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">${iconPath}</g>`;
+
+  // Circle pin — no tail, bigger (40×40), My Maps style
+  const html = `
+    <div class="pin-inner" style="filter:drop-shadow(0 3px 10px rgba(0,0,0,0.3));opacity:${place.visited ? 0.5 : 1};">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+        <circle cx="20" cy="20" r="18" fill="${c}" stroke="white" stroke-width="2.5"/>
+        ${center}
+        ${badge}
+      </svg>
+    </div>`;
+
+  return L.divIcon({ html, className:'', iconSize:[40,40], iconAnchor:[20,20] });
+}
+
+function isVisible(p) {
+  if (!activeCats.has(p.category)) return false;
+  if (activeDay==='all') return true;
+  if (activeDay==='unplanned') return p.day===null;
+  return p.day===activeDay;
+}
+
+// A specific day is selected (Sob/Ned/Pon) → itinerary mode: no clustering, numbered pins, route line
+function isItineraryMode() {
+  return ['saturday','sunday','monday'].includes(activeDay);
+}
+
+function refreshMarkers() {
+  Object.values(markers).forEach(m => map.removeLayer(m));
+  markers = {};
+
+  const itinerary = isItineraryMode();
+  const ordered = itinerary ? placesForDay(activeDay) : null;
+
+  let n = 0;
+  places.forEach(p => {
+    if (!isVisible(p)) return;
+    n++;
+    const seq = itinerary ? ordered.findIndex(x => x.id === p.id) + 1 : null;
+    const m = L.marker([p.lat,p.lng], { icon: makePinIcon(p, seq) });
+    m.placeId = p.id;
+    m.on('click', () => { if (!addingMode) openSidebar(p.id); });
+    m.addTo(map);
+    markers[p.id] = m;
+  });
+
+  document.getElementById('place-count').textContent = `${n} miest`;
+  drawRoute();
+  if (selectedId) setSelectedPin(selectedId);
+}
+
+// Highlight the marker for the currently open place
+function setSelectedPin(id) {
+  document.querySelectorAll('.leaflet-marker-icon.pin-selected')
+    .forEach(el => el.classList.remove('pin-selected'));
+  const m = markers[id];
+  if (m && m.getElement) {
+    const el = m.getElement();
+    if (el) el.classList.add('pin-selected');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════════════════════
+
+function openSidebar(id) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  selectedId = id;
+  const cat = CATS[p.category] || CATS.custom;
+
+  const heroBg = document.getElementById('sb-hero-bg');
+  heroBg.style.background = GRADIENTS[p.category] || GRADIENTS.custom;
+  if (p.photo) {
+    const img = new Image();
+    img.onload = () => { heroBg.style.backgroundImage = `url('${p.photo}')`; };
+    img.src = p.photo;
+  } else {
+    heroBg.style.backgroundImage = '';
+  }
+
+  document.getElementById('sb-hero-badge').innerHTML =
+    `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${placeIcon(p)}</svg> ${cat.label}`;
+  document.getElementById('sb-hero-name').textContent = p.name;
+
+  const starsHtml = p.rating ? `
+    <div class="sb-rating">
+      <span class="sb-stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5-Math.round(p.rating))}</span>
+      <span style="font-weight:600;color:#0f172a;">${p.rating.toFixed(1)}</span>
+    </div>` : '';
+
+  // Distance from user location
+  let distHtml = '';
+  if (userLatLng) {
+    const dist = map.distance(userLatLng, [p.lat, p.lng]);
+    distHtml = `<div class="sb-distance">📍 ${formatDistance(dist)} od teba</div>`;
+  }
+
+  const chips = [
+    p.hours ? `<span class="sb-chip"><span class="sb-chip-icon">🕐</span>${p.hours}</span>` : '',
+    p.price ? `<span class="sb-chip"><span class="sb-chip-icon">💶</span>${p.price}</span>` : '',
+  ].filter(Boolean).join('');
+
+  const noteHtml = p.note
+    ? `<div class="sb-note"><span class="sb-note-icon">💡</span><span>${p.note}</span></div>`
+    : '';
+
+  const planStatus = p.day
+    ? `<div class="sb-plan-status planned">✅ V pláne: ${DAY_LABELS[p.day]}</div>`
+    : `<div class="sb-plan-status">Nepridané do plánu dňa</div>`;
+
+  const planBtns = ['saturday','sunday','monday'].map(d =>
+    `<button class="plan-btn ${p.day===d?'sel-'+d:''}" onclick="setPlanDay(${p.id},'${d}')">${DAY_LABELS[d]}</button>`
+  ).join('') + (p.day
+    ? `<button class="plan-btn sel-remove" onclick="setPlanDay(${p.id},null)">× Odstrániť</button>`
+    : '');
+
+  document.getElementById('sb-body').innerHTML = `
+    ${starsHtml}
+    ${distHtml}
+    ${chips ? `<div class="sb-chips">${chips}</div>` : ''}
+    ${noteHtml}
+    ${p.description ? `<p class="sb-desc">${p.description}</p>` : ''}
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-label">Plán dňa</div>
+    ${planStatus}
+    <div class="sb-plan-btns">${planBtns}</div>
+
+    <button class="sb-visited-btn ${p.visited ? 'done' : ''}" onclick="toggleVisited(${p.id})">
+      ${p.visited
+        ? `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Navštívené`
+        : 'Označiť ako navštívené'}
+    </button>
+
+    <div class="sb-actions">
+      <a class="btn-nav"
+        href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+' Amsterdam')}"
+        target="_blank" rel="noopener">
+        🧭 Navigovať
+      </a>
+      <button class="btn-icon btn-edit" onclick="openModal(${p.id})" title="Upraviť">✏️</button>
+      <button class="btn-icon btn-del" onclick="deletePlace(${p.id})" title="Odstrániť z mapy">🗑️</button>
+    </div>
+  `;
+
+  document.getElementById('sidebar').classList.add('open');
+  setSelectedPin(id);
+  if (window.innerWidth >= 768) {
+    setTimeout(() => map.panTo([p.lat, p.lng], { animate:true, duration:0.4 }), 60);
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  selectedId = null;
+  document.querySelectorAll('.leaflet-marker-icon.pin-selected')
+    .forEach(el => el.classList.remove('pin-selected'));
+}
+
+// ═══════════════════════════════════════════════════
+//  PLAN DAY
+// ═══════════════════════════════════════════════════
+
+function setPlanDay(id, day) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  p.day = day;
+  if (day) {
+    const maxOrder = Math.max(0, ...places.filter(x => x.day === day && x.id !== id).map(x => x.order || 0));
+    p.order = maxOrder + 1;
+  } else {
+    p.order = null;
+  }
+  save();
+  refreshMarkers();
+  if (selectedId === id) openSidebar(id);
+  renderItinerary();
+}
+
+function toggleVisited(id) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  p.visited = !p.visited;
+  save();
+  refreshMarkers();
+  openSidebar(id);
+  renderItinerary();
+}
+
+// ═══════════════════════════════════════════════════
+//  ITINERARY
+// ═══════════════════════════════════════════════════
+
+function placesForDay(day) {
+  return places.filter(p => p.day === day)
+    .sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9));
+}
+
+function normalizeDayOrders(day) {
+  placesForDay(day).forEach((p, i) => { p.order = i + 1; });
+}
+
+// Walking estimate: straight-line × 1.35 detour factor, 5 km/h
+function walkEstimate(meters) {
+  const walkM = meters * 1.35;
+  const mins = Math.max(1, Math.round(walkM / 1000 / 5 * 60));
+  return { dist: formatDistance(walkM), mins };
+}
+
+function drawRoute() {
+  if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+  if (!isItineraryMode()) return;
+  const stops = placesForDay(activeDay);
+  if (stops.length < 2) return;
+  routeLine = L.polyline(stops.map(p => [p.lat, p.lng]), {
+    color: '#0F172A', weight: 3, opacity: 0.5, dashArray: '1 9', lineCap: 'round',
+  }).addTo(map);
+}
+
+function updateItineraryUI() {
+  const toggle = document.getElementById('itinerary-toggle');
+  if (isItineraryMode()) {
+    toggle.style.display = '';
+    renderItinerary();
+  } else {
+    toggle.style.display = 'none';
+    closeItineraryPanel();
+  }
+}
+
+function toggleItineraryPanel() {
+  const panel = document.getElementById('itinerary-panel');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+  } else {
+    renderItinerary();
+    panel.classList.add('open');
+    closeSidebar();
+  }
+}
+
+function closeItineraryPanel() {
+  document.getElementById('itinerary-panel').classList.remove('open');
+}
+
+function moveStop(id, dir) {
+  normalizeDayOrders(activeDay);
+  const stops = placesForDay(activeDay);
+  const idx = stops.findIndex(p => p.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= stops.length) return;
+  const tmp = stops[idx].order;
+  stops[idx].order = stops[swapIdx].order;
+  stops[swapIdx].order = tmp;
+  save();
+  refreshMarkers();
+  renderItinerary();
+}
+
+function renderItinerary() {
+  if (!isItineraryMode()) return;
+  const stops = placesForDay(activeDay);
+  document.getElementById('itin-title').textContent = 'Plán · ' + DAY_LABELS[activeDay];
+  const body = document.getElementById('itin-body');
+  const sub = document.getElementById('itin-sub');
+  const footer = document.getElementById('itin-footer');
+
+  if (!stops.length) {
+    sub.textContent = 'Žiadne zastávky';
+    body.innerHTML = `<div class="itin-empty">Zatiaľ nič v pláne pre tento deň.<br>Otvor miesto na mape a pridaj ho cez „Plán dňa".</div>`;
+    footer.innerHTML = '';
+    return;
+  }
+
+  const legSvg = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>`;
+  let totalMeters = 0;
+
+  const rows = stops.map((p, i) => {
+    const cat = CATS[p.category] || CATS.custom;
+    let legHtml = '';
+    if (i < stops.length - 1) {
+      const next = stops[i + 1];
+      const d = map.distance([p.lat, p.lng], [next.lat, next.lng]);
+      totalMeters += d;
+      const est = walkEstimate(d);
+      legHtml = `<div class="itin-leg">${legSvg} ${est.dist} · ~${est.mins} min pešo</div>`;
+    }
+    return `
+      <div class="itin-stop ${p.visited ? 'visited' : ''}">
+        <div class="itin-num" style="background:${cat.color}">${i + 1}</div>
+        <div class="itin-stop-main" onclick="selectSearchResult(${p.id})">
+          <div class="itin-stop-name">${p.name}</div>
+          <div class="itin-stop-cat">${cat.label}${p.hours ? ' · ' + p.hours : ''}</div>
+        </div>
+        <div class="itin-stop-actions">
+          <button onclick="moveStop(${p.id},-1)" ${i === 0 ? 'disabled' : ''} title="Hore">↑</button>
+          <button onclick="moveStop(${p.id},1)" ${i === stops.length - 1 ? 'disabled' : ''} title="Dole">↓</button>
+          <button class="itin-remove" onclick="setPlanDay(${p.id},null)" title="Odobrať z plánu">×</button>
+        </div>
+      </div>
+      ${legHtml}`;
+  }).join('');
+
+  body.innerHTML = rows;
+  sub.textContent = `${stops.length} ${stops.length === 1 ? 'zastávka' : stops.length < 5 ? 'zastávky' : 'zastávok'}`;
+  if (stops.length > 1) {
+    const total = walkEstimate(totalMeters);
+    footer.innerHTML = `<div class="itin-total"><span>Spolu pešo medzi zastávkami</span><span>${total.dist} · ~${total.mins} min</span></div>`;
+  } else {
+    footer.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  ADD MODE
+// ═══════════════════════════════════════════════════
+
+function toggleAddMode() { setAddingMode(!addingMode); }
+
+function setAddingMode(val) {
+  addingMode = val;
+  const fab = document.getElementById('fab');
+  const banner = document.getElementById('add-banner');
+  fab.classList.toggle('adding', val);
+  fab.title = val ? 'Zrušiť' : 'Pridať nové miesto';
+  document.getElementById('fab-label').textContent = val ? 'Zrušiť' : 'Pridať miesto';
+  fab.querySelector('svg').style.transform = val ? 'rotate(45deg)' : '';
+  banner.classList.toggle('visible', val);
+  map.getContainer().style.cursor = val ? 'crosshair' : '';
+  if (!val && tempMarker && !editingId) { map.removeLayer(tempMarker); tempMarker = null; }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('search-results').classList.contains('open')) { closeSearch(); document.getElementById('search-input').blur(); return; }
+  if (addingMode) setAddingMode(false);
+  else if (document.getElementById('modal-overlay').classList.contains('open')) closeModal();
+  else closeSidebar();
+});
+
+// ═══════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════
+
+function openModal(id) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = id ? 'Upraviť miesto' : 'Nové miesto';
+  if (id) {
+    const p = places.find(x => x.id === id);
+    document.getElementById('f-name').value        = p.name;
+    document.getElementById('f-addr').value         = p.addr || '';
+    document.getElementById('f-category').value    = p.category;
+    document.getElementById('f-price').value       = p.price || '';
+    document.getElementById('f-description').value = p.description || '';
+    document.getElementById('f-note').value        = p.note || '';
+    document.getElementById('f-hours').value       = p.hours || '';
+    document.getElementById('f-rating').value      = p.rating != null ? p.rating : '';
+    document.getElementById('f-photo').value       = p.photo || '';
+  } else {
+    ['f-name','f-addr','f-price','f-description','f-note','f-hours','f-rating','f-photo'].forEach(i => { document.getElementById(i).value = ''; });
+    document.getElementById('f-category').value = 'custom';
+  }
+  document.getElementById('f-name').classList.remove('error');
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  if (tempMarker && !editingId) { map.removeLayer(tempMarker); tempMarker = null; }
+  editingId = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function savePlace() {
+  const nameEl = document.getElementById('f-name');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.classList.add('error'); nameEl.focus(); return; }
+  nameEl.classList.remove('error');
+
+  const data = {
+    name,
+    addr:        document.getElementById('f-addr').value.trim(),
+    category:    document.getElementById('f-category').value,
+    price:       document.getElementById('f-price').value.trim(),
+    description: document.getElementById('f-description').value.trim(),
+    note:        document.getElementById('f-note').value.trim(),
+    hours:       document.getElementById('f-hours').value.trim(),
+    rating:      parseFloat(document.getElementById('f-rating').value) || null,
+    photo:       document.getElementById('f-photo').value.trim() || null,
+  };
+
+  if (editingId) {
+    Object.assign(places.find(x => x.id === editingId), data);
+    save(); refreshMarkers(); closeModal(); openSidebar(editingId);
+  } else {
+    if (!tempLatLng) { closeModal(); return; }
+    const p = { id:nextId++, lat:tempLatLng.lat, lng:tempLatLng.lng, day:null, order:null, visited:false, isCustom:true, ...data };
+    places.push(p); save();
+    if (tempMarker) { map.removeLayer(tempMarker); tempMarker = null; }
+    refreshMarkers(); closeModal(); openSidebar(p.id);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  GEOCODING — OpenStreetMap Nominatim (free, no key)
+// ═══════════════════════════════════════════════════
+
+// Street name = text before the house number (and before any comma)
+function addrStreet(addr) {
+  return addr.split(',')[0].replace(/\s+\d.*$/, '').trim();
+}
+// Trailing house number token, e.g. "145", "2a", "84-H" → "84"
+function addrNumber(addr) {
+  const m = addr.split(',')[0].match(/\s(\d+)\s*\w?\s*$/);
+  return m ? m[1].toLowerCase() : null;
+}
+
+// Geocode by STREET ADDRESS (far more reliable than business name).
+// A result is accepted only if the street name matches AND, when the address
+// has a house number, the returned house number matches too — so a wrong
+// fallback match (e.g. same number on a different street) is rejected and the
+// existing coordinate is kept.
+async function geocodeAllPlaces() {
+  const btn = document.getElementById('geocode-btn');
+  const banner = document.getElementById('add-banner');
+
+  const targets = places.filter(p => p.addr && p.addr.trim());
+  if (!targets.length) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Prebieha...';
+  btn.style.color = '';
+  banner.classList.add('visible');
+
+  let updated = 0, kept = 0;
+
+  for (let i = 0; i < targets.length; i++) {
+    const p = targets[i];
+    const hasCity = /amsterdam|zaandam|schiphol|centraal/i.test(p.addr);
+    const query = hasCity ? p.addr : p.addr + ', Amsterdam';
+    banner.textContent = `🔍 Overujem polohy ${i + 1}/${targets.length}: ${p.name}`;
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}`
+        + `&format=json&addressdetails=1&limit=1&countrycodes=nl`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'sk,en' } });
+      const data = await res.json();
+
+      if (data && data.length) {
+        const r = data[0];
+        const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+        const inBbox = lat > 52.0 && lat < 52.6 && lon > 4.5 && lon < 5.2;
+        const dn = (r.display_name || '').toLowerCase();
+        const streetOk = dn.includes(addrStreet(p.addr).toLowerCase());
+        const num = addrNumber(p.addr);
+        const gotNum = r.address && r.address.house_number ? String(r.address.house_number).toLowerCase() : null;
+        const numOk = !num || (gotNum && gotNum.split(/[-\s]/)[0] === num);
+
+        if (inBbox && streetOk && numOk) {
+          p.lat = lat; p.lng = lon; updated++;
+        } else { kept++; }
+      } else { kept++; }
+    } catch (e) { kept++; }
+
+    await new Promise(r => setTimeout(r, 1100)); // Nominatim: ≤1 req/s
+  }
+
+  save();
+  refreshMarkers();
+  if (selectedId) openSidebar(selectedId);
+
+  banner.textContent = `✅ Hotovo · ${updated} overených, ${kept} ponechaných`;
+  btn.innerHTML = '✓ Overené';
+  btn.style.color = '#16A34A';
+  setTimeout(() => {
+    banner.classList.remove('visible');
+    banner.textContent = '📍 Klikni na mapu kde chceš pridať miesto · ESC zruší';
+  }, 4000);
+}
+
+// ═══════════════════════════════════════════════════
+//  PHOTOS — natiahnutie úvodnej fotky z Wikipédie podľa
+//  kurátorovaného titulu (WIKI_PHOTOS). Len overené tituly →
+//  nikdy zlá fotka. Miss/chyba → ticho preskočí (ostáva gradient).
+// ═══════════════════════════════════════════════════
+async function fetchPhotos(opts = {}) {
+  const silent = !!opts.silent;
+  const btn = document.getElementById('photos-btn');
+
+  // miesta s kurátorovaným titulom, ktoré ešte nemajú fotku
+  // (ručne vloženú fotku — photoAuto !== true — nikdy neprepisujeme)
+  const targets = places.filter(p =>
+    WIKI_PHOTOS[p.id] && (!p.photo || p.photoAuto));
+  if (!targets.length) {
+    if (btn) { btn.innerHTML = '✓ Fotky'; btn.style.color = '#16A34A'; }
+    return;
+  }
+
+  if (btn && !silent) { btn.disabled = true; btn.innerHTML = '⏳ Sťahujem...'; btn.style.color = ''; }
+
+  let added = 0;
+  for (let i = 0; i < targets.length; i++) {
+    const p = targets[i];
+    const { title, lang } = WIKI_PHOTOS[p.id];
+    if (btn && !silent) btn.innerHTML = `⏳ ${i + 1}/${targets.length}`;
+
+    try {
+      const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json`
+        + `&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=800&redirects=1`
+        + `&titles=${encodeURIComponent(title)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const pages = data && data.query && data.query.pages;
+      let src = null;
+      if (pages) {
+        for (const k in pages) {
+          const t = pages[k].thumbnail;
+          if (t && t.source) { src = t.source; break; }
+        }
+      }
+      if (src) {
+        p.photo = src;
+        p.photoAuto = true;
+        added++;
+        if (selectedId === p.id) openSidebar(p.id);
+      }
+    } catch (e) { /* miss → necháme gradient */ }
+
+    if (added) save();
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  save();
+  localStorage.setItem('photos_v1_done', '1');
+  if (btn && !silent) {
+    btn.disabled = false;
+    btn.innerHTML = '✓ Fotky';
+    btn.style.color = '#16A34A';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  DELETE
+// ═══════════════════════════════════════════════════
+
+function deletePlace(id) {
+  const p = places.find(x => x.id === id);
+  if (!confirm(`Naozaj chceš odstrániť „${p ? p.name : 'toto miesto'}" z mapy?`)) return;
+  places = places.filter(p => p.id !== id);
+  save(); closeSidebar(); refreshMarkers();
+  renderItinerary();
+}
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+
+load();
+initMap();
+buildCategoryBar();
+buildDayTabs();
+refreshMarkers();
+setTimeout(loadPOIs, 800);
+
+// Pri prvom načítaní raz natiahni fotky z Wikipédie (uložia sa do localStorage,
+// ďalšie loady už nefetchujú). Tlačidlo „📷 Fotky" vie kedykoľvek dofetchnúť chýbajúce.
+if (!localStorage.getItem('photos_v1_done')) {
+  setTimeout(() => fetchPhotos({ silent: true }), 1500);
+}
+
+// Keep panels glued just below the top bar, whatever its real height is
+function syncTopbarHeight(){
+  const tb = document.getElementById('top-bar');
+  if (tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
+}
+syncTopbarHeight();
+window.addEventListener('resize', syncTopbarHeight);
+new ResizeObserver(syncTopbarHeight).observe(document.getElementById('top-bar'));
+</script>
+</body>
+</html>

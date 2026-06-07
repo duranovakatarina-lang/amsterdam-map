@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# Claude Code lokálne nastavenia + pamäť (symlink)
+.claude/
+Claude-pamäť
