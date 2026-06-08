@@ -1771,9 +1771,9 @@ const DEFAULTS = [
     note:'Keizersgracht 512 · Stromma slapadlá · 4 os / 1 hod · mólo vyberieš na mieste', addr:'Keizersgracht 512',
     price:'~€23,50/loďka + €20 záloha', hours:'Celoročne', rating:4.3, photo:null, day:null, isCustom:false },
 
-  { id:94, name:'Magere Brug (Skinny Bridge)', category:'miesta', lat:52.36513, lng:4.90192,
+  { id:94, name:'Magere Brug (Skinny Bridge)', category:'miesta', lat:52.36359, lng:4.90240,
     description:'Najznámejší most v Amsterdame — drevený zdvíhací most cez rieku Amstel z 18. storočia (pôvodne 1691). Volá sa „chudý most", lebo bol kedysi taký úzky, že sa po ňom sotva vyhli dvaja chodci. Najkrajší je po zotmení, keď ho rozsvieti vyše 1200 žiaroviek a zrkadlí sa v rieke. Pravidelne ho otvárajú pre lode. Zadarmo, ideálne pre večernú prechádzku.',
-    note:'Cez rieku Amstel, medzi Kerkstraat a Nieuwe Kerkstraat · najkrajší v noci', addr:'Amstel, 1018 Amsterdam',
+    note:'Cez rieku Amstel, medzi Kerkstraat a Nieuwe Kerkstraat · najkrajší v noci', addr:'Amstel 85K, 1018 EK Amsterdam',
     price:'Zadarmo', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
 
 ];
@@ -1944,6 +1944,16 @@ function migrate() {
     if (mb && !have.has(94)) { places.push(JSON.parse(JSON.stringify(mb))); changed = true; }
     localStorage.setItem('magerebrug_2026_06', '1');
     localStorage.removeItem('photos_v1_done'); // dofetchni fotku nového miesta
+  }
+
+  // One-off: oprava polohy Magere Brug (id 94) — pôvodne bola ~170 m moc na sever.
+  if (!localStorage.getItem('magerebrug_geofix_2026_06')) {
+    const mb = places.find(p => p.id === 94);
+    if (mb && !mb.isCustom) {
+      mb.lat = 52.36359; mb.lng = 4.90240; mb.addr = 'Amstel 85K, 1018 EK Amsterdam';
+      changed = true;
+    }
+    localStorage.setItem('magerebrug_geofix_2026_06', '1');
   }
 
   // One-off: oprava polohy The Beef Chief (Transit Bar, Noord) pre už uloženú verziu
