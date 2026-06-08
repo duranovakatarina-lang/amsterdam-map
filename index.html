@@ -1928,7 +1928,119 @@ function migrate() {
 
   if (changed) save();
 }
-function save() { localStorage.setItem('amsterdam_v4', JSON.stringify(places)); }
+function save() {
+  try { localStorage.setItem('amsterdam_v4', JSON.stringify(places)); } catch(e){}
+  cloudPush();
+}
+
+// ═══════════════════════════════════════════════════
+//  CLOUD SYNC — spoločná mapa (Cloudflare Worker + KV)
+//  Stav mapy (miesta, plán dňa, navštívené) je uložený v cloude, takže keď
+//  ktokoľvek niečo zmení, ostatní to po pár sekundách uvidia. localStorage
+//  zostáva ako offline cache / fallback.
+// ═══════════════════════════════════════════════════
+const CLOUD_URL = 'https://ams-trip-sync.duranova-katarina.workers.dev';
+let cloudReady = false;       // kým false, lokálne save() do cloudu nezapisuje (počas bootu)
+let lastCloudUpdatedAt = 0;   // čas posledného známeho stavu zo servera
+let cloudPushTimer = null;
+let cloudPollTimer = null;
+let isEditingNow = false;     // true počas otvoreného modalu — poll vtedy neprepíše rozpísané
+
+function setSyncStatus(state){
+  const el = document.getElementById('sync-chip');
+  if (!el) return;
+  const m = {
+    sync: ['☁︎ synchronizujem…', '#64748b'],
+    ok:   ['☁︎ spoločná mapa',   '#16a34a'],
+    err:  ['☁︎ offline (lokálne)','#dc2626'],
+  };
+  const [txt, col] = m[state] || m.ok;
+  el.textContent = txt; el.style.color = col;
+}
+
+async function cloudGet(){
+  const r = await fetch(CLOUD_URL, { method:'GET', cache:'no-store' });
+  if (!r.ok) throw new Error('GET '+r.status);
+  return r.json();
+}
+async function cloudPut(){
+  const r = await fetch(CLOUD_URL, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ places }),
+  });
+  if (!r.ok) throw new Error('POST '+r.status);
+  const j = await r.json();
+  if (j && j.updatedAt) lastCloudUpdatedAt = j.updatedAt;
+  return j;
+}
+function cloudPush(){
+  if (!cloudReady) return;
+  clearTimeout(cloudPushTimer);
+  setSyncStatus('sync');
+  cloudPushTimer = setTimeout(() => {
+    cloudPut().then(() => setSyncStatus('ok')).catch(() => setSyncStatus('err'));
+  }, 600);
+}
+
+// Doplň predvolené miesta (podľa id), ktoré v spoločnom stave chýbajú — aby nové
+// miesta pridané v kóde pribudli všetkým. Vráti true, ak niečo pridal.
+function mergeNewDefaults(){
+  const have = new Set(places.map(p => p.id));
+  let added = false;
+  DEFAULTS.forEach(d => { if (!have.has(d.id)) { places.push(JSON.parse(JSON.stringify(d))); added = true; } });
+  return added;
+}
+function backfillFields(){
+  places.forEach(p => {
+    if (p.visited === undefined) p.visited = false;
+    if (p.order   === undefined) p.order   = null;
+    if (p.addr    === undefined) p.addr    = '';
+  });
+}
+function adoptCloudState(data){
+  places = data.places;
+  lastCloudUpdatedAt = data.updatedAt || 0;
+  backfillFields();
+  const added = mergeNewDefaults();
+  nextId = Math.max(...places.map(p => p.id), 99) + 1;
+  return added;
+}
+
+async function cloudInit(){
+  setSyncStatus('sync');
+  try {
+    const data = await cloudGet();
+    if (data && Array.isArray(data.places)) {
+      const added = adoptCloudState(data);
+      refreshMarkers(); updateItineraryUI(); renderItinerary();
+      cloudReady = true;
+      if (added) await cloudPut();   // doplň nové predvolené miesta do spoločného stavu
+    } else {
+      cloudReady = true;             // cloud je prázdny → naplň ho aktuálnym stavom
+      await cloudPut();
+    }
+    setSyncStatus('ok');
+  } catch(e){
+    setSyncStatus('err');            // ostane lokálny localStorage režim
+  }
+  startCloudPoll();
+}
+
+function startCloudPoll(){
+  if (cloudPollTimer) clearInterval(cloudPollTimer);
+  cloudPollTimer = setInterval(async () => {
+    if (isEditingNow) return;        // nepreruš rozpísanú úpravu
+    try {
+      const data = await cloudGet();
+      if (data && Array.isArray(data.places) && (data.updatedAt || 0) > lastCloudUpdatedAt) {
+        adoptCloudState(data);
+        refreshMarkers(); updateItineraryUI(); renderItinerary();
+        if (selectedId && !places.find(p => p.id === selectedId)) closeSidebar();
+        setSyncStatus('ok');
+      }
+    } catch(e){ setSyncStatus('err'); }
+  }, 5000);
+}
 
 // ═══════════════════════════════════════════════════
 //  MAP
@@ -2721,6 +2833,7 @@ document.addEventListener('keydown', e => {
 
 function openModal(id) {
   editingId = id;
+  isEditingNow = true;
   document.getElementById('modal-title').textContent = id ? 'Upraviť miesto' : 'Nové miesto';
   if (id) {
     const p = places.find(x => x.id === id);
@@ -2746,6 +2859,7 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   if (tempMarker && !editingId) { map.removeLayer(tempMarker); tempMarker = null; }
   editingId = null;
+  isEditingNow = false;
 }
 
 function handleOverlayClick(e) {
@@ -2942,6 +3056,20 @@ buildCategoryBar();
 buildDayTabs();
 refreshMarkers();
 setTimeout(loadPOIs, 800);
+
+// Indikátor spoločnej mapy (malý plávajúci chip) + spustenie cloud synchronizácie
+(function(){
+  const chip = document.createElement('div');
+  chip.id = 'sync-chip';
+  chip.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);'
+    + 'z-index:1200;background:rgba(255,255,255,0.95);backdrop-filter:blur(6px);'
+    + 'border:1px solid rgba(15,23,42,0.08);box-shadow:0 4px 14px rgba(0,0,0,0.10);'
+    + 'border-radius:999px;padding:6px 12px;font:600 12px/1 Inter,system-ui,sans-serif;'
+    + 'color:#64748b;letter-spacing:0.2px;pointer-events:none;';
+  chip.textContent = '☁︎ synchronizujem…';
+  document.body.appendChild(chip);
+})();
+cloudInit();
 
 // Pri prvom načítaní raz natiahni fotky z Wikipédie (uložia sa do localStorage,
 // ďalšie loady už nefetchujú). Tlačidlo „📷 Fotky" vie kedykoľvek dofetchnúť chýbajúce.

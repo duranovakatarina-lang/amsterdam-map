@@ -4,3 +4,7 @@
 # Claude Code lokálne nastavenia + pamäť (symlink)
 .claude/
 Claude-pamäť
+
+# Cloudflare Worker — lokálny stav / závislosti
+worker/.wrangler/
+worker/node_modules/

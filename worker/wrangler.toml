@@ -1,0 +1,8 @@
+name = "ams-trip-sync"
+main = "index.js"
+compatibility_date = "2026-06-01"
+
+# KV namespace id sa doplní po `wrangler kv namespace create AMS_KV`
+[[kv_namespaces]]
+binding = "AMS_KV"
+id = "5011d76466054120b5fb6049dd6923e6"
