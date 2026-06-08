@@ -1937,6 +1937,15 @@ function migrate() {
     localStorage.setItem('pedalboat_2026_06', '1');
   }
 
+  // Magere Brug (id 94) — vlastný flag, pushne sa aj do uloženej localStorage.
+  if (!localStorage.getItem('magerebrug_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const mb = DEFAULTS.find(d => d.id === 94);
+    if (mb && !have.has(94)) { places.push(JSON.parse(JSON.stringify(mb))); changed = true; }
+    localStorage.setItem('magerebrug_2026_06', '1');
+    localStorage.removeItem('photos_v1_done'); // dofetchni fotku nového miesta
+  }
+
   // One-off: oprava polohy The Beef Chief (Transit Bar, Noord) pre už uloženú verziu
   if (!localStorage.getItem('beefchief_fix_2026_06')) {
     const bc = places.find(p => p.id === 53);
