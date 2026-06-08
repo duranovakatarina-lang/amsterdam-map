@@ -1798,24 +1798,41 @@ let userLatLng = null;
 let userMarker = null;
 let userAccCircle = null;
 let routeLine = null;
+let deletedIds = [];   // id-čka zmazaných miest — aby sa predvolené miesta po zmazaní nevracali
 
 // ═══════════════════════════════════════════════════
 //  STORAGE
 // ═══════════════════════════════════════════════════
 
 function load() {
+  try { deletedIds = JSON.parse(localStorage.getItem('amsterdam_deleted') || '[]'); } catch(e){ deletedIds = []; }
   try {
     const raw = localStorage.getItem('amsterdam_v4');
     if (raw) {
       places = JSON.parse(raw);
       nextId = Math.max(...places.map(p => p.id), 99) + 1;
       migrate();
+      applyDeleted();
       return;
     }
   } catch(e) {}
   places = JSON.parse(JSON.stringify(DEFAULTS));
   migrate();
+  applyDeleted();
   save();
+}
+
+// Odstráň zo zoznamu miesta, ktoré sú v deletedIds (napr. po migrácii, ktorá ich doplnila)
+function applyDeleted() {
+  if (!deletedIds.length) return;
+  const del = new Set(deletedIds);
+  places = places.filter(p => !del.has(p.id));
+}
+function saveDeleted() {
+  try { localStorage.setItem('amsterdam_deleted', JSON.stringify(deletedIds)); } catch(e){}
+}
+function recordDeleted(id) {
+  if (!deletedIds.includes(id)) { deletedIds.push(id); saveDeleted(); }
 }
 
 // Backfill new fields + apply verified coordinates (once) to older localStorage data
@@ -1966,7 +1983,7 @@ async function cloudGet(){
 async function cloudPut(){
   const r = await fetch(CLOUD_URL, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ places }),
+    body: JSON.stringify({ places, deletedIds }),
   });
   if (!r.ok) throw new Error('POST '+r.status);
   const j = await r.json();
@@ -1986,8 +2003,11 @@ function cloudPush(){
 // miesta pridané v kóde pribudli všetkým. Vráti true, ak niečo pridal.
 function mergeNewDefaults(){
   const have = new Set(places.map(p => p.id));
+  const del  = new Set(deletedIds);   // nevracaj späť to, čo niekto zmazal
   let added = false;
-  DEFAULTS.forEach(d => { if (!have.has(d.id)) { places.push(JSON.parse(JSON.stringify(d))); added = true; } });
+  DEFAULTS.forEach(d => {
+    if (!have.has(d.id) && !del.has(d.id)) { places.push(JSON.parse(JSON.stringify(d))); added = true; }
+  });
   return added;
 }
 function backfillFields(){
@@ -2000,6 +2020,10 @@ function backfillFields(){
 function adoptCloudState(data){
   places = data.places;
   lastCloudUpdatedAt = data.updatedAt || 0;
+  // zjednoť zmazané (cloud + lokálne) a ulož; potom vyhoď zmazané zo zoznamu
+  deletedIds = Array.from(new Set([...(data.deletedIds || []), ...deletedIds]));
+  saveDeleted();
+  applyDeleted();
   backfillFields();
   const added = mergeNewDefaults();
   nextId = Math.max(...places.map(p => p.id), 99) + 1;
@@ -3042,6 +3066,7 @@ async function fetchPhotos(opts = {}) {
 function deletePlace(id) {
   const p = places.find(x => x.id === id);
   if (!confirm(`Naozaj chceš odstrániť „${p ? p.name : 'toto miesto'}" z mapy?`)) return;
+  recordDeleted(id);   // zapamätaj, že je zmazané — nech sa nevracia (ani u ostatných)
   places = places.filter(p => p.id !== id);
   save(); closeSidebar(); refreshMarkers();
   renderItinerary();
