@@ -2889,7 +2889,8 @@ function savePlace() {
     save(); refreshMarkers(); closeModal(); openSidebar(editingId);
   } else {
     if (!tempLatLng) { closeModal(); return; }
-    const p = { id:nextId++, lat:tempLatLng.lat, lng:tempLatLng.lng, day:null, order:null, visited:false, isCustom:true, ...data };
+    // časové unikátne ID — aby pri pridávaní z viacerých zariadení nevznikol konflikt
+    const p = { id:Date.now(), lat:tempLatLng.lat, lng:tempLatLng.lng, day:null, order:null, visited:false, isCustom:true, ...data };
     places.push(p); save();
     if (tempMarker) { map.removeLayer(tempMarker); tempMarker = null; }
     refreshMarkers(); closeModal(); openSidebar(p.id);
