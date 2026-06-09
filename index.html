@@ -1276,6 +1276,350 @@
       border-radius: 6px !important;
       font-size: 9.5px !important;
     }
+
+    /* ═══════════════════════════════════════════════════════
+       LOSOVAČKA (Nedeľa) — celoobrazovková hra, mobile-first
+       ═══════════════════════════════════════════════════════ */
+    #lotto-fab {
+      position: fixed;
+      top: calc(var(--topbar-h, 110px) + 60px);
+      left: 12px;
+      z-index: 240;
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.96);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      border: 1px solid rgba(15,23,42,0.08);
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #0A5A37;
+      transition: transform 0.16s, box-shadow 0.16s;
+    }
+    #lotto-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    #lotto-fab-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      min-width: 18px; height: 18px;
+      padding: 0 4px;
+      background: linear-gradient(135deg,#0A5A37,#0F7A52); color: #fff;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 800; line-height: 14px;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    #lotto-fab-badge.show { display: flex; }
+
+    #lotto {
+      --lacc: #0A5A37;
+      --lacc2: #0F7A52;
+      --lgrad: linear-gradient(135deg,#0A5A37,#0F7A52);
+      position: fixed; inset: 0;
+      z-index: 2000;
+      background:
+        radial-gradient(120% 75% at 12% -5%, #E7F4EC 0%, rgba(231,244,236,0) 60%),
+        radial-gradient(120% 70% at 92% 8%, #EAF7F0 0%, rgba(234,247,240,0) 55%),
+        radial-gradient(140% 90% at 50% 110%, #E0F1E8 0%, rgba(224,241,232,0) 55%),
+        #FAFCFB;
+      transform: translateY(100%);
+      transition: transform 0.42s cubic-bezier(0.22,1,0.36,1);
+      visibility: hidden;
+      display: flex; flex-direction: column;
+      overscroll-behavior: contain;
+    }
+    #lotto.open { transform: translateY(0); visibility: visible; }
+
+    #lotto-sheet {
+      width: 100%; max-width: 540px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex; flex-direction: column;
+      padding: calc(env(safe-area-inset-top, 0px) + 12px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px);
+      box-sizing: border-box;
+    }
+
+    /* ── Header: close · progres · reset ── */
+    #lotto-top {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 6px;
+    }
+    .lotto-icon-btn {
+      flex: 0 0 auto;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(15,23,42,0.07);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, transform 0.15s;
+    }
+    .lotto-icon-btn:hover { background: #fff; color: var(--text-1); transform: translateY(-1px); }
+    #lotto-progress { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+    #lotto-dots { display: flex; gap: 6px; align-items: center; }
+    .ldot {
+      width: 7px; height: 7px; border-radius: 999px;
+      background: #CBE6D7; transition: all 0.3s;
+    }
+    .ldot.done { background: var(--lacc); }
+    .ldot.current { width: 22px; background: var(--lgrad); }
+    #lotto-step-label { font-size: 12px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-3); text-transform: uppercase; }
+
+    /* ── Stage ── */
+    #lotto-stage {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column; justify-content: safe center;
+      gap: 18px;
+      overflow-y: auto;
+      padding: 10px 14px;
+    }
+    .lotto-kicker {
+      text-align: center;
+      font-size: 13px; font-weight: 800; letter-spacing: 1.4px;
+      text-transform: uppercase;
+      background: var(--lgrad); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lotto-title {
+      text-align: center;
+      font-size: clamp(22px, 6vw, 28px); font-weight: 800; line-height: 1.15;
+      color: var(--text-1); margin-top: -6px;
+      letter-spacing: -0.5px;
+    }
+
+    /* ── Karty súboja ── */
+    .lotto-cards { display: flex; flex-direction: column; gap: 16px; position: relative; }
+    .lotto-vs {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      z-index: 3;
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,0.14);
+      font-size: 13px; font-weight: 900; color: var(--lacc); letter-spacing: 0.5px;
+      border: 1px solid rgba(10,90,55,0.12);
+    }
+    .lotto-card {
+      position: relative; overflow: hidden;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.05);
+      border: 1px solid rgba(15,23,42,0.05);
+      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s, opacity 0.4s, filter 0.4s;
+      will-change: transform;
+    }
+    .lc-media {
+      height: 118px;
+      background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.95);
+    }
+    .lc-icon { width: 60px; height: 60px; opacity: 0.92; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18)); }
+    .lc-body { padding: 13px 16px 15px; }
+    .lc-name { font-size: 18px; font-weight: 800; color: var(--text-1); line-height: 1.2; letter-spacing: -0.3px; }
+    .lc-type { font-size: 12.5px; font-weight: 600; color: var(--text-3); margin-top: 3px; }
+
+    /* stavy losovania */
+    .lotto-card.flash { box-shadow: 0 0 0 3px var(--lacc), 0 14px 34px rgba(10,90,55,0.28); transform: translateY(-2px); }
+    .lotto-card.win {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 0 0 3px var(--lacc), 0 16px 38px rgba(10,90,55,0.30);
+      animation: lottoPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .lotto-card.win::after {
+      content: ""; position: absolute; inset: 0; border-radius: 22px;
+      background: radial-gradient(120% 80% at 50% 0%, rgba(10,90,55,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .lotto-card.lose { opacity: 0.4; filter: saturate(0.6) blur(0.4px); transform: scale(0.97); }
+    @keyframes lottoPop {
+      0% { transform: translateY(-4px) scale(0.97); }
+      60% { transform: translateY(-6px) scale(1.045); }
+      100% { transform: translateY(-4px) scale(1.02); }
+    }
+
+    .lotto-win-note {
+      text-align: center; font-size: 13.5px; font-weight: 600; color: var(--text-2);
+      margin-top: 2px;
+    }
+    .lotto-win-note b { color: var(--lacc); }
+
+    /* ── Challenge ── */
+    .lotto-challenge {
+      border-radius: 24px;
+      background: linear-gradient(160deg,#FFFFFF, #F1FAF5);
+      border: 1px solid rgba(10,90,55,0.14);
+      box-shadow: 0 14px 40px rgba(10,90,55,0.14);
+      padding: 30px 24px;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+    .lotto-challenge .lch-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--lgrad); color: #fff;
+      font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .lotto-challenge .lch-title { font-size: 24px; font-weight: 800; color: var(--text-1); letter-spacing: -0.4px; line-height: 1.2; }
+    .lotto-challenge .lch-desc { font-size: 15px; color: var(--text-2); line-height: 1.5; max-width: 320px; }
+    .lch-icon { width: 54px; height: 54px; color: var(--lacc); }
+
+    /* ── Challenge — dramatické odhalenie: tmavá karta → flip → svetlá ── */
+    .lotto-flip { width: 100%; perspective: 1400px; animation: challengeDrop 0.72s cubic-bezier(0.34,1.4,0.5,1) both; }
+    .lotto-flip-inner {
+      position: relative; width: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.66s cubic-bezier(0.45,0.05,0.25,1);
+    }
+    .lotto-flip-inner.flipped { transform: rotateY(180deg); }
+    .lotto-face {
+      border-radius: 26px;
+      -webkit-backface-visibility: hidden; backface-visibility: hidden;
+    }
+    /* tmavá strana (front) — prekrýva, výška podľa svetlej strany */
+    .lotto-face-front {
+      position: absolute; inset: 0; transform: rotateY(0deg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 40px 26px; text-align: center; overflow: hidden; cursor: pointer;
+      color: #fff;
+      background: linear-gradient(150deg,#0A5A37 0%,#0F7A52 55%,#0A5A37 100%);
+      border: 1.5px solid rgba(255,255,255,0.14);
+      box-shadow: 0 22px 60px rgba(10,90,55,0.36), 0 4px 14px rgba(10,90,55,0.22);
+    }
+    .lotto-face-front::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.16), transparent 60%);
+    }
+    .lcf-shine {
+      position: absolute; top: 0; left: -60%; width: 55%; height: 100%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.20), transparent);
+      transform: skewX(-18deg); animation: shineSweep 2.6s ease-in-out infinite;
+    }
+    .lcf-eyebrow { position: relative; font-size: 13px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
+    .lcf-word {
+      position: relative;
+      font-size: clamp(32px, 9vw, 44px); font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+      background: linear-gradient(135deg,#FFFFFF,#CFF3E1); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lcf-cta {
+      position: relative; margin-top: 6px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 14px;
+      background: #fff; color: #0A5A37; font-size: 14.5px; font-weight: 800;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+      animation: ctaPulse 1.7s ease-in-out infinite;
+    }
+    /* svetlá strana (back) — definuje výšku; využíva vzhľad .lotto-challenge */
+    .lotto-face-back {
+      position: relative; transform: rotateY(180deg); min-height: 190px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    }
+    /* tlačidlá Preskočiť/Splnené — pod kartou, viditeľné až po otočení */
+    .challenge-actions {
+      opacity: 0; transform: translateY(10px); pointer-events: none;
+      transition: opacity 0.35s ease 0.32s, transform 0.35s ease 0.32s;
+    }
+    .challenge-actions.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    /* konfety (až po „Splnené") */
+    #lotto-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 2100; overflow: hidden; }
+    .confetti-bit {
+      position: absolute; left: 50%; top: 40%; width: 9px; height: 13px; border-radius: 2px;
+      will-change: transform, opacity; opacity: 0;
+      animation: confettiBurst 1.7s cubic-bezier(0.18,0.7,0.32,1) forwards;
+      animation-delay: var(--delay, 0s);
+    }
+    .confetti-bit.round { border-radius: 50%; width: 10px; height: 10px; }
+
+    @keyframes challengeDrop {
+      0%   { opacity: 0; transform: translateY(-46px) scale(0.9) rotate(-2.5deg); }
+      45%  { opacity: 1; transform: translateY(10px) scale(1.04) rotate(2.2deg); }
+      62%  { transform: translateY(-5px) scale(0.99) rotate(-1.6deg); }
+      78%  { transform: translateY(0) scale(1) rotate(1deg); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+    }
+    @keyframes shineSweep { 0% { left: -60%; } 55% { left: 120%; } 100% { left: 120%; } }
+    @keyframes ctaPulse { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes confettiBurst {
+      0% { opacity: 1; transform: translate(0,0) rotate(0deg) scale(0.4); }
+      12% { opacity: 1; }
+      100% { opacity: 0; transform: translate(var(--tx,0px), var(--ty,200px)) rotate(var(--rot,540deg)) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #lotto-confetti { display: none !important; }
+      .lotto-flip, .lcf-shine, .lcf-cta { animation: none !important; }
+      .lotto-flip-inner { transition: none !important; }
+    }
+
+    /* ── Akčné tlačidlá ── */
+    .lotto-actions { display: flex; flex-direction: column; gap: 10px; }
+    .lotto-btn {
+      width: 100%;
+      padding: 16px 20px;
+      border: none; border-radius: 16px;
+      background: var(--lgrad); color: #fff;
+      font-size: 16px; font-weight: 800; letter-spacing: 0.2px;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(15,122,82,0.34);
+      transition: transform 0.14s, box-shadow 0.2s, opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+    }
+    .lotto-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(15,122,82,0.42); }
+    .lotto-btn:active { transform: translateY(0) scale(0.99); }
+    .lotto-btn[disabled] { opacity: 0.5; pointer-events: none; box-shadow: none; }
+    .lotto-btn.secondary { background: #fff; color: var(--text-1); box-shadow: 0 4px 14px rgba(15,23,42,0.08); border: 1px solid var(--border); }
+    .lotto-btn.ghost { background: transparent; color: var(--text-2); box-shadow: none; padding: 12px; font-size: 14px; }
+    .lotto-btn-row { display: flex; gap: 10px; }
+    .lotto-btn-row .lotto-btn { flex: 1; }
+
+    /* ── Žolíky ── */
+    #lotto-jokers { display: flex; gap: 10px; }
+    .joker {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.8);
+      border: 1.5px solid rgba(10,90,55,0.18);
+      color: var(--lacc);
+      font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.14s, border-color 0.15s, opacity 0.2s;
+    }
+    .joker svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .joker:hover { background: #fff; transform: translateY(-1px); border-color: var(--lacc); }
+    .joker:disabled { opacity: 0.38; pointer-events: none; filter: grayscale(0.5); }
+    .joker .jk-label { line-height: 1.15; text-align: left; }
+    .joker .jk-count { font-size: 10px; font-weight: 800; opacity: 0.7; }
+
+    /* ── End screen ── */
+    .lotto-end { display: flex; flex-direction: column; gap: 16px; }
+    .lotto-end-head { text-align: center; }
+    .lotto-end-head .leh-emoji { font-size: 0; }
+    .lotto-end-head .leh-title { font-size: 28px; font-weight: 800; color: var(--text-1); letter-spacing: -0.5px; }
+    .lotto-end-head .leh-sub { font-size: 14.5px; color: var(--text-2); margin-top: 5px; }
+    .lotto-summary { display: flex; flex-direction: column; gap: 8px; }
+    .lsum-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(15,23,42,0.05);
+      border-radius: 14px;
+    }
+    .lsum-num {
+      flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px;
+      background: var(--lgrad); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .lsum-text { font-size: 14.5px; font-weight: 600; color: var(--text-1); }
+    .lsum-text small { display: block; font-size: 11.5px; font-weight: 600; color: var(--text-3); margin-top: 1px; }
+    .lsum-item.skipped .lsum-text { color: var(--text-3); text-decoration: line-through; }
+
+    @media (max-width: 380px) {
+      .lc-media { height: 96px; }
+      .lc-name { font-size: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -1351,6 +1695,12 @@
   <span id="food-fab-badge">0</span>
 </button>
 
+<!-- ─── LOSOVAČKA — tlačidlo (pod checklistom) ────────────── -->
+<button id="lotto-fab" onclick="openLotto()" title="Losovačka — nedeľný program">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/></svg>
+  <span id="lotto-fab-badge">0</span>
+</button>
+
 <div id="food-panel">
   <div id="food-header">
     <div id="food-title">Čo ochutnať</div>
@@ -1373,6 +1723,25 @@
         <button class="food-form-save" onclick="addFoodItem()">Pridať</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ─── LOSOVAČKA — celoobrazovková hra ──────────────────── -->
+<div id="lotto" aria-hidden="true">
+  <div id="lotto-sheet">
+    <div id="lotto-top">
+      <button class="lotto-icon-btn" onclick="closeLotto()" title="Späť na mapu" aria-label="Zavrieť">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div id="lotto-progress">
+        <div id="lotto-dots"></div>
+        <div id="lotto-step-label">Nedeľa</div>
+      </div>
+      <button class="lotto-icon-btn" onclick="resetLotto()" title="Začať deň odznova" aria-label="Reset">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+    </div>
+    <div id="lotto-stage"></div>
   </div>
 </div>
 
@@ -1579,6 +1948,69 @@ const GRADIENTS = {
   'speakeasy': 'linear-gradient(135deg,#F1F5F9,#1E293B)',
   'custom':    'linear-gradient(135deg,#F1F5F9,#94A3B8)',
 };
+
+// ═══════════════════════════════════════════════════
+//  LOSOVAČKA — scenár nedele (editovateľný)
+//  Typy kôl:
+//   { type:'duel', title:'…', a:<Option>, b:<Option>, challenge:{title,desc}|null }
+//   { type:'challenge', title:'…', desc:'…' }
+//  Option (možnosť v súboji), tri varianty:
+//   { placeId: 12 }                       → konkrétne miesto z mapy (názov+fotka z `places`)
+//   { type:'brown', label:'Brown café' }  → obecný typ (kategória, len typ miesta)
+//   { name:'Bike tour', note:'…' }        → voľná možnosť mimo mapy
+//  placeId hodnoty doladíme neskôr; teraz sú napojené na existujúce miesta kde to sedí.
+// ILUSTRAČNÉ fotky (tematické placeholdery z Unsplash — ID overené, vracajú obrázok).
+// Neskôr stačí prepísať `photo` reálnou URL, alebo ju zmazať (miesta s `placeId` si
+// fotku vedia natiahnuť z Wikipédie samé).
+const UP = id => `https://images.unsplash.com/photo-${id}?w=800&q=70&auto=format&fit=crop`;
+const SUNDAY_PLAN = [
+  { type:'duel', title:'Kam na raňajky?',
+    a:{ placeId:104, photo:UP('1509440159596-0249088772ff') },   // Layers Bakery & Deli
+    b:{ name:'Albert Heijn piknik', note:'nákup + piknik pri kanáli', photo:UP('1534723452862-4c874018d66d') } },
+
+  { type:'duel', title:'Doobeda na vode či v sedle?',
+    a:{ placeId:40, photo:UP('1534351590666-13e3e96b5017') },    // Pedal Boat — šlapadlá
+    b:{ name:'Bike tour', note:'okruh mestom na bicykli', photo:UP('1507035895480-2b3156c31fc8') } },
+
+  { type:'challenge', title:'Cheese tasting',
+    desc:'Zájdi do syrárne a ochutnaj 3 rôzne druhy goudy — mladú, starú a niečo medzi.' },
+
+  { type:'duel', title:'Burger battle',
+    a:{ placeId:53, photo:UP('1568901346375-23c9450c58cd') },    // The Beef Chief (smashburger)
+    b:{ placeId:100, photo:UP('1576107232684-1279f390859f') } }, // McDonald's (Damrak)
+
+  { type:'duel', title:'Káva alebo posedenie?',
+    a:{ type:'cs', label:'Coffee shop', photo:UP('1554118811-1e0d58224f24') },   // len typ miesta
+    b:{ type:'brown', label:'Brown café', photo:UP('1514933651103-005eec06c04b') } },
+
+  { type:'challenge', title:'Vyskúšaj drop',
+    desc:'Klasický holandský lakricový cukrík. Choď do toho a daj si slaný drop (zoute drop).' },
+
+  { type:'duel', title:'Pivo na záver dňa',
+    a:{ placeId:12, photo:UP('1518176258769-f227c798150e') },    // Brouwerij 't IJ
+    b:{ placeId:69, photo:UP('1507525428034-b723cf961d3e') } },  // Strand van Oost
+
+  { type:'challenge', title:'Ochutnaj 3 rôzne pivá',
+    desc:'Daj si malú degustáciu — tri rôzne štýly piva (napr. blond, IPA a tmavé).' },
+];
+
+// Rozbalí Option na vykresliteľný objekt: { kind, name, type, photo, category, iconSvg, placeId }
+function resolveOption(opt){
+  if (!opt) return { kind:'free', name:'?', type:'', photo:null, category:'custom', iconSvg:CAT_SVG_ICONS.custom };
+  if (opt.placeId != null) {
+    const p = (typeof places !== 'undefined' ? places : []).find(x => x.id === opt.placeId);
+    if (p) return { kind:'place', placeId:p.id, name:p.name,
+                    type:(CATS[p.category] && CATS[p.category].label) || '',
+                    photo:opt.photo || p.photo || null, category:p.category || 'custom', iconSvg:placeIcon(p) };
+  }
+  if (opt.type) {
+    const c = CATS[opt.type] || CATS.custom;
+    return { kind:'type', name:opt.label || c.label, type:'typ miesta — vyberte si sami',
+             photo:opt.photo || null, category:opt.type, iconSvg:CAT_SVG_ICONS[opt.type] || CAT_SVG_ICONS.custom };
+  }
+  return { kind:'free', name:opt.name || '?', type:opt.note || '',
+           photo:opt.photo || null, category:'custom', iconSvg:CAT_SVG_ICONS.custom };
+}
 
 // ═══════════════════════════════════════════════════
 //  VERIFIED LOCATIONS (geocoded via Nominatim by street
@@ -3693,11 +4125,356 @@ function deleteFoodItem(id){
 }
 
 // ═══════════════════════════════════════════════════
+//  LOSOVAČKA — stav, render, mechanika
+// ═══════════════════════════════════════════════════
+const LOTTO_KEY = 'lotto_sunday_v1';
+let lotto = { step:0, results:[], jokers:{ swap:false, redraw:false } };
+let lottoAnimating = false;
+
+function lhtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function loadLotto(){
+  try {
+    const s = JSON.parse(localStorage.getItem(LOTTO_KEY) || 'null');
+    if (s && typeof s === 'object') {
+      lotto = {
+        step: Math.max(0, s.step|0),
+        results: Array.isArray(s.results) ? s.results : [],
+        jokers: { swap: !!(s.jokers && s.jokers.swap), redraw: !!(s.jokers && s.jokers.redraw) }
+      };
+    }
+  } catch(e){}
+  updateLottoBadge();
+}
+function saveLotto(){ try { localStorage.setItem(LOTTO_KEY, JSON.stringify(lotto)); } catch(e){} updateLottoBadge(); }
+
+function updateLottoBadge(){
+  const b = document.getElementById('lotto-fab-badge'); if (!b) return;
+  const total = SUNDAY_PLAN.length;
+  const inProgress = lotto.step > 0 && lotto.step < total;
+  if (inProgress) { b.textContent = lotto.step + 1; b.classList.add('show'); }
+  else { b.classList.remove('show'); }
+}
+
+function openLotto(){
+  if (typeof closeFoodPanel === 'function') closeFoodPanel();
+  if (typeof closeItineraryPanel === 'function') closeItineraryPanel();
+  renderLottoStep();
+  const el = document.getElementById('lotto');
+  el.classList.add('open'); el.setAttribute('aria-hidden','false');
+}
+function closeLotto(){
+  const el = document.getElementById('lotto');
+  el.classList.remove('open'); el.setAttribute('aria-hidden','true');
+  const cf = document.getElementById('lotto-confetti'); if (cf) cf.innerHTML = '';
+}
+function resetLotto(){
+  if (!confirm('Začať nedeľný program odznova?')) return;
+  lotto = { step:0, results:[], jokers:{ swap:false, redraw:false } };
+  saveLotto(); renderLottoStep();
+}
+
+function renderLottoDots(){
+  const dots = document.getElementById('lotto-dots'); if (!dots) return;
+  const total = SUNDAY_PLAN.length;
+  let html = '';
+  for (let i=0;i<total;i++){
+    const cls = 'ldot' + (i < lotto.step ? ' done' : '') + (i === lotto.step ? ' current' : '');
+    html += `<div class="${cls}"></div>`;
+  }
+  dots.innerHTML = html;
+}
+
+function renderLottoStep(){
+  lottoAnimating = false;
+  renderLottoDots();
+  const total = SUNDAY_PLAN.length;
+  const label = document.getElementById('lotto-step-label');
+  const stage = document.getElementById('lotto-stage');
+  if (lotto.step >= total){ label.textContent = 'Nedeľa'; renderLottoEnd(); return; }
+  label.textContent = 'Nedeľa · ' + (lotto.step+1) + '/' + total;
+  const round = SUNDAY_PLAN[lotto.step];
+  if (round.type === 'challenge'){ revealChallenge(round); return; }
+  const res = lotto.results[lotto.step];
+  stage.innerHTML = duelHTML(round, res && res.winner ? res.winner : null);
+  stage.scrollTop = 0;
+}
+
+function lottoKicker(t){ return `<div class="lotto-kicker">${lhtml(t)}</div>`; }
+
+// SVG ikony (žiadne emoji)
+const LSVG = {
+  dice:    `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+  swap:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>`,
+  redraw:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>`,
+  target:  `<svg class="lch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.7" fill="currentColor" stroke="none"/></svg>`,
+  sparkle: `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 8l1.4 2.6L16 12l-2.6 1.4L12 16l-1.4-2.6L8 12l2.6-1.4z"/></svg>`,
+  map:     `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>`,
+};
+
+function cardHTML(r, side, cls){
+  const hasPhoto = !!r.photo;
+  const fallback = (CATS[r.category] && CATS[r.category].color) || '#94a3b8';
+  const media = hasPhoto
+    ? `style="background-color:${fallback};background-image:linear-gradient(180deg,rgba(15,23,42,0) 35%,rgba(15,23,42,0.5)),url('${encodeURI(r.photo)}')"`
+    : `style="background:${GRADIENTS[r.category] || GRADIENTS.custom}"`;
+  const icon = !hasPhoto
+    ? `<svg class="lc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${r.iconSvg}</svg>`
+    : '';
+  return `<div class="${cls}" data-side="${side}">
+    <div class="lc-media" ${media}>${icon}</div>
+    <div class="lc-body"><div class="lc-name">${lhtml(r.name)}</div>${r.type?`<div class="lc-type">${lhtml(r.type)}</div>`:''}</div>
+  </div>`;
+}
+
+function duelHTML(round, winner){
+  const A = resolveOption(round.a), B = resolveOption(round.b);
+  const drawn = !!winner;
+  const cardCls = s => 'lotto-card' + (drawn ? (s === winner ? ' win' : ' lose') : '');
+  let actions;
+  if (!drawn){
+    actions = `<div class="lotto-actions"><button class="lotto-btn" onclick="drawDuel()">${LSVG.dice} Losovať</button></div>`;
+  } else {
+    const W = winner === 'a' ? A : B;
+    const L = winner === 'a' ? B : A;
+    const winNote = W.kind === 'type'
+      ? `<div class="lotto-win-note">Vyšlo: <b>${lhtml(W.name)}</b> — konkrétne miesto je na vás.</div>`
+      : `<div class="lotto-win-note">Vyšlo: <b>${lhtml(W.name)}</b></div>`;
+    const mapBtn = (W.placeId != null)
+      ? `<button class="lotto-btn secondary" onclick="lottoShowOnMap(${W.placeId})">${LSVG.map} Ukáž na mape</button>` : '';
+    const nextLabel = round.challenge ? 'Ďalej na challenge →' : 'Hotovo, ďalej →';
+    actions = winNote + jokersHTML() +
+      `<div class="lotto-actions">${mapBtn}<button class="lotto-btn" onclick="lottoNext()">${nextLabel}</button></div>`;
+  }
+  return lottoKicker('Kolo ' + (lotto.step+1)) +
+    `<div class="lotto-title">${lhtml(round.title || 'Losovanie')}</div>
+     <div class="lotto-cards">
+       ${cardHTML(A,'a',cardCls('a'))}
+       <div class="lotto-vs">VS</div>
+       ${cardHTML(B,'b',cardCls('b'))}
+     </div>` + actions;
+}
+
+function jokersHTML(){
+  const s = lotto.jokers.swap, r = lotto.jokers.redraw;
+  return `<div id="lotto-jokers">
+    <button class="joker" onclick="useJokerSwap()" ${s?'disabled':''}>${LSVG.swap}
+      <span class="jk-label">Vezmi to druhé<span class="jk-count"> · ${s?'minuté':'1×'}</span></span></button>
+    <button class="joker" onclick="useJokerRedraw()" ${r?'disabled':''}>${LSVG.redraw}
+      <span class="jk-label">Losuj znova<span class="jk-count"> · ${r?'minuté':'1×'}</span></span></button>
+  </div>`;
+}
+
+function challengeHTML(ch){
+  return `<div class="lotto-challenge">
+      <div class="lch-badge">Challenge</div>
+      ${LSVG.target}
+      <div class="lch-title">${lhtml(ch.title)}</div>
+      <div class="lch-desc">${lhtml(ch.desc || '')}</div>
+    </div>
+    <div class="lotto-btn-row">
+      <button class="lotto-btn secondary" onclick="resolveChallenge('skip')">Preskočiť</button>
+      <button class="lotto-btn" onclick="resolveChallenge('done')">Splnené</button>
+    </div>`;
+}
+
+// Dramatické odhalenie: tmavá CHALLENGE karta nadskočí → klik „Idem do toho!" → flip na svetlú stranu s výzvou
+function challengeRevealHTML(ch, eyebrow){
+  return `<div class="lotto-flip">
+    <div class="lotto-flip-inner" id="lotto-flip-inner">
+      <div class="lotto-face lotto-face-front" onclick="flipChallenge()">
+        <div class="lcf-shine"></div>
+        <div class="lcf-eyebrow">${lhtml(eyebrow || 'Náhodná výzva')}</div>
+        <div class="lcf-word">Challenge</div>
+        <div class="lcf-cta">Idem do toho!
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </div>
+      </div>
+      <div class="lotto-face lotto-face-back lotto-challenge">
+        <div class="lch-badge">Challenge</div>
+        ${LSVG.target}
+        <div class="lch-title">${lhtml(ch.title)}</div>
+        <div class="lch-desc">${lhtml(ch.desc || '')}</div>
+      </div>
+    </div>
+  </div>
+  <div class="lotto-btn-row challenge-actions" id="challenge-actions">
+    <button class="lotto-btn secondary" onclick="resolveChallenge('skip')">Preskočiť</button>
+    <button class="lotto-btn" onclick="resolveChallenge('done')">Splnené</button>
+  </div>`;
+}
+function revealChallenge(ch, opts){
+  opts = opts || {};
+  const stage = document.getElementById('lotto-stage');
+  stage.innerHTML = challengeRevealHTML(ch, opts.eyebrow);
+  stage.scrollTop = 0;
+  // dramatický nástup tmavej karty — jemné drgnutie
+  if (navigator.vibrate) { try { navigator.vibrate(30); } catch(e){} }
+}
+// Otoč kartu na svetlú stranu (text výzvy) + odhaľ tlačidlá pod kartou
+function flipChallenge(){
+  const inner = document.getElementById('lotto-flip-inner');
+  if (inner) inner.classList.add('flipped');
+  const acts = document.getElementById('challenge-actions');
+  if (acts) acts.classList.add('show');
+}
+// Burst konfiet — pure JS/CSS, bez knižníc
+function lottoConfetti(){
+  let layer = document.getElementById('lotto-confetti');
+  if (!layer){
+    layer = document.createElement('div');
+    layer.id = 'lotto-confetti';
+    (document.getElementById('lotto') || document.body).appendChild(layer);
+  }
+  layer.innerHTML = '';
+  const colors = ['#0A5A37','#0F7A52','#34D399','#E8B43A','#FDF6E3'];
+  const N = 44;
+  for (let i = 0; i < N; i++){
+    const b = document.createElement('div');
+    b.className = 'confetti-bit' + (Math.random() < 0.4 ? ' round' : '');
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 80 + Math.random() * 200;
+    const tx = Math.cos(ang) * dist;
+    const ty = Math.sin(ang) * dist * 0.7 + 120 + Math.random() * 160;   // bias nadol (gravitácia)
+    b.style.setProperty('--tx', tx.toFixed(0) + 'px');
+    b.style.setProperty('--ty', ty.toFixed(0) + 'px');
+    b.style.setProperty('--rot', (Math.random() * 900 - 200).toFixed(0) + 'deg');
+    b.style.setProperty('--delay', (Math.random() * 0.18).toFixed(2) + 's');
+    b.style.background = colors[i % colors.length];
+    layer.appendChild(b);
+  }
+  setTimeout(() => { if (layer) layer.innerHTML = ''; }, 2100);
+}
+
+// ── Mechanika ──
+function drawDuel(forced){
+  if (lottoAnimating) return;
+  const stage = document.getElementById('lotto-stage');
+  const cards = Array.from(stage.querySelectorAll('.lotto-card'));
+  if (cards.length < 2) return;
+  const act = stage.querySelector('.lotto-actions');
+  if (act){ act.style.opacity = '0.45'; act.style.pointerEvents = 'none'; }
+  lottoAnimating = true;
+  const winner = forced || (Math.random() < 0.5 ? 'a' : 'b');
+  const totalTicks = 16 + Math.floor(Math.random() * 6);
+  let i = 0;
+  function tick(){
+    cards.forEach(c => c.classList.remove('flash'));
+    const side = (i >= totalTicks - 1) ? winner : (i % 2 === 0 ? 'a' : 'b');
+    const c = cards.find(x => x.dataset.side === side);
+    if (c) c.classList.add('flash');
+    i++;
+    if (i < totalTicks){ setTimeout(tick, 70 + Math.pow(i/totalTicks, 2.4) * 260); }
+    else { setTimeout(finishDraw, 280); }
+  }
+  function finishDraw(){
+    lottoAnimating = false;
+    lotto.results[lotto.step] = { winner };
+    saveLotto();
+    renderLottoStep();
+  }
+  tick();
+}
+
+function useJokerSwap(){
+  if (lotto.jokers.swap) return;
+  const res = lotto.results[lotto.step];
+  if (!res || !res.winner) return;
+  lotto.jokers.swap = true;
+  res.winner = res.winner === 'a' ? 'b' : 'a';
+  saveLotto(); renderLottoStep();
+}
+function useJokerRedraw(){
+  if (lotto.jokers.redraw || lottoAnimating) return;
+  lotto.jokers.redraw = true;
+  lotto.results[lotto.step] = null;
+  saveLotto();
+  renderLottoStep();
+  setTimeout(() => drawDuel(), 80);
+}
+
+function lottoNext(){
+  const round = SUNDAY_PLAN[lotto.step];
+  const res = lotto.results[lotto.step] || {};
+  if (round.type === 'duel' && round.challenge && !res.challengeShown){
+    res.challengeShown = true; lotto.results[lotto.step] = res; saveLotto();
+    revealChallenge(round.challenge, { eyebrow: 'Challenge k miestu' });
+    return;
+  }
+  advanceLotto();
+}
+function advanceLotto(){
+  lotto.step++; saveLotto(); renderLottoStep();
+}
+
+function resolveChallenge(state){
+  const round = SUNDAY_PLAN[lotto.step];
+  if (round.type === 'challenge'){
+    lotto.results[lotto.step] = { state };
+  } else {
+    const r = lotto.results[lotto.step] || {};
+    r.challengeState = state; lotto.results[lotto.step] = r;
+  }
+  if (state === 'done'){          // konfety + vibrácia odmena za splnenú výzvu
+    lottoConfetti();
+    if (navigator.vibrate) { try { navigator.vibrate([0, 40, 30, 60]); } catch(e){} }
+  }
+  advanceLotto();
+}
+
+function lottoShowOnMap(id){
+  closeLotto();
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15), { animate:true });
+  openSidebar(id);
+}
+
+function renderLottoEnd(){
+  const stage = document.getElementById('lotto-stage');
+  renderLottoDots();
+  let items = '';
+  SUNDAY_PLAN.forEach((round, i) => {
+    const res = lotto.results[i] || {};
+    let text = '', sub = '', skipped = false;
+    if (round.type === 'challenge'){
+      text = round.title;
+      sub = res.state === 'done' ? 'Splnené' : 'Preskočené';
+      skipped = res.state !== 'done';
+    } else {
+      const W = res.winner === 'b' ? resolveOption(round.b) : resolveOption(round.a);
+      text = W.name; sub = round.title;
+      if (round.challenge && res.challengeState){
+        sub += ' · challenge ' + (res.challengeState === 'done' ? 'splnená' : 'preskočená');
+      }
+    }
+    items += `<div class="lsum-item${skipped?' skipped':''}"><div class="lsum-num">${i+1}</div>
+      <div class="lsum-text">${lhtml(text)}<small>${lhtml(sub)}</small></div></div>`;
+  });
+  stage.innerHTML = `<div class="lotto-end">
+    <div class="lotto-end-head" style="color:var(--lacc)">${LSVG.sparkle}
+      <div class="leh-title">Dobrú noc!</div>
+      <div class="leh-sub">A teraz povedz, čo sa ti najviac páčilo :)</div></div>
+    <div class="lotto-summary">${items}</div>
+    <div class="lotto-actions"><button class="lotto-btn" onclick="resetLotto()">Začať deň odznova</button></div>
+  </div>`;
+}
+
+// Escape zatvorí losovačku, ak je otvorená
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    const el = document.getElementById('lotto');
+    if (el && el.classList.contains('open')) closeLotto();
+  }
+});
+
+// ═══════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════
 
 load();
 loadFood();
+loadLotto();
 initMap();
 buildCategoryBar();
 buildDayTabs();
