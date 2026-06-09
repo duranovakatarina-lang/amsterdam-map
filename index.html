@@ -2580,9 +2580,9 @@ const DEFAULTS = [
     note:'Najstarší coffeeshop v meste · Red Light District', addr:'Oudezijds Voorburgwal 90, 1012 GG Amsterdam',
     price:null, hours:'~10:00–01:00', rating:4.2, photo:null, day:null, isCustom:false },
 
-  { id:110, name:'Boerejongens (West)', category:'cs', lat:52.3623061, lng:4.8575482,
-    description:'Prémiový coffeeshop v štýle starej lekárne — biele kachličky, personál v oblekoch a vysoko hodnotená kvalita. Obľúbený medzi miestnymi, jeden z najlepšie hodnotených v meste. Pobočka West blízko Vondelparku a Kinkerstraat.',
-    note:'Top kvalita · „apothecary" štýl · obľúbený u miestnych', addr:'Baarsjesweg 239, 1058 AA Amsterdam',
+  { id:110, name:'Boerejongens (Utrechtsestraat)', category:'cs', lat:52.3648729, lng:4.8980282,
+    description:'Prémiový coffeeshop v štýle starej lekárne — biele kachličky, personál v oblekoch a vysoko hodnotená kvalita. Obľúbený medzi miestnymi, jeden z najlepšie hodnotených v meste. Centrálna pobočka na Utrechtsestraat blízko Rembrandtplein a Amstelu.',
+    note:'Top kvalita · „apothecary" štýl · Utrechtsestraat', addr:'Utrechtsestraat 21, 1017 VH Amsterdam',
     price:null, hours:'~7:00–01:00', rating:4.6, photo:null, day:null, isCustom:false },
 
   { id:111, name:'Coffeeshop Amsterdam', category:'cs', lat:52.3800660, lng:4.8929225,
@@ -2957,6 +2957,19 @@ function healSharedDefaults(){
       cur.lat = def.lat; cur.lng = def.lng; changed = true;
     }
   });
+  // Jednorazová oprava Boerejongens (id 110) na pobočku Utrechtsestraat — prepíše
+  // staršiu West verziu, ktorá už mohla byť v cloude. Guarded flagom, aby táto
+  // oprava nebojovala s neskoršími ručnými úpravami tohto miesta.
+  if (!localStorage.getItem('boerejongens_utrecht_2026_06')) {
+    const cur = places.find(p => p.id === 110);
+    const def = DEFAULTS.find(d => d.id === 110);
+    if (cur && def && !cur.isCustom) {
+      cur.name = def.name; cur.lat = def.lat; cur.lng = def.lng;
+      cur.addr = def.addr; cur.note = def.note; cur.description = def.description;
+      changed = true;
+    }
+    localStorage.setItem('boerejongens_utrecht_2026_06', '1');
+  }
   return changed;
 }
 
