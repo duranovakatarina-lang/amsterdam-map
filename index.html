@@ -1242,6 +1242,14 @@
       color: #1D4ED8;
       margin-bottom: 14px;
     }
+    .sb-distance-cta {
+      cursor: pointer;
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #475569;
+      transition: background 0.14s, border-color 0.14s, color 0.14s;
+    }
+    .sb-distance-cta:hover { background: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; }
 
     /* ─── LEAFLET OVERRIDES ───────────────────────────────── */
     .leaflet-bottom.leaflet-left { bottom: 96px; left: 14px; }
@@ -2432,7 +2440,7 @@ function locateMe() {
     return;
   }
   const btn = document.getElementById('locate-btn');
-  btn.textContent = '⏳';
+  btn.style.opacity = '0.5';   // vizuálna spätná väzba počas zisťovania (ikonu nezničí)
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
@@ -2470,14 +2478,14 @@ function locateMe() {
 
       map.setView(userLatLng, Math.max(map.getZoom(), 15), { animate: true });
 
-      btn.textContent = '🎯';
+      btn.style.opacity = '';
       btn.classList.add('active');
 
       // Refresh sidebar distances if open
       if (selectedId) openSidebar(selectedId);
     },
     (err) => {
-      btn.textContent = '🎯';
+      btn.style.opacity = '';
       const msgs = {
         1: 'Prístup k polohe zamietnutý. Povoľ ho v nastaveniach prehliadača.',
         2: 'Polohu sa nepodarilo zistiť.',
@@ -2896,11 +2904,13 @@ function openSidebar(id) {
       <span style="font-weight:600;color:#0f172a;">${p.rating.toFixed(1)}</span>
     </div>` : '';
 
-  // Distance from user location
+  // Distance from user location (ak polohu nemáme, ponúkni ju zapnúť)
   let distHtml = '';
   if (userLatLng) {
     const dist = map.distance(userLatLng, [p.lat, p.lng]);
     distHtml = `<div class="sb-distance">📍 ${formatDistance(dist)} od teba</div>`;
+  } else {
+    distHtml = `<div class="sb-distance sb-distance-cta" onclick="locateMe()" title="Zapne tvoju polohu a ukáže vzdialenosť">📍 Zistiť vzdialenosť odo mňa</div>`;
   }
 
   const chips = [
