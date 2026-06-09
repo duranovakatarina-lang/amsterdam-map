@@ -80,7 +80,25 @@
       border-radius: 20px;
       border: none;
       flex-shrink: 0;
+      white-space: nowrap;
     }
+
+    #geocode-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 11px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    #geocode-btn:hover { color: var(--text-1); border-color: #cbd5e1; }
 
     /* ─── SEARCH ───────────────────────────────────────────── */
     #search-wrap { position: relative; flex-shrink: 0; }
@@ -150,8 +168,17 @@
     .search-result.visited .search-result-name { color: #94A3B8; text-decoration: line-through; }
     .search-empty { padding: 16px; text-align: center; font-size: 12.5px; color: #94A3B8; }
     @media (max-width: 767px) {
-      #search-box { width: 130px; }
+      .top-row { gap: 8px; }
+      .top-row > div:last-child { flex: 1; min-width: 0; gap: 6px; }
+      .header-main { flex-shrink: 0; }
+      .city-name { font-size: 17px; }
+      #search-box { width: 100%; min-width: 0; padding: 5px 11px; }
+      #search-wrap { flex: 1; min-width: 0; }
       #search-results { width: 240px; }
+      #place-count { padding: 3px 8px; }
+      /* „Overiť" len ikona na mobile (ušetrí miesto) */
+      #geocode-btn .btn-label { display: none; }
+      #geocode-btn { padding: 6px; border-radius: 50%; }
     }
 
     /* ─── DAY TABS ─────────────────────────────────────────── */
@@ -863,20 +890,16 @@
 
     /* ─── FAB ─────────────────────────────────────────────── */
     #fab {
-      height: 46px;
-      padding: 0 20px;
+      width: 46px; height: 46px;
+      padding: 0;
       background: #0F172A;
       color: white;
       border: none;
-      border-radius: 23px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
+      border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 7px;
+      justify-content: center;
       box-shadow: 0 4px 20px rgba(15,23,42,0.28);
       transition: transform 0.18s, background 0.15s, box-shadow 0.15s;
     }
@@ -884,9 +907,10 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 28px rgba(15,23,42,0.35);
     }
+    #fab svg { transition: transform 0.2s; }
     #fab.adding { background: #EF4444; }
     @media (max-width: 767px) {
-      #fab { height: 44px; padding: 0 16px; font-size: 12px; }
+      #fab { width: 44px; height: 44px; }
     }
 
     /* Adding banner */
@@ -1096,30 +1120,27 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
     }
     .tile-btn {
-      padding: 6px 13px;
+      width: 36px; height: 36px;
+      padding: 0;
       border: none;
       border-radius: 10px;
       background: transparent;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 500;
       color: #64748B;
       cursor: pointer;
-      white-space: nowrap;
       transition: all 0.15s;
       display: flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
     }
-    .tile-btn:hover { color: #0F172A; }
+    .tile-btn:hover { color: #0F172A; background: rgba(15,23,42,0.05); }
     .tile-btn.active {
       background: #0F172A;
       color: white;
-      font-weight: 600;
     }
+    .tile-btn.active:hover { background: #0F172A; }
     @media (max-width: 767px) {
       #tile-switcher { bottom: 18px; left: 10px; border-radius: 12px; }
-      .tile-btn { font-size: 11px; padding: 5px 10px; }
+      .tile-btn { width: 33px; height: 33px; }
     }
 
     /* ─── POI POPUP ───────────────────────────────────────── */
@@ -1267,15 +1288,9 @@
         <div id="search-results"></div>
       </div>
       <span id="place-count">50 miest</span>
-      <button id="geocode-btn" onclick="geocodeAllPlaces()" title="Overiť polohy miest podľa adresy cez OpenStreetMap (s kontrolou ulice a čísla domu)"
-        style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;display:flex;align-items:center;gap:4px;">
-        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
-        Overiť
-      </button>
-      <button id="photos-btn" onclick="fetchPhotos()" title="Natiahnuť fotky miest z Wikipédie (pre overené miesta; ostatné ostanú na farebnom pozadí)"
-        style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;display:flex;align-items:center;gap:4px;">
-        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5L5 19"/></svg>
-        Fotky
+      <button id="geocode-btn" onclick="geocodeAllPlaces()" title="Overiť polohy miest podľa adresy cez OpenStreetMap (s kontrolou ulice a čísla domu)">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        <span class="btn-label">Overiť</span>
       </button>
     </div>
   </div>
@@ -1355,9 +1370,15 @@
 
 <!-- ─── TILE SWITCHER ────────────────────────────────────── -->
 <div id="tile-switcher">
-  <button class="tile-btn active" data-type="standard" onclick="switchTileType('standard')">🗺️ Mapa</button>
-  <button class="tile-btn" data-type="satellite" onclick="switchTileType('satellite')">🛰️ Satelit</button>
-  <button class="tile-btn active" id="poi-toggle" onclick="togglePOIs()">📍 Miesta</button>
+  <button class="tile-btn active" data-type="standard" onclick="switchTileType('standard')" title="Mapa" aria-label="Mapa">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+  </button>
+  <button class="tile-btn" data-type="satellite" onclick="switchTileType('satellite')" title="Satelit" aria-label="Satelit">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg>
+  </button>
+  <button class="tile-btn active" id="poi-toggle" onclick="togglePOIs()" title="Okolité miesta (OpenStreetMap)" aria-label="Okolité miesta">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+  </button>
 </div>
 
 <!-- POI loading indicator -->
@@ -1368,10 +1389,11 @@
 
 <!-- ─── BOTTOM ACTIONS (locate + FAB) ───────────────────── -->
 <div id="bottom-actions">
-  <button id="locate-btn" onclick="locateMe()" title="Moja aktuálna poloha">🎯</button>
-  <button id="fab" onclick="toggleAddMode()" title="Pridať nové miesto">
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    <span id="fab-label">Pridať miesto</span>
+  <button id="locate-btn" onclick="locateMe()" title="Moja aktuálna poloha" aria-label="Moja poloha">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><line x1="12" y1="1.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22.5" y2="12"/></svg>
+  </button>
+  <button id="fab" onclick="toggleAddMode()" title="Pridať nové miesto" aria-label="Pridať miesto">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </div>
 
@@ -3110,7 +3132,6 @@ function setAddingMode(val) {
   const banner = document.getElementById('add-banner');
   fab.classList.toggle('adding', val);
   fab.title = val ? 'Zrušiť' : 'Pridať nové miesto';
-  document.getElementById('fab-label').textContent = val ? 'Zrušiť' : 'Pridať miesto';
   fab.querySelector('svg').style.transform = val ? 'rotate(45deg)' : '';
   banner.classList.toggle('visible', val);
   map.getContainer().style.cursor = val ? 'crosshair' : '';
