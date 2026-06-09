@@ -2574,6 +2574,37 @@ const DEFAULTS = [
     note:'Skús McKroket — holandská špecialita v menu', addr:'Nieuwendijk 212, 1012 MX Amsterdam',
     price:'~€5–9 menu', hours:'~8:00–24:00', rating:null, photo:null, day:null, isCustom:false },
 
+  // ── DÁVKA 2026-06-09 (id 109–114) — coffee shopy ─────────────
+  { id:109, name:'The Bulldog The First', category:'cs', lat:52.3736586, lng:4.8977039,
+    description:'Úplne prvý coffeeshop v Amsterdame (od 1975) — ikonická značka The Bulldog v bývalej policajnej stanici priamo v Red Light District. Turistická klasika, ktorú treba aspoň raz vidieť. Súčasťou je aj bar a suvenírový obchod.',
+    note:'Najstarší coffeeshop v meste · Red Light District', addr:'Oudezijds Voorburgwal 90, 1012 GG Amsterdam',
+    price:null, hours:'~10:00–01:00', rating:4.2, photo:null, day:null, isCustom:false },
+
+  { id:110, name:'Boerejongens (West)', category:'cs', lat:52.3623061, lng:4.8575482,
+    description:'Prémiový coffeeshop v štýle starej lekárne — biele kachličky, personál v oblekoch a vysoko hodnotená kvalita. Obľúbený medzi miestnymi, jeden z najlepšie hodnotených v meste. Pobočka West blízko Vondelparku a Kinkerstraat.',
+    note:'Top kvalita · „apothecary" štýl · obľúbený u miestnych', addr:'Baarsjesweg 239, 1058 AA Amsterdam',
+    price:null, hours:'~7:00–01:00', rating:4.6, photo:null, day:null, isCustom:false },
+
+  { id:111, name:'Coffeeshop Amsterdam', category:'cs', lat:52.3800660, lng:4.8929225,
+    description:'Príjemný coffeeshop na rušnej Haarlemmerstraat kúsok od Centraal. Uvoľnená atmosféra, prehľadné menu a dobrá poloha na prechádzke smerom k Jordaan.',
+    note:'Haarlemmerstraat · blízko Centraal', addr:'Haarlemmerstraat 44, 1013 ES Amsterdam',
+    price:null, hours:null, rating:4.3, photo:null, day:null, isCustom:false },
+
+  { id:112, name:"Prix d'Ami", category:'cs', lat:52.3768852, lng:4.8971494,
+    description:'Jeden z najväčších coffeeshopov na svete — viac poschodí, biliardové stoly, veľké obrazovky a kapacita pre stovky ľudí. Skrytý v uličke Haringpakkerssteeg blízko Centraal a Damu.',
+    note:'Obrovský · biliard · blízko Centraal', addr:'Haringpakkerssteeg 5, 1012 LR Amsterdam',
+    price:null, hours:'~9:00–01:00', rating:4.2, photo:null, day:null, isCustom:false },
+
+  { id:113, name:'Grey Area', category:'cs', lat:52.3746905, lng:4.8888723,
+    description:'Maličký kultový coffeeshop vedený Američanmi — viacnásobný víťaz Cannabis Cup, navštívili ho aj celebrity. Sotva sa tam zmestí pár ľudí, často sa stojí rad. Priateľská a uvoľnená atmosféra.',
+    note:'Legenda · Cannabis Cup víťaz · malý, často rad', addr:'Oude Leliestraat 2, 1015 AW Amsterdam',
+    price:null, hours:'~12:00–20:00 · Po zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
+
+  { id:114, name:'Coffeeshop Siberië', category:'cs', lat:52.3788920, lng:4.8930380,
+    description:'Pohodový, priateľský coffeeshop pri Brouwersgracht s pokojnou „local" atmosférou bez davov turistov. Organizujú kultúrne akcie a výstavy. Skvelé miesto posedieť pri kanáli.',
+    note:'Pokojný local spot pri kanáli · kultúrne akcie', addr:'Brouwersgracht 11, 1015 GA Amsterdam',
+    price:null, hours:'~11:00–23:00', rating:4.5, photo:null, day:null, isCustom:false },
+
 ];
 
 // ═══════════════════════════════════════════════════
@@ -2795,6 +2826,19 @@ function migrate() {
       }
     });
     localStorage.setItem('mcdonalds_2026_06', '1');
+    localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
+  }
+
+  // Šesť coffee shopov (id 109–114) — vlastný flag, aby pribudli aj do už
+  // uloženej localStorage, kde predošlé injekcie prebehli.
+  if (!localStorage.getItem('coffeeshops_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 109 && d.id <= 114 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('coffeeshops_2026_06', '1');
     localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
   }
 
