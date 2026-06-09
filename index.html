@@ -1428,7 +1428,7 @@
           <option value="custom">📍 Vlastné</option>
           <option value="letisko">✈️ Letisko</option>
           <option value="ubytovanie">🏠 Ubytovanie</option>
-          <option value="coffee">☕ Coffee &amp; matcha</option>
+          <option value="coffee">☕ Coffee &amp; bakery</option>
           <option value="cs">🌿 Coffee shop</option>
           <option value="brown">🍺 Brown café</option>
           <option value="gastro">🍽️ Gastro</option>
@@ -1483,9 +1483,9 @@
 const CATS = {
   'letisko':    { label: 'Letisko',              icon: '✈️',  color: '#0369A1', type: 'Letisko · Amsterdam Schiphol' },
   'ubytovanie': { label: 'Ubytovanie',           icon: '🏠',  color: '#BE185D', type: 'Ubytovanie · B&B' },
-  'coffee':    { label: 'Coffee & matcha',      icon: '☕',  color: '#FBBF24', type: 'Kaviareň & matcha' },
+  'coffee':    { label: 'Coffee & bakery',      icon: '☕',  color: '#FBBF24', type: 'Kaviareň & pekáreň' },
   'cs':        { label: 'Coffee shop',           icon: '🌿', color: '#8DC63F', type: 'Coffee shop' },
-  'brown':     { label: 'Brown café',            icon: '🍺', color: '#F59E0B', type: 'Brown café' },
+  'brown':     { label: 'Brown café',            icon: '🍺', color: '#795548', type: 'Brown café' },
   'gastro':    { label: 'Gastro',                icon: '🍽️', color: '#F47821', type: 'Jedlo & gastro' },
   'nakupy':    { label: 'Nákupy & trhy',         icon: '🛍️', color: '#5BB8D4', type: 'Nákupy & trhy' },
   'zazitok':   { label: 'Zážitky & aktivity',    icon: '✨', color: '#E8437D', type: 'Zážitok & aktivita' },
@@ -1512,8 +1512,8 @@ const CAT_SVG_ICONS = {
   'gastro':    `<line x1="9" y1="3" x2="9" y2="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="15" y1="3" x2="15" y2="9"/><path d="M9 9a3 3 0 0 0 6 0"/><line x1="12" y1="12" x2="12" y2="21"/>`,
   // Shopping bag with handles + clasp
   'nakupy':    `<path d="M6 2L4 8h16L18 2"/><path d="M4 8l2 12h12l2-12H4z"/><path d="M9.5 13a2.5 2.5 0 0 0 5 0"/>`,
-  // Lightning bolt (energy/activity)
-  'zazitok':   `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
+  // Star (zážitok / aktivita)
+  'zazitok':   `<polygon points="12 2 14.9 8.6 22 9.3 16.5 14.1 18.2 21 12 17.3 5.8 21 7.5 14.1 2 9.3 9.1 8.6 12 2"/>`,
   // Diamond/gem shape
   'hidden':    `<path d="M12 2l7 7-7 13L5 9z"/><line x1="5" y1="9" x2="19" y2="9"/>`,
   // City skyline (3 buildings + roof line)
@@ -1530,8 +1530,9 @@ const CAT_SVG_ICONS = {
 const PLACE_ICON_SVG = {
   // Burger — vrchná žemľa, plnka, spodná žemľa
   burger: `<path d="M4 10a8 8 0 0 1 16 0z"/><path d="M4 13h16"/><path d="M5 16h14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/>`,
-  // Syr — klin s dierkami
-  cheese: `<path d="M3 13L20 8v10H3z"/><circle cx="12" cy="13.5" r="1.1"/><circle cx="16" cy="11.5" r="0.9"/><circle cx="15.5" cy="15.5" r="0.9"/>`,
+  // Syr — PLNÝ klin (vyplnený bielou, dierky vyseknuté cez fill-rule). fill/stroke
+  // na path prepíšu zdedený fill:none/stroke:white z wrappera → vykreslí sa plný.
+  cheese: `<path fill="white" stroke="none" fill-rule="evenodd" d="M2.5 18 L17 8.4 C19 7.1 21 7.9 21 10.1 V16.4 A1.6 1.6 0 0 1 19.4 18 Z M12.4 13.8 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 z M15.9 15.5 a0.9 0.9 0 1 0 1.8 0 a0.9 0.9 0 1 0 -1.8 0 z M8 15.6 a1 1 0 1 0 2 0 a1 1 0 1 0 -2 0 z"/>`,
   // FEBO automat — stena s okienkami (automatiek)
   febo: `<rect x="4" y="3" width="16" height="18" rx="1.5"/><rect x="6.5" y="5.5" width="4" height="4"/><rect x="13.5" y="5.5" width="4" height="4"/><rect x="6.5" y="11.5" width="4" height="4"/><rect x="13.5" y="11.5" width="4" height="4"/>`,
   // Hranolky — kelímok + vyčnievajúce hranolčeky (McDonald's)
@@ -1568,7 +1569,7 @@ const GRADIENTS = {
   'ubytovanie': 'linear-gradient(135deg,#FCE7F3,#BE185D)',
   'coffee':    'linear-gradient(135deg,#FEF3C7,#FBBF24)',
   'cs':        'linear-gradient(135deg,#ECFDF5,#8DC63F)',
-  'brown':     'linear-gradient(135deg,#FFFBEB,#F59E0B)',
+  'brown':     'linear-gradient(135deg,#EFEBE9,#795548)',
   'gastro':    'linear-gradient(135deg,#FFF7ED,#F47821)',
   'nakupy':    'linear-gradient(135deg,#E0F7FA,#5BB8D4)',
   'zazitok':   'linear-gradient(135deg,#FDF2F8,#E8437D)',
