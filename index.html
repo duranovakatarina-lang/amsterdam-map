@@ -2422,15 +2422,34 @@ function adoptCloudState(data){
   return added;
 }
 
+// Zladí zmenené predvolené miesta v zdieľanom stave — mergeNewDefaults len DOPĹŇA
+// chýbajúce id, EXISTUJÚCE neaktualizuje. Keď zmeníme popis/poznámku existujúceho
+// predvoleného miesta (napr. filmy k Skinny Bridge), potrebujeme to raz prepísať aj
+// v cloude. Vráti true, ak niečo zmenil → cloudInit to potom pushne. Nedotýka sa
+// vlastných (isCustom) miest. Po prvom opravnom pushe už ostatní klienti nájdu zhodu.
+function healSharedDefaults(){
+  let changed = false;
+  const FIX_IDS = [94];   // miesta, ktorých text sme upravili po tom, čo už boli v cloude
+  FIX_IDS.forEach(id => {
+    const cur = places.find(p => p.id === id);
+    const def = DEFAULTS.find(d => d.id === id);
+    if (cur && def && !cur.isCustom && (cur.note !== def.note || cur.description !== def.description)) {
+      cur.note = def.note; cur.description = def.description; changed = true;
+    }
+  });
+  return changed;
+}
+
 async function cloudInit(){
   setSyncStatus('sync');
   try {
     const data = await cloudGet();
     if (data && Array.isArray(data.places)) {
       const added = adoptCloudState(data);
+      const healed = healSharedDefaults();
       refreshMarkers(); updateItineraryUI(); renderItinerary(); renderChecklist();
       cloudReady = true;
-      if (added) await cloudPut();   // doplň nové predvolené miesta do spoločného stavu
+      if (added || healed) await cloudPut();   // doplň nové / zlaď zmenené predvolené miesta
     } else {
       cloudReady = true;             // cloud je prázdny → naplň ho aktuálnym stavom
       await cloudPut();
