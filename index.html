@@ -1532,6 +1532,10 @@ const PLACE_ICON_SVG = {
   burger: `<path d="M4 10a8 8 0 0 1 16 0z"/><path d="M4 13h16"/><path d="M5 16h14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/>`,
   // Syr — klin s dierkami
   cheese: `<path d="M3 13L20 8v10H3z"/><circle cx="12" cy="13.5" r="1.1"/><circle cx="16" cy="11.5" r="0.9"/><circle cx="15.5" cy="15.5" r="0.9"/>`,
+  // FEBO automat — stena s okienkami (automatiek)
+  febo: `<rect x="4" y="3" width="16" height="18" rx="1.5"/><rect x="6.5" y="5.5" width="4" height="4"/><rect x="13.5" y="5.5" width="4" height="4"/><rect x="6.5" y="11.5" width="4" height="4"/><rect x="13.5" y="11.5" width="4" height="4"/>`,
+  // Hranolky — kelímok + vyčnievajúce hranolčeky (McDonald's)
+  fries: `<path d="M6 8h12l-1.2 12H7.2z"/><line x1="6.5" y1="12" x2="17.5" y2="12"/><line x1="8.6" y1="8" x2="8.1" y2="2.6"/><line x1="12" y1="8" x2="12" y2="2"/><line x1="15.4" y1="8" x2="15.9" y2="3"/>`,
 };
 // Priradenie podniku → ikona (ostatné miesta používajú ikonu kategórie)
 const PLACE_ICONS = {
@@ -1542,6 +1546,10 @@ const PLACE_ICONS = {
   22: 'cheese',   // Cheese Museum + shop
   36: 'cheese',   // Cheese Museum
   64: 'cheese',   // Fromagerie Abraham Kef
+  98: 'febo',     // FEBO Reguliersbreestraat
+  99: 'febo',     // FEBO Leidsestraat
+  100: 'fries',   // McDonald's Damrak
+  101: 'fries',   // McDonald's Kalverstraat
 };
 // Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
 function placeIcon(p) {
@@ -2049,9 +2057,70 @@ const DEFAULTS = [
     price:'~€23,50/loďka + €20 záloha', hours:'Celoročne', rating:4.3, photo:null, day:null, isCustom:false },
 
   { id:94, name:'Magere Brug (Skinny Bridge)', category:'miesta', lat:52.36359, lng:4.90240,
-    description:'Najznámejší most v Amsterdame — drevený zdvíhací most cez rieku Amstel z 18. storočia (pôvodne 1691). Volá sa „chudý most", lebo bol kedysi taký úzky, že sa po ňom sotva vyhli dvaja chodci. Najkrajší je po zotmení, keď ho rozsvieti vyše 1200 žiaroviek a zrkadlí sa v rieke. Pravidelne ho otvárajú pre lode. Zadarmo, ideálne pre večernú prechádzku.',
-    note:'Cez rieku Amstel, medzi Kerkstraat a Nieuwe Kerkstraat · najkrajší v noci', addr:'Amstel 85K, 1018 EK Amsterdam',
+    description:'Najznámejší most v Amsterdame — drevený zdvíhací most cez rieku Amstel z 18. storočia (pôvodne 1691). Volá sa „chudý most", lebo bol kedysi taký úzky, že sa po ňom sotva vyhli dvaja chodci. Najkrajší je po zotmení, keď ho rozsvieti vyše 1200 žiaroviek a zrkadlí sa v rieke. Pravidelne ho otvárajú pre lode. Zadarmo, ideálne pre večernú prechádzku.<br><br>🎬 <b>Z filmov:</b> objavil sa v bondovke <i>Diamonds Are Forever</i> (1971) so Seanom Connerym — scéna s vyhliadkovou loďou plaviacou sa k mostu. Most je vďačná filmová a fotografická kulisa Amsterdamu.',
+    note:'Cez rieku Amstel, medzi Kerkstraat a Nieuwe Kerkstraat · najkrajší v noci · 🎬 James Bond: Diamonds Are Forever (1971)', addr:'Amstel 85K, 1018 EK Amsterdam',
     price:'Zadarmo', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
+
+  // ── DÁVKA 2026-06-09 (id 95–106) — Jamin, Wynand Fockink, FEBO, McDonald's, Fabel Friet, Layers, Cat Cabinet, Madaq ──
+  { id:95, name:'Jamin (Kalverstraat)', category:'nakupy', lat:52.3714162, lng:4.8920644,
+    description:'Holandská reťazová cukráreň/predajňa sladkostí (od roku 1883). Ideálne miesto na ochutnanie <b>drop</b> (slaná lekorica) — majú celý regál. Aj stroopwafels, čokoláda, želé a holandské klasiky.',
+    note:'Drop na vyskúšanie: 1× sladkú (Zoete Drop), 1× slanú (Zoute Drop), 1× extrémne slanú (Dubbel Zout)', addr:'Kalverstraat 39, 1012 NZ Amsterdam',
+    price:'~€2–5 vrecko', hours:'~10:00–18:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:96, name:'Jamin (Damrak)', category:'nakupy', lat:52.3763349, lng:4.8969586,
+    description:'Druhá centrálna pobočka holandskej cukrárne Jamin, hneď pri Damraku na ceste od Centraal k Dam. Sladkosti, čokoláda, stroopwafels a najmä <b>drop</b> (slaná lekorica) vo všetkých silách.',
+    note:'Drop na vyskúšanie: 1× sladkú (Zoete Drop), 1× slanú (Zoute Drop), 1× extrémne slanú (Dubbel Zout)', addr:'Damrak 25, 1012 LJ Amsterdam',
+    price:'~€2–5 vrecko', hours:'~10:00–19:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:97, name:'Wynand Fockink', category:'brown', lat:52.3723195, lng:4.8952995,
+    description:'Historická palenica a tasting room (proeflokaal) na <b>genever a likéry</b>, založená roku 1679 — ukrytá v úzkej uličke pri námestí Dam. Likéry majú okolo 20 % ABV a stoja ~€5 za pohár. Pohár ti nalejú „kopcovitý" (po okraj), takže prvý dúšok sa tradične usrkne sklonený k baru, bez zdvihnutia pohára — celkom zábavná tradícia. Posedieť sa dá vnútri aj vonku.',
+    note:'Tradícia: prvý dúšok bez zdvihnutia pohára (skloň sa k baru). ~€5/pohár, ~20 % ABV', addr:'Pijlsteeg 31, 1012 HH Amsterdam',
+    price:'~€5 / pohár', hours:'~14:00–21:00 (denne)', rating:4.6, photo:null, day:null, isCustom:false },
+
+  { id:98, name:'FEBO (Reguliersbreestraat)', category:'gastro', lat:52.3663683, lng:4.8951869,
+    description:'Ikonický holandský <b>automatiek</b> (od 1941) — snacky ako kroket, frikandel, kaassoufflé či bitterballen si za pár mincí vytiahneš z okienok v stene. Táto pobočka je pri Rembrandtpleine. Lacná a typická amsterdamská skúsenosť.',
+    note:'Automat v stene — vhoď mince, otvor okienko. Skús frikandel alebo kroket', addr:'Reguliersbreestraat 38, 1017 CN Amsterdam',
+    price:'~€2–4 / snack', hours:'~11:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:99, name:'FEBO (Leidsestraat)', category:'gastro', lat:52.3647668, lng:4.8837247,
+    description:'Pobočka kultového holandského automatu FEBO blízko Leidseplein. Kroket, frikandel a kaassoufflé z okienok v stene — rýchle, lacné a veľmi „po holandsky".',
+    note:'Automat v stene — skús frikandel alebo kaassoufflé', addr:'Leidsestraat 94, 1017 PE Amsterdam',
+    price:'~€2–4 / snack', hours:'~11:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:100, name:"McDonald's (Damrak)", category:'gastro', lat:52.3768951, lng:4.8976720,
+    description:"McDonald's pri Damraku medzi Centraal a Dam — praktická rýchla zastávka. Tip: v Holandsku skús <b>McKroket</b> (kroketový burger) — lokálna McDonald's klasika, ktorú inde nedostaneš.",
+    note:'Skús McKroket — holandská špecialita v menu', addr:'Damrak 8, 1012 LG Amsterdam',
+    price:'~€5–9 menu', hours:'~7:00–24:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:101, name:"McDonald's (Kalverstraat)", category:'gastro', lat:52.3711733, lng:4.8920084,
+    description:"McDonald's na nákupnej Kalverstraat, kúsok od Dam. Tip: skús <b>McKroket</b> — holandskú verziu burgera s kroketou.",
+    note:'Skús McKroket — holandská špecialita v menu', addr:'Kalverstraat 45-47, 1012 NZ Amsterdam',
+    price:'~€5–9 menu', hours:'~8:00–24:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:102, name:'Fabel Friet (Damrak)', category:'gastro', lat:52.3751130, lng:4.8953130,
+    description:'Čerstvé holandské hranolky z ručne lúpaných zemiakov, ikonické omáčky (vrátane „oorlog" — majonéza + arašidová satay + cibuľka). Veľmi populárny stánok, často sa stojí rad.',
+    note:'Skús omáčku „oorlog". Často rad — oplatí sa', addr:'Damrak 58, 1012 LL Amsterdam',
+    price:'~€5–7', hours:'Po–Št 11:00–22:00 · Pi–Ne 11:00–00:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:103, name:'Fabel Friet (Nieuwendijk)', category:'gastro', lat:52.3786718, lng:4.8948032,
+    description:'Pobočka obľúbeného Fabel Friet na Nieuwendijk, blízko Dam a Kalverstraat. Tie isté čerstvé hranolky z ručne lúpaných zemiakov a typické holandské omáčky.',
+    note:'Skús omáčku „oorlog"', addr:'Nieuwendijk 10A, 1012 MK Amsterdam',
+    price:'~€5–7', hours:'12:00–21:00 (denne)', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:104, name:'Layers Bakery & Deli', category:'gastro', lat:52.3556420, lng:4.8889371,
+    description:'Pekáreň a deli od francúzskeho cukrára Alexandra Scoura v štvrti De Pijp. Ráno maslové croissanty a viennoiserie z otvoreného „pastry labu" na poschodí, poobede čerstvé sendviče z deli dole.',
+    note:'Ráno croissanty/viennoiserie, poobede sendviče', addr:'Saenredamstraat 32, 1072 CH Amsterdam (De Pijp)',
+    price:'~€4–8', hours:'Pekáreň 09:00–18:00 · Deli 12:00–17:30', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:105, name:'The Cat Cabinet (Kattenkabinet)', category:'hidden', lat:52.3656060, lng:4.8915478,
+    description:'Malé svojrázne múzeum venované mačkám v umení — obrazy, sochy a plagáty (vrátane diel Picassa či Rembrandta) v honosnom kanálovom dome na Herengracht. Po priestoroch sa často prechádzajú aj živé mačky. Podľa recenzií je malé — pokojne tak na ~10 minút.',
+    note:'~10 min návšteva · vstup €12,50 (študenti €7,50, deti do 12 zdarma) · over aktuálnu cenu', addr:'Herengracht 497, 1017 BT Amsterdam',
+    price:'€12,50 (deti do 12 zdarma)', hours:'Ut–Ne 12:00–17:00 · Po zatvorené', rating:4.2, photo:null, day:null, isCustom:false },
+
+  { id:106, name:'Madaq — Qrumble', category:'gastro', lat:52.3689837, lng:4.8906526,
+    description:'Chocolatier a dezerty v House of Rituals na Spui. Hviezdou je <b>Qrumble</b> — virálny teplý jablkový crumble: škoricou voňajúce jablká pod chrumkavou maslovou posýpkou s vrstvou krému/zmrzliny (často opálenou „brûlée"). Majú aj ručné čokolády a makrónky.',
+    note:'Qrumble (teplý apple crumble) ~€5,50 · skús aj makrónky', addr:'Spui 10, 1012 WZ Amsterdam (House of Rituals)',
+    price:'Qrumble ~€5,50', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
 
 ];
 
@@ -2242,6 +2311,26 @@ function migrate() {
       changed = true;
     }
     localStorage.setItem('beefchief_fix_2026_06', '1');
+  }
+
+  // Dávka 2026-06-09 (id 95–106) — Jamin, Wynand Fockink, FEBO, McDonald's, Fabel Friet,
+  // Layers, Cat Cabinet, Madaq. Vlastný flag, aby sa pushli aj do uloženej localStorage.
+  if (!localStorage.getItem('new_places_2026_06e')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 95 && d.id <= 106 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('new_places_2026_06e', '1');
+  }
+
+  // One-off: doplnenie filmovej poznámky k Magere Brug (id 94) v už uloženej localStorage.
+  if (!localStorage.getItem('magerebrug_films_2026_06')) {
+    const mb = places.find(p => p.id === 94);
+    const def = DEFAULTS.find(d => d.id === 94);
+    if (mb && def && !mb.isCustom) { mb.description = def.description; mb.note = def.note; changed = true; }
+    localStorage.setItem('magerebrug_films_2026_06', '1');
   }
 
   if (changed) save();
