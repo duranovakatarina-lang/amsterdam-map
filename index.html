@@ -461,9 +461,9 @@
       white-space: nowrap;
     }
     .plan-btn:hover { border-color: #94a3b8; color: var(--text-1); }
-    .plan-btn.sel-saturday { background: #EFF6FF; border-color: #93C5FD; color: #1D4ED8; font-weight: 600; }
-    .plan-btn.sel-sunday   { background: #FDF2F8; border-color: #F9A8D4; color: #BE185D; font-weight: 600; }
-    .plan-btn.sel-monday   { background: #EEF2FF; border-color: #A5B4FC; color: #4338CA; font-weight: 600; }
+    .plan-btn.sel-saturday { background: #FEF9C3; border-color: #FACC15; color: #854D0E; font-weight: 600; }
+    .plan-btn.sel-sunday   { background: #E7F5EC; border-color: #0B6B3A; color: #0B6B3A; font-weight: 600; }
+    .plan-btn.sel-monday   { background: #FDF2F8; border-color: #EC4899; color: #BE185D; font-weight: 600; }
     .plan-btn.sel-remove   { color: #EF4444; border-color: #FCA5A5; background: #FFF5F5; }
     .plan-btn.sel-remove:hover { background: #FEE2E2; }
 
@@ -1920,6 +1920,8 @@ const PLACE_ICONS = {
   99: 'febo',     // FEBO Leidsestraat
   100: 'fries',   // McDonald's Damrak
   101: 'fries',   // McDonald's Kalverstraat
+  107: 'fries',   // McDonald's Muntplein
+  108: 'fries',   // McDonald's Nieuwendijk
 };
 // Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
 function placeIcon(p) {
@@ -1931,6 +1933,13 @@ const DAY_LABELS = {
   saturday: 'Sob 13.6 🛬',
   sunday:   'Ned 14.6 🎲',
   monday:   'Pon 15.6 ✈️',
+};
+
+// Farba indikačnej tečky na pine podľa priradeného dňa
+const DAY_DOT_COLORS = {
+  saturday: '#FACC15',   // žltá
+  sunday:   '#0B6B3A',   // racing green
+  monday:   '#EC4899',   // ružová
 };
 
 const GRADIENTS = {
@@ -2403,7 +2412,7 @@ const DEFAULTS = [
     description:'Mestská pláž a reštaurácia z lodných kontajnerov na NDSM v Noorde — piesočná pláž priamo pri IJ, ležadlá, sauna a jeden z najlepších výhľadov na západ slnka nad mestom. Cez deň brunch, večer DJ a ohne. Doplávaš sem zadarmo trajektom z Centraalu.',
     note:'TT Neveritaweg 59, NDSM Noord · sunset spot', addr:'TT Neveritaweg 59',
     price:'~€5–15', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
-  { id:69, name:'Strand van Oost', category:'zazitok', lat:52.36300, lng:4.92150,
+  { id:69, name:'Strand van Oost', category:'zazitok', lat:52.36192, lng:4.92282,
     description:'Mestská pláž na streche v Amsterdame-Oost (House of Orchid pri Oosterparku a Tropenmuseu) — piesok, ležadlá, koktaily a výhľad na park. Letná oáza mimo turistických davov, super na popoludňajší drink, keď je teplo.',
     note:'Linnaeusstraat 2C, Oost · strešná pláž', addr:'Linnaeusstraat 2C',
     price:'~€5–12', hours:null, rating:4.0, photo:null, day:null, isCustom:false },
@@ -2419,7 +2428,7 @@ const DEFAULTS = [
     price:'Strecha zadarmo', hours:'Strecha v otváracích hodinách múzea', rating:4.3, photo:null, day:null, isCustom:false },
 
   // PRÍRODA & PARKY
-  { id:79, name:'Plameniaky zadarmo — Artisplein', category:'natura', lat:52.36710, lng:4.91370,
+  { id:79, name:'Plameniaky zadarmo — Artisplein', category:'natura', lat:52.36640, lng:4.91360,
     description:'Voľne prístupné námestie pri ZOO Artis (Artisplein), kam sa dostaneš ZADARMO bez vstupenky — a ponad plot vidíš ružové plameniaky a kolpíky. Stoly, kávový stánok a pokojná atmosféra pod starými stromami. Vstup z Plantage Kerklaan.',
     note:'Artisplein, Plantage Kerklaan · plameniaky ZADARMO', addr:'Plantage Kerklaan 38',
     price:'Zadarmo', hours:'Denne 7:00–22:30', rating:4.3, photo:null, day:null, isCustom:false },
@@ -2554,6 +2563,16 @@ const DEFAULTS = [
     description:'Chocolatier a dezerty v House of Rituals na Spui. Hviezdou je <b>Qrumble</b> — virálny teplý jablkový crumble: škoricou voňajúce jablká pod chrumkavou maslovou posýpkou s vrstvou krému/zmrzliny (často opálenou „brûlée"). Majú aj ručné čokolády a makrónky.',
     note:'Qrumble (teplý apple crumble) ~€5,50 · skús aj makrónky', addr:'Spui 10, 1012 WZ Amsterdam (House of Rituals)',
     price:'Qrumble ~€5,50', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+
+  { id:107, name:"McDonald's (Muntplein)", category:'gastro', lat:52.36666, lng:4.89357,
+    description:"McDonald's priamo na Muntplein pri Munttoren a kvetinovom trhu — praktická rýchla zastávka v centre. Tip: skús <b>McKroket</b> (kroketový burger) — holandská McDonald's klasika, ktorú inde nedostaneš.",
+    note:'Skús McKroket — holandská špecialita v menu', addr:'Muntplein 7E, 1017 CK Amsterdam',
+    price:'~€5–9 menu', hours:'~7:00–24:00', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:108, name:"McDonald's (Nieuwendijk)", category:'gastro', lat:52.3739461, lng:4.8927825,
+    description:"McDonald's na nákupnej Nieuwendijk, kúsok od Dam. Tip: skús <b>McKroket</b> — holandskú verziu burgera s kroketou.",
+    note:'Skús McKroket — holandská špecialita v menu', addr:'Nieuwendijk 212, 1012 MX Amsterdam',
+    price:'~€5–9 menu', hours:'~8:00–24:00', rating:null, photo:null, day:null, isCustom:false },
 
 ];
 
@@ -2766,6 +2785,19 @@ function migrate() {
     localStorage.setItem('magerebrug_films_2026_06', '1');
   }
 
+  // Dve pobočky McDonald's (id 107–108: Muntplein, Nieuwendijk) — vlastný flag,
+  // aby pribudli aj do už uloženej localStorage, kde predošlé injekcie prebehli.
+  if (!localStorage.getItem('mcdonalds_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if ((d.id === 107 || d.id === 108) && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('mcdonalds_2026_06', '1');
+    localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
+  }
+
   if (changed) save();
 }
 function save() {
@@ -2868,6 +2900,17 @@ function healSharedDefaults(){
     const def = DEFAULTS.find(d => d.id === id);
     if (cur && def && !cur.isCustom && (cur.note !== def.note || cur.description !== def.description)) {
       cur.note = def.note; cur.description = def.description; changed = true;
+    }
+  });
+  // Súradnice, ktoré sme opravili po tom, čo už miesto bolo v cloude — zlaď polohu
+  // z DEFAULTS. Strand van Oost (69) a Plameniaky/Artisplein (79). Nedotýka sa
+  // vlastných (isCustom) miest, aby sa nemazalo ručné posunutie pinu.
+  const GEO_FIX_IDS = [69, 79];
+  GEO_FIX_IDS.forEach(id => {
+    const cur = places.find(p => p.id === id);
+    const def = DEFAULTS.find(d => d.id === id);
+    if (cur && def && !cur.isCustom && (cur.lat !== def.lat || cur.lng !== def.lng)) {
+      cur.lat = def.lat; cur.lng = def.lng; changed = true;
     }
   });
   return changed;
@@ -3345,7 +3388,8 @@ function makePinIcon(place, seq = null) {
     badge = `<circle cx="34" cy="6" r="6.5" fill="#16A34A" stroke="white" stroke-width="2"/>
              <path d="M31 6l2 2 4-4" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
   } else if (place.day && seq === null) {
-    badge = `<circle cx="34" cy="6" r="5.5" fill="#22C55E" stroke="white" stroke-width="2"/>`;
+    const dc = DAY_DOT_COLORS[place.day] || '#22C55E';
+    badge = `<circle cx="34" cy="6" r="5.5" fill="${dc}" stroke="white" stroke-width="2"/>`;
   }
 
   // In itinerary mode show the stop's order number instead of the category glyph
