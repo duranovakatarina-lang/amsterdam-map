@@ -631,6 +631,222 @@
       #itinerary-panel.open { transform: translateY(0); }
     }
 
+    /* ─── FOOD CHECKLIST — tlačidlo (kolečko vľavo hore) ──── */
+    #food-fab {
+      position: fixed;
+      top: calc(var(--topbar-h, 110px) + 8px);
+      left: 12px;
+      z-index: 240;
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.96);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      border: 1px solid rgba(15,23,42,0.08);
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #16a34a;
+      transition: transform 0.16s, box-shadow 0.16s;
+    }
+    #food-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    #food-fab.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+    #food-fab-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      min-width: 18px; height: 18px;
+      padding: 0 4px;
+      background: #E8437D; color: #fff;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 800; line-height: 14px;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    #food-fab-badge.show { display: flex; }
+
+    /* ─── FOOD CHECKLIST — panel (vysúva sa sprava) ───────── */
+    #food-panel {
+      position: fixed;
+      top: calc(var(--topbar-h, 110px) + 8px);
+      right: 12px;
+      bottom: 12px;
+      width: 360px;
+      background: var(--white);
+      z-index: 250;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.06);
+      transform: translateX(calc(100% + 24px));
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #food-panel.open { transform: translateX(0); }
+
+    #food-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 10px;
+      flex-shrink: 0;
+    }
+    #food-title { font-size: 16px; font-weight: 800; color: var(--text-1); letter-spacing: -0.3px; }
+    #food-progress {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 18px 13px;
+      border-bottom: 1px solid var(--border);
+    }
+    #food-bar {
+      flex: 1; height: 9px;
+      background: var(--surface);
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+    }
+    #food-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      border-radius: 999px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #food-progress-label {
+      font-size: 12.5px; font-weight: 800; color: var(--text-2);
+      white-space: nowrap; min-width: 38px; text-align: right;
+    }
+    #food-close {
+      width: 28px; height: 28px;
+      background: var(--surface);
+      border: none; border-radius: 50%;
+      font-size: 12px; color: var(--text-2); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    #food-close:hover { background: var(--border); }
+
+    #food-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .food-item {
+      border-bottom: 1px solid var(--surface);
+    }
+    .food-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 4px;
+    }
+    .food-check {
+      width: 24px; height: 24px;
+      flex-shrink: 0;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: transparent;
+      transition: background 0.14s, border-color 0.14s, color 0.14s;
+    }
+    .food-check:hover { border-color: #16a34a; }
+    .food-item.done .food-check {
+      background: #16a34a; border-color: #16a34a; color: #fff;
+    }
+    .food-emoji { font-size: 19px; flex-shrink: 0; line-height: 1; }
+    .food-main { flex: 1; min-width: 0; cursor: pointer; }
+    .food-name {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      line-height: 1.3;
+    }
+    .food-item.done .food-name { color: var(--text-3); text-decoration: line-through; }
+    .food-chevron {
+      flex-shrink: 0;
+      color: var(--text-3);
+      transition: transform 0.2s;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .food-item.expanded .food-chevron { transform: rotate(90deg); }
+    .food-remove {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border: none; background: transparent;
+      border-radius: 6px;
+      font-size: 13px; color: var(--text-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .food-remove:hover { background: #FEE2E2; color: #EF4444; }
+
+    .food-detail {
+      display: none;
+      padding: 2px 4px 14px 44px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-2);
+    }
+    .food-item.expanded .food-detail { display: block; }
+    .food-detail p { margin: 0 0 6px; }
+    .food-detail .fd-meta {
+      display: flex; align-items: flex-start; gap: 6px;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+    .food-detail .fd-meta b { color: var(--text-1); font-weight: 700; }
+
+    #food-footer {
+      flex-shrink: 0;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border);
+    }
+    #food-add-btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px; font-weight: 700; color: var(--text-2);
+      cursor: pointer;
+      transition: background 0.14s, border-color 0.14s, color 0.14s;
+    }
+    #food-add-btn:hover { background: #fff; border-color: #16a34a; color: #16a34a; }
+    #food-add-form { display: none; }
+    #food-add-form.open { display: block; }
+    #food-add-form input, #food-add-form textarea {
+      width: 100%;
+      margin-bottom: 7px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-1);
+      resize: vertical;
+    }
+    #food-add-form input:focus, #food-add-form textarea:focus { outline: none; border-color: #16a34a; }
+    .food-form-actions { display: flex; gap: 8px; }
+    .food-form-actions button {
+      flex: 1;
+      padding: 9px;
+      border: none; border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+    .food-form-save { background: #16a34a; color: #fff; }
+    .food-form-cancel { background: var(--surface); color: var(--text-2); }
+
+    @media (max-width: 767px) {
+      #food-panel {
+        top: auto; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 70vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        transform: translateY(110%);
+      }
+      #food-panel.open { transform: translateY(0); }
+    }
+
     /* ─── BOTTOM ACTIONS WRAPPER ──────────────────────────── */
     #bottom-actions {
       position: fixed;
@@ -1104,6 +1320,37 @@
   </div>
   <div id="itin-body"></div>
   <div id="itin-footer"></div>
+</div>
+
+<!-- ─── FOOD CHECKLIST — tlačidlo + panel ────────────────── -->
+<button id="food-fab" onclick="toggleFoodPanel()" title="Food &amp; Drink checklist — čo ochutnať">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="food-fab-badge">0</span>
+</button>
+
+<div id="food-panel">
+  <div id="food-header">
+    <div id="food-title">Čo ochutnať</div>
+    <button id="food-close" onclick="closeFoodPanel()">✕</button>
+  </div>
+  <div id="food-progress">
+    <div id="food-bar"><div id="food-bar-fill"></div></div>
+    <div id="food-progress-label">0 / 0</div>
+  </div>
+  <div id="food-body"></div>
+  <div id="food-footer">
+    <button id="food-add-btn" onclick="showFoodForm()">+ Pridať položku</button>
+    <div id="food-add-form">
+      <input type="text" id="ff-name" placeholder="Názov (napr. Haring – slaný sleď)">
+      <textarea id="ff-desc" rows="2" placeholder="Info / popis (voliteľné)"></textarea>
+      <input type="text" id="ff-price" placeholder="~Cena (voliteľné)">
+      <input type="text" id="ff-where" placeholder="Kde zohnať (voliteľné)">
+      <div class="food-form-actions">
+        <button class="food-form-cancel" onclick="hideFoodForm()">Zrušiť</button>
+        <button class="food-form-save" onclick="addFoodItem()">Pridať</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ─── TILE SWITCHER ────────────────────────────────────── -->
@@ -2007,7 +2254,7 @@ async function cloudGet(){
 async function cloudPut(){
   const r = await fetch(CLOUD_URL, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ places, deletedIds }),
+    body: JSON.stringify({ places, deletedIds, checklist: customFoodItems(), checkDone }),
   });
   if (!r.ok) throw new Error('POST '+r.status);
   const j = await r.json();
@@ -2051,6 +2298,8 @@ function adoptCloudState(data){
   backfillFields();
   const added = mergeNewDefaults();
   nextId = Math.max(...places.map(p => p.id), 99) + 1;
+  // Food checklist — prevezmi custom položky + zjednoť odškrtnutia (zdieľané)
+  adoptCloudFood(data);
   return added;
 }
 
@@ -2060,7 +2309,7 @@ async function cloudInit(){
     const data = await cloudGet();
     if (data && Array.isArray(data.places)) {
       const added = adoptCloudState(data);
-      refreshMarkers(); updateItineraryUI(); renderItinerary();
+      refreshMarkers(); updateItineraryUI(); renderItinerary(); renderChecklist();
       cloudReady = true;
       if (added) await cloudPut();   // doplň nové predvolené miesta do spoločného stavu
     } else {
@@ -2082,7 +2331,7 @@ function startCloudPoll(){
       const data = await cloudGet();
       if (data && Array.isArray(data.places) && (data.updatedAt || 0) > lastCloudUpdatedAt) {
         adoptCloudState(data);
-        refreshMarkers(); updateItineraryUI(); renderItinerary();
+        refreshMarkers(); updateItineraryUI(); renderItinerary(); renderChecklist();
         if (selectedId && !places.find(p => p.id === selectedId)) closeSidebar();
         setSyncStatus('ok');
       }
@@ -2773,6 +3022,7 @@ function toggleItineraryPanel() {
     renderItinerary();
     panel.classList.add('open');
     closeSidebar();
+    closeFoodPanel();
   }
 }
 
@@ -3097,14 +3347,222 @@ function deletePlace(id) {
 }
 
 // ═══════════════════════════════════════════════════
+//  FOOD & DRINK CHECKLIST — čo ochutnať v Amsterdame
+//  Zdieľané cez ten istý cloud ako mapa (custom položky + odškrtnutia).
+//  Defaulty sú v kóde (FOOD_DEFAULTS), cloudom posielame len custom položky
+//  a mapu odškrtnutí (checkDone: id→true). Worker sa nemení.
+// ═══════════════════════════════════════════════════
+const FOOD_DEFAULTS = [
+  { id:'bitterballen', emoji:'🥟', name:'Bitterballen',
+    desc:'Vyprážané chrumkavé guľôčky plnené hovädzím ragú, podávané s horčicou. Národná klasika ku každému pivu.',
+    fact:'Príbuzný väčšej „kroket"; tradičná súčasť „borrel" (posedenie pri pive).',
+    price:'~€7–9 za 8 ks', where:'Hociktorá brown café, FEBO, bary' },
+  { id:'kibbeling', emoji:'🐟', name:'Kibbeling',
+    desc:'Kúsky bielej ryby (treska) v chrumkavom cestíčku, s remuládou alebo cesnakovou omáčkou.',
+    fact:'Pôvodne lacné zvyšky rýb z trhu — dnes obľúbený streetfood.',
+    price:'~€6–8 porcia', where:'Rybie stánky, trh Albert Cuyp, Stubbe’s Haring' },
+  { id:'frikandel', emoji:'🌭', name:'Frikandel',
+    desc:'Hladká bezkožná mäsová klobáska. „Frikandel speciaal" = rozkrojená s majonézou, kari omáčkou a cibuľkou.',
+    fact:'Holandská snack-bar/FEBO klasika — vyber si ju z automatu na stene.',
+    price:'~€2–4', where:'FEBO automaty, snackbary' },
+  { id:'gouda', emoji:'🧀', name:'Gouda (a iné syry)',
+    desc:'Holandský syr od mladého (jong) po starý (oud) — čím starší, tým ostrejší a kryštalickejší.',
+    fact:'V syrárňach často ochutnávky zadarmo — ochutnaj jong aj oud vedľa seba.',
+    price:'ochutnávky zdarma · ~€5+ kus', where:'Henri Willig, syrárne, okolie Bloemenmarkt' },
+  { id:'stroopwafel', emoji:'🍪', name:'Stroopwafel',
+    desc:'Dve tenké oblátky zlepené karamelovým sirupom. Najlepší čerstvý a teplý priamo zo stánku.',
+    fact:'Polož ho na hrnček s horúcou kávou — para zmäkčí sirup. Vznikol v Goude v 19. st.',
+    price:'~€2–3', where:'Albert Cuyp (Rudi’s Stroopwafels), Lanskroon' },
+  { id:'poffertjes', emoji:'🥞', name:'Poffertjes',
+    desc:'Malé nadýchané mini-palacinky z kvasnicového cesta, s kockou masla a práškovým cukrom.',
+    fact:'Pečú sa v špeciálnej panvici s jamkami; tradičná jarmočná pochúťka.',
+    price:'~€5–7 porcia', where:'Pat’s Poffertjes, trhy, stánky' },
+  { id:'appeltaart', emoji:'🥧', name:'Appeltaart',
+    desc:'Hutný holandský jablkový koláč so škoricou, často so šľahačkou (slagroom).',
+    fact:'Winkel 43 v Jordaane má legendárny appeltaart — ľudia stoja front.',
+    price:'~€4–6 kus', where:'Winkel 43 (Jordaan), kaviarne' },
+  { id:'tompouce', emoji:'🩷', name:'Tompouce',
+    desc:'Dva pláty lístkového cesta s pudingovým krémom a ružovou glazúrou navrchu.',
+    fact:'Pri oranžových sviatkoch (Kingsday) býva glazúra oranžová. Jesť bez ostudy je umenie.',
+    price:'~€2–4', where:'Pekárne, HEMA, supermarkety' },
+  { id:'brouwerij-ij', emoji:'🍺', name:'IPA z Brouwerij ’t IJ',
+    desc:'Remeselné pivo z amsterdamského pivovaru priamo pod veterným mlynom De Gooyer.',
+    fact:'Mlyn De Gooyer je najvyšší drevený mlyn v Holandsku — pivovar je hneď vedľa. Je na mape.',
+    price:'~€5–7 pivo', where:'Brouwerij ’t IJ (Funenkade 7) — na mape' },
+  { id:'genever', emoji:'🥃', name:'Genever / Jenever',
+    desc:'Holandský predok ginu z jalovca, jemnejší a sladší. Pije sa „kopstootje" — pohárik genever + pivo.',
+    fact:'Pohár sa naleje po okraj — prvý dúšok sa srká bez rúk, sklonený k baru.',
+    price:'~€4–6 pohárik', where:'Wynand Fockink (proeflokaal), brown cafés' },
+  { id:'tonys', emoji:'🍫', name:'Tony’s Chocolonely',
+    desc:'Fér čokoláda s nerovnými dielikmi (symbol nerovnosti v kakaovom priemysle), bláznivé príchute.',
+    fact:'Vznikla z kampane proti otrockej práci. Flagship store si vieš zostaviť vlastnú tabuľku.',
+    price:'~€4–6 tabuľka', where:'Tony’s Super Store, supermarkety' },
+  { id:'spacecake', emoji:'🌿', name:'Space cake',
+    desc:'Pečivo s cannabisom. Účinok nastupuje oneskorene (30–90 min) a býva silný — daj si málo a počkaj.',
+    fact:'Predáva sa v coffeeshopoch. Nikdy nezapíjaj alkoholom; nie je to pre každého.',
+    price:'~€5–10', where:'Coffeeshopy' },
+  { id:'cannabis-lollipop', emoji:'🍭', name:'Cannabis lollipop',
+    desc:'Sladké lízatko — niektoré sú len suvenírové (príchuť), iné obsahujú THC. Vždy si over etiketu.',
+    fact:'Obľúbený suvenír; pozor, čo komu dávaš — môže obsahovať účinné látky.',
+    price:'~€2–5', where:'Coffeeshopy, suvenírové obchody' },
+  { id:'borrelnoten', emoji:'🥜', name:'Borrelnoten',
+    desc:'Arašidy v chrumkavom korenenom obale — klasický snack k pivu (borrel).',
+    fact:'Značka Duyvis je ikona; nájdeš ich v každom supermarkete.',
+    price:'~€2–4', where:'Albert Heijn a iné supermarkety, brown cafés' },
+  { id:'drop', emoji:'🖤', name:'Drop (slaná lekorica)',
+    desc:'Holandská lekorica — sladká aj brutálne slaná (zoute drop s amóniom). Odvážna chuť, ktorú treba skúsiť.',
+    fact:'Holanďania zjedia najviac lekorice na svete. „Dubbel zout" = pre otrlých.',
+    price:'~€2–4 vrecko', where:'Supermarkety, Jamin, cukrárne' },
+];
+
+let checklist = [];        // FOOD_DEFAULTS + custom položky (zostavené)
+let checkDone  = {};       // id → true (zdieľané odškrtnutia)
+let foodExpanded = null;   // id práve rozbalenej položky
+
+function customFoodItems(){ return checklist.filter(f => f.custom); }
+
+function loadFood(){
+  try { checkDone = JSON.parse(localStorage.getItem('amsterdam_food_done') || '{}') || {}; } catch(e){ checkDone = {}; }
+  let custom = [];
+  try { custom = JSON.parse(localStorage.getItem('amsterdam_food') || '[]') || []; } catch(e){ custom = []; }
+  rebuildChecklist(custom);
+}
+function saveFood(){
+  try {
+    localStorage.setItem('amsterdam_food', JSON.stringify(customFoodItems()));
+    localStorage.setItem('amsterdam_food_done', JSON.stringify(checkDone));
+  } catch(e){}
+}
+// Zostav zoznam: defaulty (vždy) + custom položky (zachovaj poradie pridania)
+function rebuildChecklist(customItems){
+  const custom = customItems !== undefined ? customItems : customFoodItems();
+  checklist = FOOD_DEFAULTS.map(d => ({ ...d, custom:false })).concat(custom.map(c => ({ ...c, custom:true })));
+}
+// Pri prevzatí cloud stavu: nahraď custom položky cloudovými, zjednoť odškrtnutia
+function adoptCloudFood(data){
+  if (data.checkDone && typeof data.checkDone === 'object') {
+    checkDone = { ...checkDone, ...data.checkDone };   // OR cez kľúče — odškrtnuté ostáva odškrtnuté
+  }
+  if (Array.isArray(data.checklist)) {
+    rebuildChecklist(data.checklist);
+  } else {
+    rebuildChecklist();
+  }
+  saveFood();
+}
+
+function toggleFoodPanel(){
+  const panel = document.getElementById('food-panel');
+  const open = panel.classList.toggle('open');
+  document.getElementById('food-fab').classList.toggle('active', open);
+  if (open) { closeItineraryPanel(); renderChecklist(); }
+}
+function closeFoodPanel(){
+  document.getElementById('food-panel').classList.remove('open');
+  document.getElementById('food-fab').classList.remove('active');
+}
+
+function renderChecklist(){
+  const body = document.getElementById('food-body');
+  if (!body) return;
+  const doneCount = checklist.filter(f => checkDone[f.id]).length;
+  const total = checklist.length;
+  const fill = document.getElementById('food-bar-fill');
+  if (fill) fill.style.width = (total ? Math.round(doneCount / total * 100) : 0) + '%';
+  const label = document.getElementById('food-progress-label');
+  if (label) label.textContent = `${doneCount} / ${total}`;
+
+  // Badge na kolečku
+  const badge = document.getElementById('food-fab-badge');
+  if (badge) { badge.textContent = doneCount; badge.classList.toggle('show', doneCount > 0); }
+
+  body.innerHTML = checklist.map(f => {
+    const done = !!checkDone[f.id];
+    const exp = foodExpanded === f.id;
+    const detail = `<div class="food-detail">`
+      + (f.desc ? `<p>${esc(f.desc)}</p>` : '')
+      + (f.fact ? `<div class="fd-meta">💡 ${esc(f.fact)}</div>` : '')
+      + (f.price ? `<div class="fd-meta"><b>💶</b> ${esc(f.price)}</div>` : '')
+      + (f.where ? `<div class="fd-meta"><b>📍</b> ${esc(f.where)}</div>` : '')
+      + `</div>`;
+    return `<div class="food-item ${done?'done':''} ${exp?'expanded':''}" data-id="${f.id}">
+      <div class="food-row">
+        <div class="food-check" onclick="toggleChecked('${f.id}')" title="Odškrtnúť – už sme ochutnali">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="food-emoji">${f.emoji || '🍽️'}</span>
+        <div class="food-main" onclick="toggleFoodDetail('${f.id}')">
+          <div class="food-name">${esc(f.name)}</div>
+        </div>
+        ${f.custom ? `<button class="food-remove" onclick="deleteFoodItem('${f.id}')" title="Odstrániť položku">🗑️</button>` : ''}
+        <div class="food-chevron" onclick="toggleFoodDetail('${f.id}')">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+      ${detail}
+    </div>`;
+  }).join('');
+}
+// jednoduchý escaper pre vkladaný text
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function toggleChecked(id){
+  if (checkDone[id]) delete checkDone[id]; else checkDone[id] = true;
+  saveFood(); renderChecklist(); cloudPush();
+}
+function toggleFoodDetail(id){
+  foodExpanded = (foodExpanded === id) ? null : id;
+  renderChecklist();
+}
+
+function showFoodForm(){
+  document.getElementById('food-add-btn').style.display = 'none';
+  document.getElementById('food-add-form').classList.add('open');
+  isEditingNow = true;                 // poll nech neprepíše rozpísanú položku
+  document.getElementById('ff-name').focus();
+}
+function hideFoodForm(){
+  document.getElementById('food-add-form').classList.remove('open');
+  document.getElementById('food-add-btn').style.display = '';
+  ['ff-name','ff-desc','ff-price','ff-where'].forEach(i => document.getElementById(i).value = '');
+  isEditingNow = false;
+}
+function addFoodItem(){
+  const name = document.getElementById('ff-name').value.trim();
+  if (!name) { document.getElementById('ff-name').focus(); return; }
+  const item = {
+    id: 'c' + Date.now(),
+    emoji: '🍽️',
+    name,
+    desc: document.getElementById('ff-desc').value.trim(),
+    price: document.getElementById('ff-price').value.trim(),
+    where: document.getElementById('ff-where').value.trim(),
+    custom: true,
+  };
+  checklist.push(item);
+  hideFoodForm();
+  saveFood(); renderChecklist(); cloudPush();
+}
+function deleteFoodItem(id){
+  const f = checklist.find(x => x.id === id);
+  if (!f || !f.custom) return;
+  if (!confirm(`Odstrániť „${f.name}" zo zoznamu?`)) return;
+  checklist = checklist.filter(x => x.id !== id);
+  delete checkDone[id];
+  saveFood(); renderChecklist(); cloudPush();
+}
+
+// ═══════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════
 
 load();
+loadFood();
 initMap();
 buildCategoryBar();
 buildDayTabs();
 refreshMarkers();
+renderChecklist();
 setTimeout(loadPOIs, 800);
 
 // Indikátor spoločnej mapy (malý plávajúci chip) + spustenie cloud synchronizácie
