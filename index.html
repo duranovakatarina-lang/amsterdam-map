@@ -1893,6 +1893,8 @@ const PLACE_ICON_SVG = {
   febo: `<rect x="4" y="3" width="16" height="18" rx="1.5"/><rect x="6.5" y="5.5" width="4" height="4"/><rect x="13.5" y="5.5" width="4" height="4"/><rect x="6.5" y="11.5" width="4" height="4"/><rect x="13.5" y="11.5" width="4" height="4"/>`,
   // Hranolky — kelímok + vyčnievajúce hranolčeky (McDonald's)
   fries: `<path d="M6 8h12l-1.2 12H7.2z"/><line x1="6.5" y1="12" x2="17.5" y2="12"/><line x1="8.6" y1="8" x2="8.1" y2="2.6"/><line x1="12" y1="8" x2="12" y2="2"/><line x1="15.4" y1="8" x2="15.9" y2="3"/>`,
+  // Vinyl — gramofónová platňa (vonkajší okraj + drážka + label + dierka)
+  vinyl: `<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.4"/><circle cx="12" cy="12" r="0.9" fill="white" stroke="none"/>`,
 };
 // Priradenie podniku → ikona (ostatné miesta používajú ikonu kategórie)
 const PLACE_ICONS = {
@@ -1909,6 +1911,10 @@ const PLACE_ICONS = {
   101: 'fries',   // McDonald's Kalverstraat
   107: 'fries',   // McDonald's Muntplein
   108: 'fries',   // McDonald's Nieuwendijk
+  115: 'cheese',  // De Mannen van Kaas — syry
+  116: 'vinyl',   // Concerto
+  117: 'vinyl',   // Record Palace
+  118: 'vinyl',   // Damn Good Records
 };
 // Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
 function placeIcon(p) {
@@ -2592,6 +2598,32 @@ const DEFAULTS = [
     note:'Pokojný local spot pri kanáli · kultúrne akcie', addr:'Brouwersgracht 11, 1015 GA Amsterdam',
     price:null, hours:'~11:00–23:00', rating:4.5, photo:null, day:null, isCustom:false },
 
+  // ── SYRY + VINYL (id 115–118, pridané 2026-06-10) ────────
+  { id:115, name:'De Mannen van Kaas — Dutch Delicacy', category:'nakupy', lat:52.3689928, lng:4.8885793,
+    description:'Útulná syráreň s veľkým výberom holandských syrov (kravské, kozie, ovčie; čerstvé aj zrejúce, s trúfľami, medom, kávou…). Pri každom syre je miska s nakrájanými kúskami a špáradlá — môžeš ochutnávať zadarmo. Príjemné posedenie aj možnosť zobrať syr do lietadla.',
+    note:'Zdarma ochutnávky syrov · Spuistraat 330', addr:'Spuistraat 330, 1012 VX Amsterdam',
+    price:null, hours:null, rating:4.7, photo:null, day:null, isCustom:false },
+
+  { id:116, name:'Concerto', category:'nakupy', lat:52.3632704, lng:4.8983548,
+    description:'Najväčší a najznámejší obchod s platňami v Amsterdame — niekoľko prepojených budov plných nového aj použitého vinylu naprieč všetkými žánrami. Kaviareň a živé akcie. Raj pre milovníkov hudby.',
+    note:'Najväčší vinyl shop v meste · nové + použité platne', addr:'Utrechtsestraat 52-60, 1017 VS Amsterdam',
+    price:null, hours:'~10:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
+
+  { id:117, name:'Record Palace', category:'nakupy', lat:52.3620821, lng:4.8849570,
+    description:'Obchod so zbierkovým vinylom pri Weteringschans — silný výber jazzu, soulu, funku a rocku, kvalitné druhé ruky. Obľúbený medzi „diggermi".',
+    note:'Vinyl shop · jazz/soul/funk · zberateľské kúsky', addr:'Weteringschans 33D, 1017 RV Amsterdam',
+    price:null, hours:'~11:00–18:00 · Ne/Po zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
+
+  { id:118, name:'Damn Good Records', category:'nakupy', lat:52.3695423, lng:4.8896203,
+    description:'Menší obchod s vinylom v centre (Nieuwezijds Voorburgwal) — pečlivo vyberaný sortiment nových aj použitých platní. Príjemná obsluha a dobré ceny.',
+    note:'Vinyl shop · kurátorovaný výber', addr:'Nieuwezijds Voorburgwal 371A, 1012 RM Amsterdam',
+    price:null, hours:'~11:00–18:00', rating:4.6, photo:null, day:null, isCustom:false },
+
+  { id:119, name:'Ubytovanie Dana a Elka', category:'ubytovanie', lat:52.3734245, lng:4.886307,
+    description:'🏠 Ubytovanie Dana a Elky, ktorí cestujú s nami. Raadhuisstraat 31 — pri Westermarkt/Jordaan, pár krokov od kanálov.',
+    note:'Dana & Elka · Raadhuisstraat 31', addr:'Raadhuisstraat 31, 1016 DC Amsterdam',
+    price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
+
 ];
 
 // ═══════════════════════════════════════════════════
@@ -2827,6 +2859,26 @@ function migrate() {
     });
     localStorage.setItem('coffeeshops_2026_06', '1');
     localStorage.removeItem('photos_v1_done'); // dofetchni fotky nových miest
+  }
+
+  // Syry + vinyl shopy (id 115–118) — vlastný flag, aby pribudli aj do už
+  // uloženej localStorage, kde predošlé injekcie prebehli.
+  if (!localStorage.getItem('cheese_vinyl_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 115 && d.id <= 118 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('cheese_vinyl_2026_06', '1');
+  }
+
+  // Ubytovanie Dana a Elka (id 119) — vlastný flag, pushne sa aj do uloženej localStorage.
+  if (!localStorage.getItem('dana_elka_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const de = DEFAULTS.find(d => d.id === 119);
+    if (de && !have.has(119)) { places.push(JSON.parse(JSON.stringify(de))); changed = true; }
+    localStorage.setItem('dana_elka_2026_06', '1');
   }
 
   if (changed) save();
