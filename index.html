@@ -1099,7 +1099,10 @@
     }
     .leaflet-marker-icon:hover { z-index: 1000 !important; }
     .leaflet-marker-icon:hover .pin-inner { transform: translateY(-3px) scale(1.06); }
-    .leaflet-marker-icon.pin-selected { z-index: 1001 !important; }
+    /* Stlmené „ghost" piny ostatných miest v pláne dňa — rozjasnia sa na hover */
+    .leaflet-marker-icon.pin-ghost { transition: opacity 0.16s ease; }
+    .leaflet-marker-icon.pin-ghost:hover { opacity: 1 !important; }
+    .leaflet-marker-icon.pin-selected { z-index: 1001 !important; opacity: 1 !important; }
     .leaflet-marker-icon.pin-selected .pin-inner { transform: scale(1.2) translateY(-2px); }
     .leaflet-marker-icon.pin-selected:hover .pin-inner { transform: scale(1.22) translateY(-4px); }
 
@@ -1162,23 +1165,6 @@
     }
 
     /* Loading indicator */
-    #poi-loading {
-      position: fixed;
-      bottom: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,0.82);
-      color: white;
-      padding: 7px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      z-index: 400;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    #poi-loading.visible { opacity: 1; }
 
     /* ─── MY LOCATION ────────────────────────────────────── */
     @keyframes loc-pulse {
@@ -1207,7 +1193,7 @@
       animation: loc-pulse 2s ease-out infinite;
     }
 
-    #locate-btn {
+    #locate-btn, #ghost-btn {
       width: 46px;
       height: 46px;
       background: white;
@@ -1222,10 +1208,11 @@
       transition: background 0.15s, transform 0.15s;
       color: var(--text-2);
     }
-    #locate-btn:hover { background: #F8FAFC; transform: translateY(-2px); }
+    #locate-btn:hover, #ghost-btn:hover { background: #F8FAFC; transform: translateY(-2px); }
     #locate-btn.active { color: #4285F4; border-color: #BFDBFE; background: #EFF6FF; }
+    #ghost-btn.active { color: #0F172A; border-color: #CBD5E1; background: #F1F5F9; }
     @media (max-width: 767px) {
-      #locate-btn { width: 44px; height: 44px; font-size: 16px; }
+      #locate-btn, #ghost-btn { width: 44px; height: 44px; font-size: 16px; }
     }
 
     /* Distance badge in sidebar */
@@ -1758,14 +1745,14 @@
   </button>
 </div>
 
-<!-- POI loading indicator -->
-<div id="poi-loading">Načítavam miesta…</div>
-
 <!-- ─── ADD BANNER ───────────────────────────────────────── -->
 <div id="add-banner">📍 Klikni na mapu kde chceš pridať miesto · ESC zruší</div>
 
 <!-- ─── BOTTOM ACTIONS (locate + FAB) ───────────────────── -->
 <div id="bottom-actions">
+  <button id="ghost-btn" onclick="toggleGhostLayer()" title="Zobraziť ostatné miesta v okolí" aria-label="Zobraziť ostatné miesta v okolí" style="display:none;">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+  </button>
   <button id="locate-btn" onclick="locateMe()" title="Moja aktuálna poloha" aria-label="Moja poloha">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><line x1="12" y1="1.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22.5" y2="12"/></svg>
   </button>
@@ -3313,9 +3300,6 @@ async function loadPOIs() {
 )->._;
 out body;`;
 
-  const loadingEl = document.getElementById('poi-loading');
-  loadingEl.classList.add('visible');
-
   let data = null;
   let lastErr = null;
   for (const endpoint of OVERPASS_ENDPOINTS) {
@@ -3336,14 +3320,8 @@ out body;`;
 
   if (data) {
     renderPOIs(data.elements.slice(0, 350));
-    loadingEl.classList.remove('visible');
   } else {
     console.warn('All POI endpoints failed:', lastErr);
-    loadingEl.textContent = 'Miesta sa nepodarilo načítať';
-    setTimeout(() => {
-      loadingEl.textContent = 'Načítavam miesta…';
-      loadingEl.classList.remove('visible');
-    }, 2500);
   }
 }
 
@@ -3541,7 +3519,7 @@ document.addEventListener('click', e => {
 //  PINS
 // ═══════════════════════════════════════════════════
 
-function makePinIcon(place, seq = null) {
+function makePinIcon(place, seq = null, ghost = false) {
   const cat = CATS[place.category] || CATS.custom;
   const c = cat.color;
   const iconPath = placeIcon(place);
@@ -3573,7 +3551,7 @@ function makePinIcon(place, seq = null) {
       </svg>
     </div>`;
 
-  return L.divIcon({ html, className:'', iconSize:[40,40], iconAnchor:[20,20] });
+  return L.divIcon({ html, className: ghost ? 'pin-ghost' : '', iconSize:[40,40], iconAnchor:[20,20] });
 }
 
 function isVisible(p) {
@@ -3588,6 +3566,8 @@ function isItineraryMode() {
   return ['saturday','sunday','monday'].includes(activeDay);
 }
 
+let ghostLayerOn = false;  // vrstva stlmených miest v pláne dňa (default vyp.)
+
 function refreshMarkers() {
   Object.values(markers).forEach(m => map.removeLayer(m));
   markers = {};
@@ -3597,10 +3577,19 @@ function refreshMarkers() {
 
   let n = 0;
   places.forEach(p => {
-    if (!isVisible(p)) return;
-    n++;
-    const seq = itinerary ? ordered.findIndex(x => x.id === p.id) + 1 : null;
-    const m = L.marker([p.lat,p.lng], { icon: makePinIcon(p, seq) });
+    if (!activeCats.has(p.category)) return;          // filter kategórií platí vždy
+    const isStop = isVisible(p);
+    if (!isStop && !(itinerary && ghostLayerOn)) return; // ghosty len v pláne dňa a keď je vrstva zapnutá
+
+    let m;
+    if (isStop) {
+      n++;
+      const seq = itinerary ? ordered.findIndex(x => x.id === p.id) + 1 : null;
+      m = L.marker([p.lat,p.lng], { icon: makePinIcon(p, seq) });
+    } else {
+      // Plán dňa: ostatné miesta ako stlmené „ghost" piny pod číslovanými
+      m = L.marker([p.lat,p.lng], { icon: makePinIcon(p, null, true), opacity: 0.4, zIndexOffset: -500 });
+    }
     m.placeId = p.id;
     m.on('click', () => { if (!addingMode) openSidebar(p.id); });
     m.addTo(map);
@@ -3797,13 +3786,24 @@ function drawRoute() {
 
 function updateItineraryUI() {
   const toggle = document.getElementById('itinerary-toggle');
+  const ghostBtn = document.getElementById('ghost-btn');
   if (isItineraryMode()) {
     toggle.style.display = '';
+    ghostBtn.style.display = '';
+    ghostBtn.classList.toggle('active', ghostLayerOn);
     renderItinerary();
   } else {
     toggle.style.display = 'none';
+    ghostBtn.style.display = 'none';
     closeItineraryPanel();
   }
+}
+
+// Zapne/vypne vrstvu stlmených „ghost" pinov ostatných miest (len v pláne dňa)
+function toggleGhostLayer() {
+  ghostLayerOn = !ghostLayerOn;
+  document.getElementById('ghost-btn').classList.toggle('active', ghostLayerOn);
+  refreshMarkers();
 }
 
 function toggleItineraryPanel() {
@@ -4702,18 +4702,7 @@ refreshMarkers();
 renderChecklist();
 setTimeout(loadPOIs, 800);
 
-// Indikátor spoločnej mapy (malý plávajúci chip) + spustenie cloud synchronizácie
-(function(){
-  const chip = document.createElement('div');
-  chip.id = 'sync-chip';
-  chip.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);'
-    + 'z-index:1200;background:rgba(255,255,255,0.95);backdrop-filter:blur(6px);'
-    + 'border:1px solid rgba(15,23,42,0.08);box-shadow:0 4px 14px rgba(0,0,0,0.10);'
-    + 'border-radius:999px;padding:6px 12px;font:600 12px/1 Inter,system-ui,sans-serif;'
-    + 'color:#64748b;letter-spacing:0.2px;pointer-events:none;';
-  chip.textContent = '☁︎ synchronizujem…';
-  document.body.appendChild(chip);
-})();
+// Spustenie cloud synchronizácie (bez vizuálneho indikátora — setSyncStatus je no-op)
 cloudInit();
 
 // Pri prvom načítaní raz natiahni fotky z Wikipédie (uložia sa do localStorage,
