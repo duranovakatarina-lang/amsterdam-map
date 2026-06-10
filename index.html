@@ -2427,7 +2427,7 @@ const DEFAULTS = [
     price:'~€5–15', hours:'Ut–Št 10:00–18:00 · Pi 10:00–18:30 · So 9:30–18:00 · Ne–Po zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
 
   // BROWN CAFÉ
-  { id:68, name:'Café Papeneiland', category:'brown', lat:52.37966, lng:4.88688,
+  { id:68, name:'Café Papeneiland', category:'brown', lat:52.38046, lng:4.88799,
     description:'Jeden z najstarších brown café v meste — roh Prinsengrachtu a Brouwersgrachtu, od roku 1642. Krivé podlahy, delftské kachličky, sviečky. Slávny jablkový koláč (vraj si ho dal aj Bill Clinton). Posedenie pri kanáli ako z obrazu zo 17. storočia.',
     note:'Prinsengracht 2 · od 1642 · jablkový koláč', addr:'Prinsengracht 2',
     price:'~€4–6', hours:'Po–Št 11:00–01:00 · Pi–So 11:00–02:00 · Ne 11:00–01:00', rating:4.5, photo:null, day:null, isCustom:false },
@@ -2439,7 +2439,7 @@ const DEFAULTS = [
     description:'Nakrivo stojaci drevený domček strážcu zdýmadla z roku 1695, hneď vedľa Rembrandtovho domu. Vyzerá ako z rozprávky — naklonený do strany. Terasa nad kanálom Oudeschans je jedno z najfotogenickejších miest na pivo v meste.',
     note:'Jodenbreestraat 1 · od 1695 · pri Rembrandtovom dome', addr:'Jodenbreestraat 1',
     price:'~€4–6', hours:'Po–Št 12:30–01:00 · Pi–So 12:30–03:00 · Ne 12:30–19:00', rating:4.5, photo:null, day:null, isCustom:false },
-  { id:72, name:'Proeflokaal Arendsnest', category:'brown', lat:52.37968, lng:4.88930,
+  { id:72, name:'Proeflokaal Arendsnest', category:'brown', lat:52.37671, lng:4.88926,
     description:"'Proeflokaal' venovaný výhradne holandským pivám — ~30 čapovaných a vyše 100 fľaškových, všetky z Holandska. Elegantný interiér na kanáli Herengracht. Raj pre milovníkov craft piva, ktorí chcú ochutnať to, čo inde nedostanú.",
     note:'Herengracht 90 · len holandské pivá', addr:'Herengracht 90',
     price:'~€5–7 pivo', hours:'Po–Št, Ne 12:00–00:00 · Pi–So 12:00–02:00', rating:4.6, photo:null, day:null, isCustom:false },
@@ -3084,6 +3084,19 @@ function healSharedDefaults(){
       }
     });
     localStorage.setItem('hours_rating_fix_2026_06', '1');
+  }
+
+  // One-off: oprava polohy Arendsnest (72) a Café Papeneiland (68) podľa Google/OSM
+  // pre už uloženú (cloud/localStorage) verziu. Guarded flagom, nedotýka sa isCustom.
+  if (!localStorage.getItem('arendsnest_papeneiland_geofix_2026_06')) {
+    [68, 72].forEach(id => {
+      const cur = places.find(p => p.id === id);
+      const def = DEFAULTS.find(d => d.id === id);
+      if (cur && def && !cur.isCustom && (cur.lat !== def.lat || cur.lng !== def.lng)) {
+        cur.lat = def.lat; cur.lng = def.lng; changed = true;
+      }
+    });
+    localStorage.setItem('arendsnest_papeneiland_geofix_2026_06', '1');
   }
   return changed;
 }
