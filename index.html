@@ -2193,7 +2193,7 @@ const DEFAULTS = [
   // ── COFFEE SHOP ──────────────────────────────────────────
   { id:2, name:'Coffeeshop Rookies', category:'cs', lat:52.3622, lng:4.8821,
     description:'Legendárny coffeeshop od roku 1992 priamo pri Leidseplein. Meno dostali preto, lebo boli vtedy najmladší prevádzkovatelia v meste. Reggae a dub funk hudba, priestranné interiéry pre 85 ľudí, mix miestnych a turistov.',
-    note:'Korte Leidsedwarsstraat 145–147', price:null, hours:'8:30–01:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Korte Leidsedwarsstraat 145–147', price:null, hours:'8:30–01:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:3, name:"Tha Dogg House", category:'cs', lat:52.3644, lng:4.8831,
     description:"Snoop Doggov oficiálny coffeeshop — pôvodne sa volal S.W.E.D. West Coast hip-hop, Death Row merch, Snoopove klipy na obrazovkách. Výhľad na kanál zo zadnej časti.",
     note:'Marnixstraat 333', price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
@@ -2201,7 +2201,7 @@ const DEFAULTS = [
   // ── BROWN CAFÉ ───────────────────────────────────────────
   { id:4, name:"Café 't Smalle", category:'brown', lat:52.3763, lng:4.8821,
     description:'Jeden z najautentickejších brown café v Amsterdame — od roku 1786. Tmavé drevo, sviečky, starí miestni pri pive. Žiadny Instagram filter. Terasa pri kanáli.',
-    note:'Egelantiersgracht 12, Jordaan', price:null, hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+    note:'Egelantiersgracht 12, Jordaan', price:null, hours:'Po–Št 14:00–00:00 · Pi 13:00–01:00 · So 12:00–01:00 · Ne 12:00–22:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:5, name:'Café de Dokter', category:'brown', lat:52.3713, lng:4.8921,
     description:'Najmenší bar v Amsterdame — doslova. Úzka miestnosť, historický interiér, obrovský výber whisky. Zažívaš pocit ako keby si vstúpil do iného storočia.',
     note:'Rozenboomsteeg 4, Centrum · hidden gem', price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
@@ -2221,13 +2221,13 @@ const DEFAULTS = [
     note:'V každom brown café a Foodhallene · must-try', price:'~€5–8', hours:null, rating:null, photo:null, day:null, isCustom:false },
   { id:10, name:'Foodhallen', category:'gastro', lat:52.3604, lng:4.8698,
     description:'Street food hala v historickej tramvajovej remíze z roku 1902. Desiatky stánkov — ramen, bitterballen, indonézske satay, burgers, koktejly. Najlepšia večerná atmosféra v meste.',
-    note:'Hannie Dankbaarpassage 16', price:'~€10–20', hours:'12:00–01:00', rating:4.4, photo:null, day:null, isCustom:false },
+    note:'Hannie Dankbaarpassage 16', price:'~€10–20', hours:'Po–Št 12:00–00:00 · Pi–So 12:00–01:00 · Ne 12:00–00:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:11, name:'Stroopwafel Workshop', category:'gastro', lat:52.3558, lng:4.9002,
     description:'Hodinový workshop výroby vlastných stroopwafelov — vaflíte, plníte karamelom, ozdobujete podľa fantázie. Hodnotenie 4.9/5. Treba vopred rezervovať!',
-    note:'Albert Cuypstraat 194 · ⚠️ Rezervácia nutná!', price:'~€25/os', hours:'Podľa rezervácie', rating:4.9, photo:null, day:null, isCustom:false },
+    note:'Albert Cuypstraat 194 · ⚠️ Rezervácia nutná!', price:'~€25/os', hours:'Št–Ne 9:00–18:00', rating:4.9, photo:null, day:null, isCustom:false },
   { id:12, name:"Brouwerij 't IJ", category:'gastro', lat:52.3658, lng:4.9222,
     description:'Pivovar priamo v základni mlyna De Gooyer — najvyšší veterný mlyn v Holandsku. Ochutnávacia doska 5 rôznych pív. Terasa pred mlynom je ikonická na fotky.',
-    note:'Funenkade 7 · otv. od 14:00', price:'~€10–15', hours:'Denne 14:00–20:00', rating:4.5, photo:null, day:null, isCustom:false },
+    note:'Funenkade 7 · otv. od 14:00', price:'~€10–15', hours:'Po–Pi 14:00–22:00 · So–Ne 12:00–22:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:13, name:"Tony's Chocolonely", category:'gastro', lat:52.3742, lng:4.8995,
     description:"Ikonická holandská čokoládovňa s etickým posolstvom — boj proti detskej práci v kakao priemysle. Nerovnomerne rozdelené tabuľky symbolizujú nerovnosť. Množstvo neobvyklých príchutí.",
     note:'Oudebrugsteeg 15', price:'~€5–8', hours:null, rating:null, photo:null, day:null, isCustom:false },
@@ -2290,7 +2290,7 @@ const DEFAULTS = [
   // ── HIDDEN GEMS ──────────────────────────────────────────
   { id:29, name:'Begijnhof', category:'hidden', lat:52.3694, lng:4.8907,
     description:'Stredoveký skrytý dvor uprostred mesta — jedna z najkrajších tajných záhrad v Európe. Hľadaj nenápadnú drevenú bránu z Gedempte Begijnensloot. Väčšina turistov prechádza okolo bez povšimnutia.',
-    note:'Gedempte Begijnensloot (skrytý vchod)', price:'Zadarmo', hours:'9:00–17:00', rating:4.6, photo:null, day:null, isCustom:false },
+    note:'Gedempte Begijnensloot (skrytý vchod)', price:'Zadarmo', hours:'Denne 10:00–18:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:30, name:'Jordaan — štvrť', category:'hidden', lat:52.3749, lng:4.8828,
     description:'Pôvodne robotnícka štvrť, dnes najromantickejšia časť Amsterdamu. Úzke uličky s kvetinami, kanály s hausbótmi, hnedé kaviarne bez turistov. Sem chodia miestni.',
     note:'Západne od Centrum', price:'Zadarmo', hours:'Vždy', rating:4.8, photo:null, day:null, isCustom:false },
@@ -2299,21 +2299,21 @@ const DEFAULTS = [
     note:'Roemer Visscherstraat 20–34, pri Vondelparku', price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
   { id:42, name:'De Ceuvel', category:'hidden', lat:52.4012, lng:4.9132,
     description:'Bývalé lodenice premenené na ekologickú kreatívnu komunitu. Staré hausbóty vytiahnuté na súš slúžia ako ateliéry. Bohémska kaviareň-reštaurácia s terasou priamo nad vodou, plne rastlinné menu.',
-    note:'Korte Papaverweg 4, Noord · free ferry zo Centraal', price:'Zadarmo vstup', hours:'Denne 11:00–00:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Korte Papaverweg 4, Noord · free ferry zo Centraal', price:'Zadarmo vstup', hours:'Po–Št 11:00–00:00 · Pi–So 11:00–02:00 · Ne 11:00–00:00', rating:4.5, photo:null, day:null, isCustom:false },
   { id:43, name:'Het Kleinste Huis', category:'hidden', lat:52.3721, lng:4.9011,
     description:'Najužší dom v Európe — iba 2,02 metra šírky a 5 metrov hĺbky. Postavený v roku 1738. Holanďania platili dane podľa šírky fasády. Dnes rodinný čajový obchod s 200+ druhmi čajov.',
     note:'Oude Hoogstraat 22, Centrum', price:'Zadarmo', hours:null, rating:null, photo:null, day:null, isCustom:false },
   { id:44, name:'De Poezenboot', category:'hidden', lat:52.3771, lng:4.8951,
     description:'Jediný plávajúci útulok pre mačky na svete — funguje od roku 1966. Zakladateľka Henriette van Weelde začala s jednou mačkou pod stromom, dnes tu žije až 50 mačiek čakajúcich na adopciu.',
-    note:'Singel 38G · ut/pi/so 13:00–15:00, max 6 os.', price:'Zadarmo', hours:'Ut, Pi, So 13:00–15:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Singel 38G · ut/pi/so 13:00–15:00, max 6 os.', price:'Zadarmo', hours:'13:00–15:00 · St a Ne zatvorené', rating:null, photo:null, day:null, isCustom:false },
 
   // ── MIESTA & ARCHITEKTÚRA ────────────────────────────────
   { id:32, name:"A'DAM Lookout", category:'miesta', lat:52.3842, lng:4.9002,
     description:"Vyhliadková veža na streche A'DAM Tower v Noorde — panoráma 360° na celý Amsterdam. Ikonické červené hojdačky na terase. Adrenalínový swing — hojdačka vyčnievajúca zo strechy nad prázdnotou.",
-    note:'IJpromenade 4, Noord · free ferry zo Centraal', price:'~€14', hours:'Denne 10:00–22:00', rating:4.4, photo:null, day:null, isCustom:false },
+    note:'IJpromenade 4, Noord · free ferry zo Centraal', price:'~€14', hours:'Denne 10:00–22:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:33, name:'EYE Film Museum', category:'miesta', lat:52.3836, lng:4.9007,
     description:'Futuristická biela budova ako zmrazená vlna na brehu rieky IJ. Výhľad z terasy na Centraal Station je jeden z najkrajších v Amsterdame. Terasa a lobby zadarmo, výstavy za vstupné.',
-    note:'IJpromenade 1, Noord', price:'Terasa zadarmo', hours:'Denne 10:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
+    note:'IJpromenade 1, Noord', price:'Terasa zadarmo', hours:'Ut–Ne 10:00–19:00 · Po zatvorené', rating:4.4, photo:null, day:null, isCustom:false },
   { id:34, name:'NDSM Werf', category:'miesta', lat:52.4008, lng:4.8975,
     description:'Obrovský opustený lodiačsky dok premenený na street art galériu a kreatívny hub. Obrovské muraly, umelecké štúdiá, bary, reštaurácie, organizujú sa tu festivaly.',
     note:'NDSM-Plein, Noord · free ferry zo Centraal smer NDSM', price:'Zadarmo', hours:'Vždy otvorené', rating:4.5, photo:null, day:null, isCustom:false },
@@ -2330,7 +2330,7 @@ const DEFAULTS = [
     note:'Vondelpark, Amsterdam-Zuid', price:'Zadarmo', hours:'Vždy otvorené', rating:4.7, photo:null, day:null, isCustom:false },
   { id:38, name:'Hortus Botanicus', category:'natura', lat:52.3665, lng:4.9071,
     description:'Botanická záhrada z roku 1638 — jedna z najstarších na svete. Motýlí dom plný živých tropických motýľov, skleníky s palmami a kaktusy, orangéria s výbornou kávou.',
-    note:'Plantage Middenlaan 2a', price:'~€10', hours:'Denne 10:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+    note:'Plantage Middenlaan 2a', price:'~€10', hours:'Denne 10:00–17:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:39, name:'ARTIS Zoo', category:'natura', lat:52.3664, lng:4.9163,
     description:'Zoo + akvárium + botanická záhrada — všetko obklopené kanálmi mesta. Červené pandy, motýlí dom, slony, levy, plameňiaky. Pocit ako by zoo bola súčasťou mesta.',
     note:'Plantage Kerklaan 38–40', price:'~€26/os', hours:'Denne 9:00–18:00', rating:4.5, photo:null, day:null, isCustom:false },
@@ -2338,22 +2338,22 @@ const DEFAULTS = [
   // ── SPEAKEASY & KOKTAJLY ─────────────────────────────────
   { id:45, name:'Door 74', category:'speakeasy', lat:52.3663, lng:4.8952,
     description:'Prvý a najprestížnejší speakeasy v Amsterdame — dvakrát na World\'s 50 Best Bar zozname. Art deco interiér s lisovanými cínovanými stropmi v štýle New Yorku 20. rokov. Koktailový lístok sa mení 4x ročne.',
-    note:'Reguliersdwarsstraat 74 · zazvoň, čakaj · ⚠️ Rezervácia nutná! · Vek 21+', price:'~€15–18/drink', hours:'20:00–03:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Reguliersdwarsstraat 74 · zazvoň, čakaj · ⚠️ Rezervácia nutná! · Vek 21+', price:'~€15–18/drink', hours:'Ne–Št 20:00–03:00 · Pi–So 20:00–04:00', rating:4.5, photo:null, day:null, isCustom:false },
   { id:46, name:"Rosalia's Menagerie", category:'speakeasy', lat:52.3726, lng:4.8996,
     description:"17-storočný kanálový dom pretvorený na kabinet kuriozít. Sametové sedenie, tmavé drevo, predmety z celého sveta. Pravdepodobne najväčší výber genevers (holandský predchodca ginu) v celom Holandsku.",
-    note:'Kloveniersburgwal 20, De Wallen · bez rezervácie', price:'~€12–15/drink', hours:'Denne 18:00–00:30', rating:null, photo:null, day:null, isCustom:false },
+    note:'Kloveniersburgwal 20, De Wallen · bez rezervácie', price:'~€12–15/drink', hours:'Denne 18:00–00:30', rating:4.8, photo:null, day:null, isCustom:false },
   { id:47, name:'Hiding in Plain Sight', category:'speakeasy', lat:52.3723, lng:4.9024,
     description:'Najautentickejší speakeasy podľa miestnych. Na stenách sú matematické rovnice z filmov — ak uhádneš jednu, dostaneš free shot. Bartenderi sú legendárni. Žiadne flashky, žiadne selfie tyče.',
-    note:'Rapenburg 18 · zazvoň, žiadna tabuľa', price:'~€13–16/drink', hours:'Po–So 18:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Rapenburg 18 · zazvoň, žiadna tabuľa', price:'~€13–16/drink', hours:'Po–So 18:00–01:00', rating:4.6, photo:null, day:null, isCustom:false },
   { id:48, name:'Tales & Spirits', category:'speakeasy', lat:52.3703, lng:4.8893,
     description:'Viacposchodová budova zo 16. storočia — tehlové múry, drevené trámy. Bartenderi sú choreografi: dym, efekty, špeciálne poháriky. Koktajly majú príbehy. Majú aj kuchyňu so small plates.',
-    note:'Lijnbaanssteeg 5–7 (medzi Singel a Spui) · príď skoro', price:'~€14–17/drink', hours:'Str–Ne 17:30–01:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Lijnbaanssteeg 5–7 (medzi Singel a Spui) · príď skoro', price:'~€14–17/drink', hours:'St–So 17:30–01:00 · Ne–Ut zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
   { id:49, name:'Super Lyan', category:'speakeasy', lat:52.3789, lng:4.8957,
     description:"Prvý amsterdamský bar Mr. Lyanova (Ryan Chetiyawardana) — svetoznámy bartender z Londýna. Neonové svetlá a tučná estetika kontrastujú s pôvodnými 17-storočnými črtami budovy. Low-waste filozofia.",
-    note:'Nieuwezijds Voorburgwal 3, pri Centraal · bez rezervácie', price:'~€13–16/drink', hours:'Denne od 12:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Nieuwezijds Voorburgwal 3, pri Centraal · bez rezervácie', price:'~€13–16/drink', hours:'Po–Št 12:00–01:00 · Pi–So 12:00–02:00 · Ne 12:00–01:00', rating:4.7, photo:null, day:null, isCustom:false },
   { id:50, name:'Bar Oldenhof', category:'speakeasy', lat:52.3722, lng:4.8800,
     description:'Najromantickejší koktailový bar v meste — tmavé panely, luster, hlboká whisky polica, stolový servis. Bartenderi sú učitelia. Perfektné klasiky aj signature koktaily. Ideálne na darčekový večer.',
-    note:'Elandsgracht 84-H, Jordaan · odporúčaná rezervácia', price:'~€12–15/drink', hours:'19:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+    note:'Elandsgracht 84-H, Jordaan · odporúčaná rezervácia', price:'~€12–15/drink', hours:'Po–Št 18:00–01:00 · Pi–So 17:00–03:00 · Ne 17:00–01:00', rating:4.8, photo:null, day:null, isCustom:false },
 
   // ── PRIDANÉ 2026-06-04 (burgery, palacinky, trhy, pivovar) ───
   { id:53, name:'The Beef Chief', category:'gastro', lat:52.3844986, lng:4.9288488,
@@ -2367,7 +2367,7 @@ const DEFAULTS = [
   { id:55, name:"Bar-B Burgers 'N' Beers", category:'gastro', lat:52.3642742, lng:4.8842894,
     description:'Menší podnik kúsok od Leidseplein s dôrazom na kvalitné mäso a craft pivo — vyše 40 druhov piva, niektoré si načapuješ priamo pri stole. Menej turistov, uvoľnená nálada, postav si vlastný burger.',
     note:'Lange Leidsedwarsstraat 29, pri Leidseplein', addr:'Lange Leidsedwarsstraat 29',
-    price:'~€12–16', hours:null, rating:4.3, photo:null, day:null, isCustom:false },
+    price:'~€12–16', hours:'Denne 12:00–00:00 · St od 15:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:56, name:'Upstairs Pannenkoekenhuis', category:'gastro', lat:52.3693052, lng:4.8934207,
     description:'Najmenšia palacinkáreň v Európe — len 4 stoly v dome z roku 1539. Strop pokrytý vyše 100 kanvičkami na čaj, schody nahor sú takmer zvislé. Tradičné holandské palacinky v rozprávkovej miniatúre.',
     note:'Grimburgwal 2, Centrum · ⚠️ Rezervácia nutná, bývajú plní týždeň vopred! · LEN HOTOVOSŤ', addr:'Grimburgwal 2',
@@ -2387,18 +2387,18 @@ const DEFAULTS = [
   { id:60, name:'Oedipus Brewing', category:'gastro', lat:52.3852252, lng:4.9236797,
     description:'Hravý craft pivovar s taproomom v industriálnej hale v Noorde — pestré experimentálne pivá, živá hudba a jazzové večery. Uvoľnená kreatívna atmosféra ďaleko od turistického centra. Sídli tu aj kuchyňa The Beef Chief.',
     note:'Schaafstraat 21, Noord · Št–Ne, Pi+So od 14:00', addr:'Schaafstraat 21',
-    price:'~€5–7 pivo', hours:'Št–Ne · Pi–So od 14:00', rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€5–7 pivo', hours:'St–Št 16:00–22:30 · Pi 16:00–00:30 · So 14:00–00:30 · Ne 14:00–21:30', rating:4.4, photo:null, day:null, isCustom:false },
 
   // ── Pridané v session 2026-06-05 (id 61–80) ──────────────
   // GASTRO — sladké & klasiky
   { id:61, name:'Lanskroon', category:'gastro', lat:52.36776, lng:4.88928,
     description:'Tradičná pekáreň od roku 1913 — preslávená stroopwafelmi, ktoré pečú čerstvé celý deň. Tu sú väčšie a hrubšie než trhové, s teplou karamelovou plnkou; na výber med, káva-karamel alebo figy. Drobné cukrárske umenie kúsok od Spui.',
     note:'Singel 385, Centrum · stroopwafel od 1913', addr:'Singel 385',
-    price:'~€2–3', hours:'Po–So 8:00–19:00 · Ne 10:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€2–3', hours:'Po–Pi 8:00–17:30 · So 9:00–17:30 · Ne 10:00–17:30', rating:4.5, photo:null, day:null, isCustom:false },
   { id:62, name:'Eetsalon Van Dobben', category:'gastro', lat:52.36631, lng:4.89530,
     description:'Klasický holandský eetsalon od roku 1945 pri Rembrandtplein — formica pulty, čašníci v bielom. Legendárny broodje pekelvlees (nakladané hovädzie) a domáce krokety. Žiadne hipster trendy, len poctivá amsterdamská klasika, akú jedávajú miestni.',
     note:'Korte Reguliersdwarsstraat 5–9 · od 1945', addr:'Korte Reguliersdwarsstraat 5',
-    price:'~€4–7', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+    price:'~€4–7', hours:'Po–St 10:00–21:00 · Št 10:00–01:00 · Pi–So 10:00–02:00 · Ne 10:30–20:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:63, name:'Vlaams Friteshuis Vleminckx', category:'gastro', lat:52.36795, lng:4.88965,
     description:"Najslávnejšie hranolky v Amsterdame — od roku 1957, belgický štýl, dvakrát vyprážané, chrumkavé zvonku a mäkké vnútri. Klasika je 'oorlog' (s majonézou, arašidovou omáčkou a cibuľkou). Len stánok cez okienko, takmer vždy rad — stojí za to.",
     note:'Voetboogstraat 33, Centrum · od 1957 · očakávaj rad', addr:'Voetboogstraat 33',
@@ -2410,7 +2410,7 @@ const DEFAULTS = [
   { id:76, name:'Van Stapele Koekmakerij', category:'gastro', lat:52.36850, lng:4.88840,
     description:'Pekáreň jediného produktu — jedna dokonalá čokoládová sušienka s chrumkavým okrajom a roztečeným bielo-čokoládovým stredom, pečená čerstvá každú chvíľu. Predáva sa len tá. Často rad, ale vonia celá ulička. Kúp teplé a zjedz hneď.',
     note:'Heisteeg 4, Centrum · len 1 sušienka', addr:'Heisteeg 4',
-    price:'~€2,5/ks', hours:'Denne 10:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
+    price:'~€2,5/ks', hours:'Denne 10:00–18:00', rating:4.8, photo:null, day:null, isCustom:false },
   { id:77, name:'Broodje Gerard', category:'gastro', lat:52.35560, lng:4.89160,
     description:'Štýlový sendvičový bar v De Pijp — kvalitné chlebíčky, dobrá káva a časopisy. Ideálne zbaliť si obed a vziať na piknik do neďalekého Sarphatiparku alebo na Albert Cuyp. Susedský favorit mimo turistických trás.',
     note:'Gerard Doustraat 66H, De Pijp · na piknik', addr:'Gerard Doustraat 66',
@@ -2424,13 +2424,13 @@ const DEFAULTS = [
   { id:64, name:'Fromagerie Abraham Kef', category:'nakupy', lat:52.37428, lng:4.88060,
     description:'Kultová francúzska syráreň od roku 1953 — vône zrejúcich syrov, drevené police, odborné rady. Môžeš si dať aj posedenie s ochutnávkou syra a vína. Iný svet než holandská gouda — pre milovníkov syra povinná zastávka v Jordaane.',
     note:'Marnixstraat 192, Jordaan · od 1953', addr:'Marnixstraat 192',
-    price:'~€5–15', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
+    price:'~€5–15', hours:'Ut–Št 10:00–18:00 · Pi 10:00–18:30 · So 9:30–18:00 · Ne–Po zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
 
   // BROWN CAFÉ
   { id:68, name:'Café Papeneiland', category:'brown', lat:52.37966, lng:4.88688,
     description:'Jeden z najstarších brown café v meste — roh Prinsengrachtu a Brouwersgrachtu, od roku 1642. Krivé podlahy, delftské kachličky, sviečky. Slávny jablkový koláč (vraj si ho dal aj Bill Clinton). Posedenie pri kanáli ako z obrazu zo 17. storočia.',
     note:'Prinsengracht 2 · od 1642 · jablkový koláč', addr:'Prinsengracht 2',
-    price:'~€4–6', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€4–6', hours:'Po–Št 11:00–01:00 · Pi–So 11:00–02:00 · Ne 11:00–01:00', rating:4.5, photo:null, day:null, isCustom:false },
   { id:70, name:"Café 't Hooischip", category:'brown', lat:52.36770, lng:4.90040,
     description:"Maličký brown café priamo na brehu Amstelu pri Blauwbrug, oproti Opere — má históriu od 19. storočia. Domáce 'bitterballen', miestni štamgasti, pohľad na rieku. Autentický, neturistický kút na pivo pri vode.",
     note:'Amstel 31 · pri Blauwbrug', addr:'Amstel 31',
@@ -2438,11 +2438,11 @@ const DEFAULTS = [
   { id:71, name:'De Sluyswacht', category:'brown', lat:52.36918, lng:4.90230,
     description:'Nakrivo stojaci drevený domček strážcu zdýmadla z roku 1695, hneď vedľa Rembrandtovho domu. Vyzerá ako z rozprávky — naklonený do strany. Terasa nad kanálom Oudeschans je jedno z najfotogenickejších miest na pivo v meste.',
     note:'Jodenbreestraat 1 · od 1695 · pri Rembrandtovom dome', addr:'Jodenbreestraat 1',
-    price:'~€4–6', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€4–6', hours:'Po–Št 12:30–01:00 · Pi–So 12:30–03:00 · Ne 12:30–19:00', rating:4.5, photo:null, day:null, isCustom:false },
   { id:72, name:'Proeflokaal Arendsnest', category:'brown', lat:52.37968, lng:4.88930,
     description:"'Proeflokaal' venovaný výhradne holandským pivám — ~30 čapovaných a vyše 100 fľaškových, všetky z Holandska. Elegantný interiér na kanáli Herengracht. Raj pre milovníkov craft piva, ktorí chcú ochutnať to, čo inde nedostanú.",
     note:'Herengracht 90 · len holandské pivá', addr:'Herengracht 90',
-    price:'~€5–7 pivo', hours:null, rating:4.6, photo:null, day:null, isCustom:false },
+    price:'~€5–7 pivo', hours:'Po–Št, Ne 12:00–00:00 · Pi–So 12:00–02:00', rating:4.6, photo:null, day:null, isCustom:false },
 
   // COFFEE SHOP
   { id:73, name:'Paradox Coffeeshop', category:'cs', lat:52.37520, lng:4.88245,
@@ -2462,7 +2462,7 @@ const DEFAULTS = [
   { id:67, name:'City Beach Pllek', category:'zazitok', lat:52.40196, lng:4.89280,
     description:'Mestská pláž a reštaurácia z lodných kontajnerov na NDSM v Noorde — piesočná pláž priamo pri IJ, ležadlá, sauna a jeden z najlepších výhľadov na západ slnka nad mestom. Cez deň brunch, večer DJ a ohne. Doplávaš sem zadarmo trajektom z Centraalu.',
     note:'TT Neveritaweg 59, NDSM Noord · sunset spot', addr:'TT Neveritaweg 59',
-    price:'~€5–15', hours:null, rating:4.4, photo:null, day:null, isCustom:false },
+    price:'~€5–15', hours:'Po–Št 9:30–01:00 · Pi–So 9:30–03:00 · Ne 9:30–01:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:69, name:'Strand van Oost', category:'zazitok', lat:52.36192, lng:4.92282,
     description:'Mestská pláž na streche v Amsterdame-Oost (House of Orchid pri Oosterparku a Tropenmuseu) — piesok, ležadlá, koktaily a výhľad na park. Letná oáza mimo turistických davov, super na popoludňajší drink, keď je teplo.',
     note:'Linnaeusstraat 2C, Oost · strešná pláž', addr:'Linnaeusstraat 2C',
@@ -2489,7 +2489,7 @@ const DEFAULTS = [
   { id:81, name:'The Pancake Bakery', category:'gastro', lat:52.37759, lng:4.88626,
     description:'Legendárna palacinkáreň od roku 1973 v bývalom sklade Východoindickej spoločnosti (VOC) zo 17. storočia, kúsok od Anne Frank Huis. Vyše 75 druhov holandských pancakes — sladkých aj slaných, plus poffertjes. Útulné trámy a výhľad na Prinsengracht. Cez obed býva rad.',
     note:'Prinsengracht 191 · od 1973 · 75+ druhov palaciniek', addr:'Prinsengracht 191',
-    price:'~€12–18', hours:'Denne 9:00–21:30', rating:4.4, photo:null, day:null, isCustom:false },
+    price:'~€12–18', hours:'Denne 9:00–21:30', rating:4.3, photo:null, day:null, isCustom:false },
   { id:82, name:"Rudi's Original Stroopwafels", category:'gastro', lat:52.35577, lng:4.89500,
     description:'Kultový stánok s čerstvými stroopwafelmi priamo na trhu Albert Cuyp — pečú ich pred tebou, teplé, s tečúcim karamelom. Mnohí ich považujú za najlepšie v meste. Nájdeš ho v strede trhu oproti domu č. 182 (so zlatým anjelom na streche). Otvorené len v trhové dni.',
     note:'Albert Cuyp Markt, oproti č. 182 · top stroopwafel', addr:'Albert Cuypstraat 182',
@@ -2497,11 +2497,11 @@ const DEFAULTS = [
   { id:83, name:'BagelBoy', category:'gastro', lat:52.36862, lng:4.88876,
     description:'Trendy sourdough bageláreň, ktorá zletela na sociálnych sieťach — kváskové bagely plnené až po okraj (pastrami, smotanový syr, losos). Niekoľko pobočiek po meste; táto je pri Spui. Cez obed býva rad — vezmi si so sebou a zjedz pri kanáli.',
     note:'Spui 26 (+ ďalšie pobočky) · sourdough bagely', addr:'Spui 26',
-    price:'~€7–11', hours:'Denne 8:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€7–11', hours:'Denne 9:00–15:00', rating:4.5, photo:null, day:null, isCustom:false },
   { id:84, name:'brioche.', category:'gastro', lat:52.36738, lng:4.87177,
     description:"Maličká francúzska „briocherie\" v Oud-West s pastelovo zelenou fasádou — všetko sa točí okolo masového brioche pečiva: croissanty, cinnamon rolls a nadýchané brioche sendviče. Mimo turistických trás, obľúbená medzi miestnymi.",
     note:'Bilderdijkstraat 164H, Oud-West · zatv. Po–Ut', addr:'Bilderdijkstraat 164',
-    price:'~€4–9', hours:'St–Pi 8:00–17:30 · So–Ne 9:00–17:00', rating:4.5, photo:null, day:null, isCustom:false },
+    price:'~€4–9', hours:'St–Pi 8:00–17:30 · So–Ne 9:00–17:00', rating:4.8, photo:null, day:null, isCustom:false },
   { id:85, name:'NY Deli', category:'gastro', lat:52.37225, lng:4.89439,
     description:'Skutočný newyorský deli v centre — vlastné údené mäso, čerstvý chlieb a sladkosti robené na mieste. Naložené pastrami a reuben sendviče, bagely a NYC cheesecake. Americké porcie kúsok od Dam. Otvorené dlho do noci.',
     note:'Damstraat 10 · pastrami & NYC cheesecake', addr:'Damstraat 10',
@@ -2509,11 +2509,11 @@ const DEFAULTS = [
   { id:86, name:'Have A Roll', category:'gastro', lat:52.35636, lng:4.89983,
     description:'Vegánska pekáreň posadnutá jedinou vecou — dokonalou škoricovou roličkou (cinnamon roll). Nadýchané, lepkavé, čerstvo pečené, viacero príchutí (klasik, pistácia, biela čokoláda). Maličký podnik v De Pijp, často sa vypredá. 100% rastlinné.',
     note:'Van Woustraat 42, De Pijp · vegan cinnamon rolls', addr:'Van Woustraat 42',
-    price:'~€4–6', hours:'Denne 9:00–18:00', rating:4.6, photo:null, day:null, isCustom:false },
+    price:'~€4–6', hours:'Denne 9:00–18:00', rating:4.4, photo:null, day:null, isCustom:false },
   { id:87, name:'Saint-Jean', category:'gastro', lat:52.38032, lng:4.88429,
     description:'Rastlinná (plant-based) pekáreň a deli v Jordaane so špeciálnou kávou — preslávená cronutmi a cruffinmi (croissant × muffin) plnenými krémom, napr. pistáciovým. Štýlový interiér, často rad pred otvorením — dobroty rýchlo zmiznú. 100% vegan.',
     note:'Lindengracht 158H, Jordaan · cronut/cruffin · vegan', addr:'Lindengracht 158',
-    price:'~€4–7', hours:'Denne 9:00–17:00', rating:4.6, photo:null, day:null, isCustom:false },
+    price:'~€4–7', hours:'Denne 9:00–17:00', rating:4.4, photo:null, day:null, isCustom:false },
 
   // BROWN CAFÉ
   { id:88, name:'Café Internationaal', category:'brown', lat:52.37616, lng:4.89962,
@@ -2529,7 +2529,7 @@ const DEFAULTS = [
   { id:90, name:'China Town & He Hua chrám', category:'miesta', lat:52.37513, lng:4.90103,
     description:'Amsterdamská Chinatown okolo Zeedijku pri Nieuwmarkte — ázijské reštaurácie, supermarkety a He Hua (Fo Guang Shan), najväčší čínsky budhistický chrám v Európe v tradičnom štýle (Zeedijk 106-118). Pestrá štvrť na prechádzku a obed; chrám je verejne prístupný.',
     note:'Zeedijk · He Hua chrám (Zeedijk 106-118)', addr:'Zeedijk 106',
-    price:'Chrám zadarmo (dar)', hours:'Chrám St–Ne 12:00–17:00', rating:4.4, photo:null, day:null, isCustom:false },
+    price:'Chrám zadarmo (dar)', hours:'Chrám Ut–So 13:00–15:30', rating:4.4, photo:null, day:null, isCustom:false },
 
   // ── ZAKÚPENÁ PLAVBA (id 91) — Flagship Amsterdam ─────────
   { id:91, name:'Flagship Amsterdam — plavba (Central Station)', category:'zazitok', lat:52.3782773, lng:4.8978208,
@@ -2568,12 +2568,12 @@ const DEFAULTS = [
   { id:97, name:'Wynand Fockink', category:'brown', lat:52.3723195, lng:4.8952995,
     description:'Historická palenica a tasting room (proeflokaal) na <b>genever a likéry</b>, založená roku 1679 — ukrytá v úzkej uličke pri námestí Dam. Likéry majú okolo 20 % ABV a stoja ~€5 za pohár. Pohár ti nalejú „kopcovitý" (po okraj), takže prvý dúšok sa tradične usrkne sklonený k baru, bez zdvihnutia pohára — celkom zábavná tradícia. Posedieť sa dá vnútri aj vonku.',
     note:'Tradícia: prvý dúšok bez zdvihnutia pohára (skloň sa k baru). ~€5/pohár, ~20 % ABV', addr:'Pijlsteeg 31, 1012 HH Amsterdam',
-    price:'~€5 / pohár', hours:'~14:00–21:00 (denne)', rating:4.6, photo:null, day:null, isCustom:false },
+    price:'~€5 / pohár', hours:'Denne 14:00–21:00', rating:4.6, photo:null, day:null, isCustom:false },
 
   { id:98, name:'FEBO (Reguliersbreestraat)', category:'gastro', lat:52.3663683, lng:4.8951869,
     description:'Ikonický holandský <b>automatiek</b> (od 1941) — snacky ako kroket, frikandel, kaassoufflé či bitterballen si za pár mincí vytiahneš z okienok v stene. Táto pobočka je pri Rembrandtpleine. Lacná a typická amsterdamská skúsenosť.',
     note:'Automat v stene — vhoď mince, otvor okienko. Skús frikandel alebo kroket', addr:'Reguliersbreestraat 38, 1017 CN Amsterdam',
-    price:'~€2–4 / snack', hours:'~11:00–01:00', rating:null, photo:null, day:null, isCustom:false },
+    price:'~€2–4 / snack', hours:'Po–Št 11:00–03:00 · Pi–So 11:00–04:00 · Ne 11:00–03:00', rating:4.1, photo:null, day:null, isCustom:false },
 
   { id:99, name:'FEBO (Leidsestraat)', category:'gastro', lat:52.3647668, lng:4.8837247,
     description:'Pobočka kultového holandského automatu FEBO blízko Leidseplein. Kroket, frikandel a kaassoufflé z okienok v stene — rýchle, lacné a veľmi „po holandsky".',
@@ -2583,7 +2583,7 @@ const DEFAULTS = [
   { id:100, name:"McDonald's (Damrak)", category:'gastro', lat:52.3768951, lng:4.8976720,
     description:"McDonald's pri Damraku medzi Centraal a Dam — praktická rýchla zastávka. Tip: v Holandsku skús <b>McKroket</b> (kroketový burger) — lokálna McDonald's klasika, ktorú inde nedostaneš.",
     note:'Skús McKroket — holandská špecialita v menu', addr:'Damrak 8, 1012 LG Amsterdam',
-    price:'~€5–9 menu', hours:'~7:00–24:00', rating:null, photo:null, day:null, isCustom:false },
+    price:'~€5–9 menu', hours:'Po–Št, Ne 7:00–03:00 · Pi–So 7:00–06:00', rating:null, photo:null, day:null, isCustom:false },
 
   { id:101, name:"McDonald's (Kalverstraat)", category:'gastro', lat:52.3711733, lng:4.8920084,
     description:"McDonald's na nákupnej Kalverstraat, kúsok od Dam. Tip: skús <b>McKroket</b> — holandskú verziu burgera s kroketou.",
@@ -2593,12 +2593,12 @@ const DEFAULTS = [
   { id:102, name:'Fabel Friet (Damrak)', category:'gastro', lat:52.3751130, lng:4.8953130,
     description:'Čerstvé holandské hranolky z ručne lúpaných zemiakov, ikonické omáčky (vrátane „oorlog" — majonéza + arašidová satay + cibuľka). Veľmi populárny stánok, často sa stojí rad.',
     note:'Skús omáčku „oorlog". Často rad — oplatí sa', addr:'Damrak 58, 1012 LL Amsterdam',
-    price:'~€5–7', hours:'Po–Št 11:00–22:00 · Pi–Ne 11:00–00:00', rating:null, photo:null, day:null, isCustom:false },
+    price:'~€5–7', hours:'Po–Št 11:00–22:00 · Pi–Ne 11:00–00:00', rating:4.5, photo:null, day:null, isCustom:false },
 
   { id:103, name:'Fabel Friet (Nieuwendijk)', category:'gastro', lat:52.3786718, lng:4.8948032,
     description:'Pobočka obľúbeného Fabel Friet na Nieuwendijk, blízko Dam a Kalverstraat. Tie isté čerstvé hranolky z ručne lúpaných zemiakov a typické holandské omáčky.',
     note:'Skús omáčku „oorlog"', addr:'Nieuwendijk 10A, 1012 MK Amsterdam',
-    price:'~€5–7', hours:'12:00–21:00 (denne)', rating:null, photo:null, day:null, isCustom:false },
+    price:'~€5–7', hours:'Denne 12:00–21:00', rating:null, photo:null, day:null, isCustom:false },
 
   { id:104, name:'Layers Bakery & Deli', category:'gastro', lat:52.3556420, lng:4.8889371,
     description:'Pekáreň a deli od francúzskeho cukrára Alexandra Scoura v štvrti De Pijp. Ráno maslové croissanty a viennoiserie z otvoreného „pastry labu" na poschodí, poobede čerstvé sendviče z deli dole.',
@@ -2613,7 +2613,7 @@ const DEFAULTS = [
   { id:106, name:'Madaq — Qrumble', category:'gastro', lat:52.3689837, lng:4.8906526,
     description:'Chocolatier a dezerty v House of Rituals na Spui. Hviezdou je <b>Qrumble</b> — virálny teplý jablkový crumble: škoricou voňajúce jablká pod chrumkavou maslovou posýpkou s vrstvou krému/zmrzliny (často opálenou „brûlée"). Majú aj ručné čokolády a makrónky.',
     note:'Qrumble (teplý apple crumble) ~€5,50 · skús aj makrónky', addr:'Spui 10, 1012 WZ Amsterdam (House of Rituals)',
-    price:'Qrumble ~€5,50', hours:null, rating:4.5, photo:null, day:null, isCustom:false },
+    price:'Qrumble ~€5,50', hours:'Po 11:00–19:00 · Ut–So 10:00–22:00 · Ne 11:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
 
   { id:107, name:"McDonald's (Muntplein)", category:'gastro', lat:52.36666, lng:4.89357,
     description:"McDonald's priamo na Muntplein pri Munttoren a kvetinovom trhu — praktická rýchla zastávka v centre. Tip: skús <b>McKroket</b> (kroketový burger) — holandská McDonald's klasika, ktorú inde nedostaneš.",
@@ -2634,7 +2634,7 @@ const DEFAULTS = [
   { id:110, name:'Boerejongens (Utrechtsestraat)', category:'cs', lat:52.3648729, lng:4.8980282,
     description:'Prémiový coffeeshop v štýle starej lekárne — biele kachličky, personál v oblekoch a vysoko hodnotená kvalita. Obľúbený medzi miestnymi, jeden z najlepšie hodnotených v meste. Centrálna pobočka na Utrechtsestraat blízko Rembrandtplein a Amstelu.',
     note:'Top kvalita · „apothecary" štýl · Utrechtsestraat', addr:'Utrechtsestraat 21, 1017 VH Amsterdam',
-    price:null, hours:'~7:00–01:00', rating:4.6, photo:null, day:null, isCustom:false },
+    price:null, hours:'~7:00–01:00', rating:4.5, photo:null, day:null, isCustom:false },
 
   { id:111, name:'Coffeeshop Amsterdam', category:'cs', lat:52.3800660, lng:4.8929225,
     description:'Príjemný coffeeshop na rušnej Haarlemmerstraat kúsok od Centraal. Uvoľnená atmosféra, prehľadné menu a dobrá poloha na prechádzke smerom k Jordaan.',
@@ -2665,7 +2665,7 @@ const DEFAULTS = [
   { id:116, name:'Concerto', category:'nakupy', lat:52.3632704, lng:4.8983548,
     description:'Najväčší a najznámejší obchod s platňami v Amsterdame — niekoľko prepojených budov plných nového aj použitého vinylu naprieč všetkými žánrami. Kaviareň a živé akcie. Raj pre milovníkov hudby.',
     note:'Najväčší vinyl shop v meste · nové + použité platne', addr:'Utrechtsestraat 52-60, 1017 VS Amsterdam',
-    price:null, hours:'~10:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
+    price:null, hours:'Po 12:00–18:00 · Ut–So 10:00–18:00 · Ne 12:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
 
   { id:117, name:'Record Palace', category:'nakupy', lat:52.3620821, lng:4.8849570,
     description:'Obchod so zbierkovým vinylom pri Weteringschans — silný výber jazzu, soulu, funku a rocku, kvalitné druhé ruky. Obľúbený medzi „diggermi".',
@@ -3066,6 +3066,24 @@ function healSharedDefaults(){
       changed = true;
     }
     localStorage.setItem('boerejongens_utrecht_2026_06', '1');
+  }
+
+  // Jednorazová oprava otváracích hodín a hodnotení podľa reálnych Google dát
+  // (2026-06). Prepíše hours/rating pre opravené predvolené miesta aj v už uloženom
+  // (cloud/localStorage) stave. Nedotýka sa vlastných (isCustom) miest. Guarded flagom,
+  // aby oprava prebehla raz a nebojovala s neskoršími ručnými úpravami.
+  if (!localStorage.getItem('hours_rating_fix_2026_06')) {
+    const FIX = [2,4,10,11,12,29,32,33,38,42,44,45,46,47,48,49,50,55,60,61,62,64,67,
+                 68,71,72,76,81,83,84,86,87,90,97,98,100,102,103,106,110,116];
+    FIX.forEach(id => {
+      const cur = places.find(p => p.id === id);
+      const def = DEFAULTS.find(d => d.id === id);
+      if (cur && def && !cur.isCustom) {
+        if (cur.hours  !== def.hours)  { cur.hours  = def.hours;  changed = true; }
+        if (cur.rating !== def.rating) { cur.rating = def.rating; changed = true; }
+      }
+    });
+    localStorage.setItem('hours_rating_fix_2026_06', '1');
   }
   return changed;
 }
