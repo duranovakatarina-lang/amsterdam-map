@@ -293,8 +293,13 @@
       inset: 0;
       background-size: cover;
       background-position: center;
-      transition: background 0.3s ease;
+      background-repeat: no-repeat;
     }
+    /* režim „zmestiť celé" — celý obrázok je vidno, okolo decentný tmavý okraj */
+    #sb-hero-bg.contain { background-size: contain; }
+    /* keď je fotka a režim výplň, dá sa ťahať pre posun výrezu */
+    #sb-hero.has-photo:not(.fit-contain) #sb-hero-bg { cursor: grab; }
+    #sb-hero.dragging #sb-hero-bg { cursor: grabbing; transition: none; }
     #sb-hero-grad {
       position: absolute;
       inset: 0;
@@ -305,6 +310,7 @@
         rgba(0,0,0,0.55) 75%,
         rgba(0,0,0,0.78) 100%
       );
+      pointer-events: none;   /* nech ťahanie/kurzor funguje na fotke pod ňou */
     }
     #sb-close {
       position: absolute;
@@ -326,6 +332,53 @@
       transition: background 0.15s;
     }
     #sb-close:hover { background: rgba(0,0,0,0.55); }
+
+    /* prepínač Vyplniť / Celé — vľavo hore, len keď je fotka */
+    #sb-fit {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px 5px 9px;
+      background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(8px);
+      border: none;
+      border-radius: 20px;
+      color: rgba(255,255,255,0.95);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 2;
+      transition: background 0.15s;
+    }
+    #sb-hero.has-photo #sb-fit { display: inline-flex; }
+    #sb-fit:hover { background: rgba(0,0,0,0.55); }
+    #sb-fit svg { width: 13px; height: 13px; }
+
+    /* nenápadný hint „potiahni" — zobrazí sa pár sekúnd po otvorení fotky */
+    #sb-drag-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      color: white;
+      font-size: 11.5px;
+      font-weight: 600;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #sb-hero.has-photo:not(.fit-contain) #sb-drag-hint.show { display: inline-flex; opacity: 1; }
 
     #sb-hero-footer {
       position: absolute;
@@ -1655,6 +1708,11 @@
     <div id="sb-hero-bg"></div>
     <div id="sb-hero-grad"></div>
     <button id="sb-close" onclick="closeSidebar()">✕</button>
+    <button id="sb-fit" onclick="toggleHeroFit(event)"></button>
+    <div id="sb-drag-hint">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></svg>
+      Potiahni pre posun výrezu
+    </div>
     <div id="sb-hero-footer">
       <div id="sb-hero-badge"></div>
       <div id="sb-hero-name"></div>
@@ -3668,6 +3726,108 @@ function setSelectedPin(id) {
 //  SIDEBAR
 // ═══════════════════════════════════════════════════
 
+// ── Rámovanie hero fotky: výplň/celé + zvislá pozícia výrezu ──
+let _heroHintTimer = null;
+
+function applyHeroFraming(p) {
+  const hero   = document.getElementById('sb-hero');
+  const heroBg = document.getElementById('sb-hero-bg');
+  const fitBtn = document.getElementById('sb-fit');
+  const hint   = document.getElementById('sb-drag-hint');
+
+  hero.classList.toggle('has-photo', !!p.photo);
+  if (!p.photo) {
+    hero.classList.remove('fit-contain');
+    if (hint) hint.classList.remove('show');
+    if (_heroHintTimer) { clearTimeout(_heroHintTimer); _heroHintTimer = null; }
+    return;
+  }
+
+  const contain = p.photoFit === 'contain';
+  const pos = (p.photoPos != null) ? p.photoPos : 50;   // 0 = horný okraj, 100 = spodný
+
+  heroBg.classList.toggle('contain', contain);
+  hero.classList.toggle('fit-contain', contain);
+  heroBg.style.backgroundPosition = `50% ${pos}%`;
+
+  // Tlačidlo prepínača
+  fitBtn.innerHTML = contain
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Vyplniť`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg> Celé`;
+
+  // Hint „potiahni" len v režime výplň, krátko po otvorení
+  if (hint) {
+    hint.classList.remove('show');
+    if (_heroHintTimer) clearTimeout(_heroHintTimer);
+    if (!contain) {
+      requestAnimationFrame(() => hint.classList.add('show'));
+      _heroHintTimer = setTimeout(() => hint.classList.remove('show'), 2200);
+    }
+  }
+}
+
+function toggleHeroFit(ev) {
+  if (ev) ev.stopPropagation();
+  const p = places.find(x => x.id === selectedId);
+  if (!p || !p.photo) return;
+  p.photoFit = (p.photoFit === 'contain') ? 'cover' : 'contain';
+  applyHeroFraming(p);
+  save();
+}
+
+function setupHeroDrag(p) {
+  const hero   = document.getElementById('sb-hero');
+  const heroBg = document.getElementById('sb-hero-bg');
+  // Vyčisti predošlé poslucháče (uchovaj referenciu na elemente)
+  if (heroBg._dragCleanup) heroBg._dragCleanup();
+  if (!p.photo) return;
+
+  let dragging = false, startY = 0, startPos = 50;
+
+  const onDown = (e) => {
+    const place = places.find(x => x.id === selectedId);
+    if (!place || !place.photo || place.photoFit === 'contain') return;  // v režime „celé" sa neťahá
+    dragging = true;
+    startY = (e.touches ? e.touches[0].clientY : e.clientY);
+    startPos = (place.photoPos != null) ? place.photoPos : 50;
+    hero.classList.add('dragging');
+    document.getElementById('sb-drag-hint').classList.remove('show');
+    e.preventDefault();
+  };
+  const onMove = (e) => {
+    if (!dragging) return;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    // posun o výšku hero ≈ celý rozsah 0–100 %
+    const delta = (y - startY) / hero.offsetHeight * 100;
+    let pos = Math.max(0, Math.min(100, startPos - delta));
+    const place = places.find(x => x.id === selectedId);
+    if (place) { place.photoPos = pos; heroBg.style.backgroundPosition = `50% ${pos}%`; }
+    e.preventDefault();
+  };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    hero.classList.remove('dragging');
+    save();   // ulož finálnu pozíciu
+  };
+
+  heroBg.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  heroBg.addEventListener('touchstart', onDown, { passive:false });
+  window.addEventListener('touchmove', onMove, { passive:false });
+  window.addEventListener('touchend', onUp);
+
+  heroBg._dragCleanup = () => {
+    heroBg.removeEventListener('mousedown', onDown);
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+    heroBg.removeEventListener('touchstart', onDown);
+    window.removeEventListener('touchmove', onMove);
+    window.removeEventListener('touchend', onUp);
+  };
+}
+
 function openSidebar(id) {
   const p = places.find(x => x.id === id);
   if (!p) return;
@@ -3675,7 +3835,9 @@ function openSidebar(id) {
   const cat = CATS[p.category] || CATS.custom;
 
   const heroBg = document.getElementById('sb-hero-bg');
-  heroBg.style.background = GRADIENTS[p.category] || GRADIENTS.custom;
+  // Gradient kategórie ide na kontajner — slúži ako placeholder aj ako pozadie
+  // za fotkou v režime „zmestiť celé".
+  document.getElementById('sb-hero').style.background = GRADIENTS[p.category] || GRADIENTS.custom;
   if (p.photo) {
     const img = new Image();
     img.onload = () => { heroBg.style.backgroundImage = `url('${p.photo}')`; };
@@ -3683,6 +3845,9 @@ function openSidebar(id) {
   } else {
     heroBg.style.backgroundImage = '';
   }
+  // Nastav rámovanie fotky (režim výplň/celé + zvislú pozíciu výrezu)
+  applyHeroFraming(p);
+  setupHeroDrag(p);
 
   document.getElementById('sb-hero-badge').innerHTML =
     `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${placeIcon(p)}</svg> ${cat.label}`;
