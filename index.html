@@ -1851,7 +1851,6 @@
           <option value="hidden">💎 Hidden gems</option>
           <option value="miesta">🏛️ Miesta &amp; architektúra</option>
           <option value="natura">🌳 Príroda &amp; parky</option>
-          <option value="speakeasy">🚪 Speakeasy</option>
         </select>
       </div>
       <div class="form-grp">
@@ -1906,7 +1905,6 @@ const CATS = {
   'hidden':    { label: 'Hidden gems',           icon: '💎', color: '#9333EA', type: 'Hidden gem' },
   'miesta':    { label: 'Miesta & architektúra', icon: '🏛️', color: '#2563EB', type: 'Miesto & architektúra' },
   'natura':    { label: 'Príroda & parky',       icon: '🌳', color: '#22C55E', type: 'Príroda & park' },
-  'speakeasy': { label: 'Speakeasy',             icon: '🚪', color: '#1E293B', type: 'Speakeasy & koktajly' },
   'custom':    { label: 'Vlastné',               icon: '📍', color: '#94A3B8', type: 'Vlastné miesto' },
 };
 
@@ -1935,7 +1933,6 @@ const CAT_SVG_ICONS = {
   // Pine tree (triangle crown + trunk)
   'natura':    `<path d="M12 3L3 16h18z"/><line x1="12" y1="16" x2="12" y2="21"/>`,
   // Cocktail/martini glass (V + stem + base)
-  'speakeasy': `<path d="M4 4h16l-8 9z"/><line x1="12" y1="13" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/>`,
   // Location pin
   'custom':    `<circle cx="12" cy="9" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 8 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>`,
 };
@@ -1953,6 +1950,8 @@ const PLACE_ICON_SVG = {
   fries: `<path d="M6 8h12l-1.2 12H7.2z"/><line x1="6.5" y1="12" x2="17.5" y2="12"/><line x1="8.6" y1="8" x2="8.1" y2="2.6"/><line x1="12" y1="8" x2="12" y2="2"/><line x1="15.4" y1="8" x2="15.9" y2="3"/>`,
   // Vinyl — gramofónová platňa (vonkajší okraj + drážka + label + dierka)
   vinyl: `<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.4"/><circle cx="12" cy="12" r="0.9" fill="white" stroke="none"/>`,
+  // Koktail — martini pohár (pôvodná speakeasy ikona, zachovaná po presune pod gastro)
+  cocktail: `<path d="M4 4h16l-8 9z"/><line x1="12" y1="13" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/>`,
 };
 // Priradenie podniku → ikona (ostatné miesta používajú ikonu kategórie)
 const PLACE_ICONS = {
@@ -1973,6 +1972,12 @@ const PLACE_ICONS = {
   116: 'vinyl',   // Concerto
   117: 'vinyl',   // Record Palace
   118: 'vinyl',   // Damn Good Records
+  45: 'cocktail', // Door 74 (bývalý speakeasy)
+  46: 'cocktail', // Rosalia's Menagerie
+  47: 'cocktail', // Hiding in Plain Sight
+  48: 'cocktail', // Tales & Spirits
+  49: 'cocktail', // Super Lyan
+  50: 'cocktail', // Bar Oldenhof
 };
 // Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
 function placeIcon(p) {
@@ -2005,7 +2010,6 @@ const GRADIENTS = {
   'hidden':    'linear-gradient(135deg,#F5F3FF,#9333EA)',
   'miesta':    'linear-gradient(135deg,#EFF6FF,#2563EB)',
   'natura':    'linear-gradient(135deg,#F0FDF4,#22C55E)',
-  'speakeasy': 'linear-gradient(135deg,#F1F5F9,#1E293B)',
   'custom':    'linear-gradient(135deg,#F1F5F9,#94A3B8)',
 };
 
@@ -2336,22 +2340,22 @@ const DEFAULTS = [
     note:'Plantage Kerklaan 38–40', price:'~€26/os', hours:'Denne 9:00–18:00', rating:4.5, photo:null, day:null, isCustom:false },
 
   // ── SPEAKEASY & KOKTAJLY ─────────────────────────────────
-  { id:45, name:'Door 74', category:'speakeasy', lat:52.3663, lng:4.8952,
+  { id:45, name:'Door 74', category:'gastro', lat:52.3663, lng:4.8952,
     description:'Prvý a najprestížnejší speakeasy v Amsterdame — dvakrát na World\'s 50 Best Bar zozname. Art deco interiér s lisovanými cínovanými stropmi v štýle New Yorku 20. rokov. Koktailový lístok sa mení 4x ročne.',
     note:'Reguliersdwarsstraat 74 · zazvoň, čakaj · ⚠️ Rezervácia nutná! · Vek 21+', price:'~€15–18/drink', hours:'Ne–Št 20:00–03:00 · Pi–So 20:00–04:00', rating:4.5, photo:null, day:null, isCustom:false },
-  { id:46, name:"Rosalia's Menagerie", category:'speakeasy', lat:52.3726, lng:4.8996,
+  { id:46, name:"Rosalia's Menagerie", category:'gastro', lat:52.3726, lng:4.8996,
     description:"17-storočný kanálový dom pretvorený na kabinet kuriozít. Sametové sedenie, tmavé drevo, predmety z celého sveta. Pravdepodobne najväčší výber genevers (holandský predchodca ginu) v celom Holandsku.",
     note:'Kloveniersburgwal 20, De Wallen · bez rezervácie', price:'~€12–15/drink', hours:'Denne 18:00–00:30', rating:4.8, photo:null, day:null, isCustom:false },
-  { id:47, name:'Hiding in Plain Sight', category:'speakeasy', lat:52.3723, lng:4.9024,
+  { id:47, name:'Hiding in Plain Sight', category:'gastro', lat:52.3723, lng:4.9024,
     description:'Najautentickejší speakeasy podľa miestnych. Na stenách sú matematické rovnice z filmov — ak uhádneš jednu, dostaneš free shot. Bartenderi sú legendárni. Žiadne flashky, žiadne selfie tyče.',
     note:'Rapenburg 18 · zazvoň, žiadna tabuľa', price:'~€13–16/drink', hours:'Po–So 18:00–01:00', rating:4.6, photo:null, day:null, isCustom:false },
-  { id:48, name:'Tales & Spirits', category:'speakeasy', lat:52.3703, lng:4.8893,
+  { id:48, name:'Tales & Spirits', category:'gastro', lat:52.3703, lng:4.8893,
     description:'Viacposchodová budova zo 16. storočia — tehlové múry, drevené trámy. Bartenderi sú choreografi: dym, efekty, špeciálne poháriky. Koktajly majú príbehy. Majú aj kuchyňu so small plates.',
     note:'Lijnbaanssteeg 5–7 (medzi Singel a Spui) · príď skoro', price:'~€14–17/drink', hours:'St–So 17:30–01:00 · Ne–Ut zatvorené', rating:4.6, photo:null, day:null, isCustom:false },
-  { id:49, name:'Super Lyan', category:'speakeasy', lat:52.3789, lng:4.8957,
+  { id:49, name:'Super Lyan', category:'gastro', lat:52.3789, lng:4.8957,
     description:"Prvý amsterdamský bar Mr. Lyanova (Ryan Chetiyawardana) — svetoznámy bartender z Londýna. Neonové svetlá a tučná estetika kontrastujú s pôvodnými 17-storočnými črtami budovy. Low-waste filozofia.",
     note:'Nieuwezijds Voorburgwal 3, pri Centraal · bez rezervácie', price:'~€13–16/drink', hours:'Po–Št 12:00–01:00 · Pi–So 12:00–02:00 · Ne 12:00–01:00', rating:4.7, photo:null, day:null, isCustom:false },
-  { id:50, name:'Bar Oldenhof', category:'speakeasy', lat:52.3722, lng:4.8800,
+  { id:50, name:'Bar Oldenhof', category:'gastro', lat:52.3722, lng:4.8800,
     description:'Najromantickejší koktailový bar v meste — tmavé panely, luster, hlboká whisky polica, stolový servis. Bartenderi sú učitelia. Perfektné klasiky aj signature koktaily. Ideálne na darčekový večer.',
     note:'Elandsgracht 84-H, Jordaan · odporúčaná rezervácia', price:'~€12–15/drink', hours:'Po–Št 18:00–01:00 · Pi–So 17:00–03:00 · Ne 17:00–01:00', rating:4.8, photo:null, day:null, isCustom:false },
 
@@ -2756,6 +2760,8 @@ function migrate() {
   places.forEach(p => {
     if (p.visited === undefined) { p.visited = false; changed = true; }
     if (p.order === undefined)   { p.order = null;    changed = true; }
+    // Zrušená kategória 'speakeasy' → presun pod 'gastro'
+    if (p.category === 'speakeasy') { p.category = 'gastro'; changed = true; }
 
     const fix = PLACE_FIXES[p.id];
     if (fix) {
@@ -3011,6 +3017,8 @@ function backfillFields(){
     if (p.visited === undefined) p.visited = false;
     if (p.order   === undefined) p.order   = null;
     if (p.addr    === undefined) p.addr    = '';
+    // Zrušená kategória 'speakeasy' → presun pod 'gastro' (ikonu drží PLACE_ICONS)
+    if (p.category === 'speakeasy') p.category = 'gastro';
   });
 }
 function adoptCloudState(data){
@@ -3567,7 +3575,7 @@ function togglePOIs() {
 // ═══════════════════════════════════════════════════
 
 // Order of chips in the filter bar — 'custom' excluded; letisko & ubytovanie at the end
-const CAT_BAR_ORDER = ['coffee','cs','brown','gastro','nakupy','zazitok','hidden','miesta','natura','speakeasy','letisko','ubytovanie'];
+const CAT_BAR_ORDER = ['coffee','cs','brown','gastro','nakupy','zazitok','hidden','miesta','natura','letisko','ubytovanie'];
 
 function buildCategoryBar() {
   const bar = document.getElementById('category-bar');
