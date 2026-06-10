@@ -3144,6 +3144,83 @@ function formatDistance(meters) {
 }
 
 // ═══════════════════════════════════════════════════
+//  REÁLNE PEŠIE TRASY — OpenRouteService (zdarma)
+// ═══════════════════════════════════════════════════
+// 1) Kľúč zdarma: https://openrouteservice.org/dev/#/signup
+// 2) Vlož ho nižšie namiesto PASTE_YOUR_ORS_KEY_HERE.
+// Bez kľúča mapa funguje ďalej s odhadom (vzdušná čiara × 1.35).
+const ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjJhNWEwZjFlNjdhYTQxMDA4NTY4NmQ5ZDBiNDcwYzdjIiwiaCI6Im11cm11cjY0In0=';
+const ORS_URL = 'https://api.openrouteservice.org/v2/directions/foot-walking';
+const routeCache = JSON.parse(localStorage.getItem('routeCache') || '{}');
+let itinSeq = 0; // guard proti zápisu starých výsledkov po re-renderi
+
+function saveRouteCache() {
+  try { localStorage.setItem('routeCache', JSON.stringify(routeCache)); } catch (e) {}
+}
+function routeKey(a, b) {
+  const r = n => n.toFixed(5);
+  return `${r(a[0])},${r(a[1])}>${r(b[0])},${r(b[1])}`;
+}
+function orsReady() { return ORS_KEY && ORS_KEY !== 'PASTE_YOUR_ORS_KEY_HERE'; }
+
+// a,b = [lat,lng]. Vráti {meters, mins} reálnej pešej trasy alebo null pri zlyhaní.
+async function fetchWalk(a, b) {
+  const key = routeKey(a, b);
+  if (routeCache[key]) return routeCache[key];
+  if (!orsReady()) return null;
+  try {
+    const res = await fetch(ORS_URL, {
+      method: 'POST',
+      headers: { 'Authorization': ORS_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coordinates: [[a[1], a[0]], [b[1], b[0]]] }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const sum = data.routes && data.routes[0] && data.routes[0].summary;
+    if (!sum || sum.distance == null) return null;
+    const out = { meters: sum.distance, mins: Math.max(1, Math.round(sum.duration / 60)) };
+    routeCache[key] = out;
+    saveRouteCache();
+    return out;
+  } catch (e) { return null; }
+}
+
+// SVG šípky pre úsek trasy (zdieľané itinerárom aj upgrade funkciou)
+const LEG_SVG = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>`;
+
+// Na pozadí nahradí odhady v itinerári reálnymi pešími trasami
+async function upgradeItineraryDistances(stops, seq) {
+  let totalM = 0, totalMin = 0, anyReal = false;
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = [stops[i].lat, stops[i].lng];
+    const b = [stops[i + 1].lat, stops[i + 1].lng];
+    const w = await fetchWalk(a, b);
+    if (seq !== itinSeq) return; // medzitým sa pre-renderovalo
+    if (w) {
+      anyReal = true;
+      totalM += w.meters; totalMin += w.mins;
+      const el = document.getElementById(`itin-leg-${i}`);
+      if (el) el.innerHTML = `${LEG_SVG} ${formatDistance(w.meters)} · ~${w.mins} min pešo`;
+    } else {
+      const d = map.distance(a, b) * 1.35;
+      totalM += d; totalMin += Math.max(1, Math.round(d / 1000 / 5 * 60));
+    }
+  }
+  if (seq !== itinSeq || !anyReal) return;
+  const el = document.getElementById('itin-total-val');
+  if (el) el.textContent = `${formatDistance(totalM)} · ~${totalMin} min`;
+}
+
+// Na pozadí nahradí odhad v sidebare reálnou pešou vzdialenosťou od používateľa
+async function upgradeSidebarDistance(id, dest) {
+  if (!userLatLng) return;
+  const w = await fetchWalk(userLatLng, dest);
+  if (!w || selectedId !== id) return;
+  const el = document.getElementById('sb-dist');
+  if (el) el.innerHTML = `📍 ${formatDistance(w.meters)} · ~${w.mins} min pešo od teba`;
+}
+
+// ═══════════════════════════════════════════════════
 //  POI — OpenStreetMap Overpass API
 // ═══════════════════════════════════════════════════
 
@@ -3549,8 +3626,8 @@ function openSidebar(id) {
   // Distance from user location (ak polohu nemáme, ponúkni ju zapnúť)
   let distHtml = '';
   if (userLatLng) {
-    const dist = map.distance(userLatLng, [p.lat, p.lng]);
-    distHtml = `<div class="sb-distance">📍 ${formatDistance(dist)} od teba</div>`;
+    const air = map.distance(userLatLng, [p.lat, p.lng]) * 1.35;
+    distHtml = `<div class="sb-distance" id="sb-dist">📍 ${formatDistance(air)} od teba</div>`;
   } else {
     distHtml = `<div class="sb-distance sb-distance-cta" onclick="locateMe()" title="Zapne tvoju polohu a ukáže vzdialenosť">📍 Zistiť vzdialenosť odo mňa</div>`;
   }
@@ -3605,6 +3682,7 @@ function openSidebar(id) {
 
   document.getElementById('sidebar').classList.add('open');
   setSelectedPin(id);
+  if (userLatLng) upgradeSidebarDistance(id, [p.lat, p.lng]);
   if (window.innerWidth >= 768) {
     setTimeout(() => map.panTo([p.lat, p.lng], { animate:true, duration:0.4 }), 60);
   }
@@ -3733,7 +3811,7 @@ function renderItinerary() {
     return;
   }
 
-  const legSvg = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>`;
+  const seq = ++itinSeq;
   let totalMeters = 0;
 
   const rows = stops.map((p, i) => {
@@ -3744,7 +3822,7 @@ function renderItinerary() {
       const d = map.distance([p.lat, p.lng], [next.lat, next.lng]);
       totalMeters += d;
       const est = walkEstimate(d);
-      legHtml = `<div class="itin-leg">${legSvg} ${est.dist} · ~${est.mins} min pešo</div>`;
+      legHtml = `<div class="itin-leg" id="itin-leg-${i}">${LEG_SVG} ${est.dist} · ~${est.mins} min pešo</div>`;
     }
     return `
       <div class="itin-stop ${p.visited ? 'visited' : ''}">
@@ -3766,7 +3844,8 @@ function renderItinerary() {
   sub.textContent = `${stops.length} ${stops.length === 1 ? 'zastávka' : stops.length < 5 ? 'zastávky' : 'zastávok'}`;
   if (stops.length > 1) {
     const total = walkEstimate(totalMeters);
-    footer.innerHTML = `<div class="itin-total"><span>Spolu pešo medzi zastávkami</span><span>${total.dist} · ~${total.mins} min</span></div>`;
+    footer.innerHTML = `<div class="itin-total"><span>Spolu pešo medzi zastávkami</span><span id="itin-total-val">${total.dist} · ~${total.mins} min</span></div>`;
+    if (orsReady()) upgradeItineraryDistances(stops, seq);
   } else {
     footer.innerHTML = '';
   }
