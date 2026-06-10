@@ -2403,7 +2403,7 @@ const DEFAULTS = [
     description:"Najslávnejšie hranolky v Amsterdame — od roku 1957, belgický štýl, dvakrát vyprážané, chrumkavé zvonku a mäkké vnútri. Klasika je 'oorlog' (s majonézou, arašidovou omáčkou a cibuľkou). Len stánok cez okienko, takmer vždy rad — stojí za to.",
     note:'Voetboogstraat 33, Centrum · od 1957 · očakávaj rad', addr:'Voetboogstraat 33',
     price:'~€4–6', hours:'Denne 11:00–19:00', rating:4.5, photo:null, day:null, isCustom:false },
-  { id:75, name:"Pat's Poffertjes", category:'gastro', lat:52.37520, lng:4.88840,
+  { id:75, name:"Pat's Poffertjes", category:'gastro', lat:52.37463, lng:4.88862,
     description:'Maličký stánok s čerstvými poffertjes — nadýchané holandské mini-palacinky pečené priamo pred tebou, posypané maslom a práškovým cukrom. Sladká klasika na cestu, kúsok od Jordaanu.',
     note:'Oude Leliestraat 7, Centrum', addr:'Oude Leliestraat 7',
     price:'~€5–8', hours:'Denne 10:00–20:00', rating:4.5, photo:null, day:null, isCustom:false },
@@ -3097,6 +3097,16 @@ function healSharedDefaults(){
       }
     });
     localStorage.setItem('arendsnest_papeneiland_geofix_2026_06', '1');
+  }
+
+  // One-off: oprava polohy Pat's Poffertjes (75) podľa Google/OSM pre už uloženú verziu.
+  if (!localStorage.getItem('pats_poffertjes_geofix_2026_06')) {
+    const cur = places.find(p => p.id === 75);
+    const def = DEFAULTS.find(d => d.id === 75);
+    if (cur && def && !cur.isCustom && (cur.lat !== def.lat || cur.lng !== def.lng)) {
+      cur.lat = def.lat; cur.lng = def.lng; changed = true;
+    }
+    localStorage.setItem('pats_poffertjes_geofix_2026_06', '1');
   }
   return changed;
 }
