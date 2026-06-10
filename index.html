@@ -1952,6 +1952,8 @@ const PLACE_ICON_SVG = {
   vinyl: `<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="3.4"/><circle cx="12" cy="12" r="0.9" fill="white" stroke="none"/>`,
   // Koktail — martini pohár (pôvodná speakeasy ikona, zachovaná po presune pod gastro)
   cocktail: `<path d="M4 4h16l-8 9z"/><line x1="12" y1="13" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/>`,
+  // McDonald's — veľké písmeno M
+  mcdonalds: `<path d="M5 19 L5 6 L12 14 L19 6 L19 19"/>`,
 };
 // Priradenie podniku → ikona (ostatné miesta používajú ikonu kategórie)
 const PLACE_ICONS = {
@@ -1964,10 +1966,10 @@ const PLACE_ICONS = {
   64: 'cheese',   // Fromagerie Abraham Kef
   98: 'febo',     // FEBO Reguliersbreestraat
   99: 'febo',     // FEBO Leidsestraat
-  100: 'fries',   // McDonald's Damrak
-  101: 'fries',   // McDonald's Kalverstraat
-  107: 'fries',   // McDonald's Muntplein
-  108: 'fries',   // McDonald's Nieuwendijk
+  100: 'mcdonalds',   // McDonald's Damrak
+  101: 'mcdonalds',   // McDonald's Kalverstraat
+  107: 'mcdonalds',   // McDonald's Muntplein
+  108: 'mcdonalds',   // McDonald's Nieuwendijk
   115: 'cheese',  // De Mannen van Kaas — syry
   116: 'vinyl',   // Concerto
   117: 'vinyl',   // Record Palace
@@ -1978,6 +1980,10 @@ const PLACE_ICONS = {
   48: 'cocktail', // Tales & Spirits
   49: 'cocktail', // Super Lyan
   50: 'cocktail', // Bar Oldenhof
+  7: 'fries',     // Fabel Friet (Runstraat)
+  102: 'fries',   // Fabel Friet (Damrak)
+  103: 'fries',   // Fabel Friet (Nieuwendijk)
+  63: 'fries',    // Vlaams Friteshuis Vleminckx
 };
 // Vráti SVG ikonu pre miesto: override podľa podniku, inak podľa kategórie
 function placeIcon(p) {
