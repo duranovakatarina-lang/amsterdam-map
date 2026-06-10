@@ -3151,11 +3151,17 @@ function formatDistance(meters) {
 // Bez kľúča mapa funguje ďalej s odhadom (vzdušná čiara × 1.35).
 const ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjJhNWEwZjFlNjdhYTQxMDA4NTY4NmQ5ZDBiNDcwYzdjIiwiaCI6Im11cm11cjY0In0=';
 const ORS_URL = 'https://api.openrouteservice.org/v2/directions/foot-walking';
+const ORS_GEO_URL = 'https://api.openrouteservice.org/v2/directions/foot-walking/geojson';
 const routeCache = JSON.parse(localStorage.getItem('routeCache') || '{}');
-let itinSeq = 0; // guard proti zápisu starých výsledkov po re-renderi
+const geomCache = JSON.parse(localStorage.getItem('geomCache') || '{}');
+let itinSeq = 0;  // guard proti zápisu starých výsledkov po re-renderi
+let routeSeq = 0; // guard pre prekreslenie trasy na mape
 
 function saveRouteCache() {
   try { localStorage.setItem('routeCache', JSON.stringify(routeCache)); } catch (e) {}
+}
+function saveGeomCache() {
+  try { localStorage.setItem('geomCache', JSON.stringify(geomCache)); } catch (e) {}
 }
 function routeKey(a, b) {
   const r = n => n.toFixed(5);
@@ -3182,6 +3188,30 @@ async function fetchWalk(a, b) {
     routeCache[key] = out;
     saveRouteCache();
     return out;
+  } catch (e) { return null; }
+}
+
+// stops = [{lat,lng},…]. Vráti geometriu reálnej pešej trasy ako [[lat,lng],…] alebo null.
+async function fetchRouteGeometry(stops) {
+  const coords = stops.map(p => [p.lng, p.lat]);
+  const key = coords.map(c => c.map(n => n.toFixed(5)).join(',')).join('>');
+  if (geomCache[key]) return geomCache[key];
+  if (!orsReady()) return null;
+  try {
+    const res = await fetch(ORS_GEO_URL, {
+      method: 'POST',
+      headers: { 'Authorization': ORS_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coordinates: coords }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const line = data.features && data.features[0] && data.features[0].geometry
+      && data.features[0].geometry.coordinates;
+    if (!line) return null;
+    const latlngs = line.map(c => [c[1], c[0]]); // [lng,lat] → [lat,lng]
+    geomCache[key] = latlngs;
+    saveGeomCache();
+    return latlngs;
   } catch (e) { return null; }
 }
 
@@ -3750,9 +3780,19 @@ function drawRoute() {
   if (!isItineraryMode()) return;
   const stops = placesForDay(activeDay);
   if (stops.length < 2) return;
+  const seq = ++routeSeq;
+  // Okamžitá rovná prerušovaná čiara (fallback / kým príde reálna trasa)
   routeLine = L.polyline(stops.map(p => [p.lat, p.lng]), {
     color: '#0F172A', weight: 3, opacity: 0.5, dashArray: '1 9', lineCap: 'round',
   }).addTo(map);
+  // Upgrade na reálnu pešiu trasu po uliciach (plná čiara)
+  if (orsReady()) fetchRouteGeometry(stops).then(latlngs => {
+    if (!latlngs || seq !== routeSeq || !isItineraryMode()) return;
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline(latlngs, {
+      color: '#0F172A', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round',
+    }).addTo(map);
+  });
 }
 
 function updateItineraryUI() {
