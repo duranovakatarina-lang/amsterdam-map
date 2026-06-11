@@ -1640,12 +1640,9 @@
     .lotto-intro-icon svg { width: 48px; height: 48px; }
     .lotto-intro-title { font-size: 36px; font-weight: 800; letter-spacing: -1.1px; line-height: 1.04; color: var(--text-1); }
     .lotto-intro-sub { font-size: 15px; line-height: 1.5; color: var(--text-2); max-width: 330px; }
-    .lotto-intro-meta { display: flex; gap: 12px; margin: 2px 0; }
-    .lotto-intro-meta .lim { display: flex; flex-direction: column; align-items: center; background: #F1F5F9; border-radius: 14px; padding: 11px 18px; min-width: 62px; }
-    .lotto-intro-meta .lim b { font-size: 23px; font-weight: 800; color: var(--lacc); line-height: 1; }
-    .lotto-intro-meta .lim span { font-size: 11.5px; font-weight: 600; color: var(--text-3); margin-top: 4px; }
+    .lotto-intro-jokers { display: inline-flex; align-items: center; gap: 9px; background: rgba(10,90,55,0.08); color: var(--lacc); border-radius: 999px; padding: 10px 18px; font-size: 14.5px; font-weight: 700; margin: 2px 0; }
+    .lotto-intro-jokers svg { width: 19px; height: 19px; }
     .lotto-intro .lotto-btn { margin-top: 4px; min-width: 210px; }
-    .lotto-intro-foot { font-size: 12.5px; color: var(--text-3); }
 
     .lotto-end { display: flex; flex-direction: column; gap: 16px; }
     .lotto-end-head { text-align: center; }
@@ -4754,21 +4751,12 @@ function renderLottoIntro(){
   if (label) label.textContent = 'Nedeľa';
   renderLottoDots();
   const stage = document.getElementById('lotto-stage');
-  const total = SUNDAY_PLAN.length;
-  const duels = SUNDAY_PLAN.filter(r => r.type === 'duel').length;
-  const challenges = total - duels;
   stage.innerHTML = `<div class="lotto-intro">
-    <div class="lotto-intro-eyebrow">Nedeľa · darček</div>
     <div class="lotto-intro-icon">${LSVG.sparkle}</div>
     <div class="lotto-intro-title">Amsterdam<br>na punk!</div>
-    <div class="lotto-intro-sub">Dnešok nikto neplánuje — o všetkom rozhodne losovanie. Súboje miest a jedál, plus pár náhodných výziev.</div>
-    <div class="lotto-intro-meta">
-      <div class="lim"><b>${total}</b><span>kôl</span></div>
-      <div class="lim"><b>${duels}</b><span>súbojov</span></div>
-      <div class="lim"><b>${challenges}</b><span>výziev</span></div>
-    </div>
-    <button class="lotto-btn" onclick="startLotto()">${LSVG.dice} Spustiť deň</button>
-    <div class="lotto-intro-foot">2 žolíky na celý deň — vymeň alebo losuj znova.</div>
+    <div class="lotto-intro-sub">Náhodný los rozhodne o tom, čo sa bude dnes diať.</div>
+    <div class="lotto-intro-jokers">${LSVG.swap}${LSVG.redraw}<span>Máš 2 žolíky!</span></div>
+    <button class="lotto-btn" onclick="startLotto()">${LSVG.dice} Začať deň</button>
   </div>`;
   stage.scrollTop = 0;
 }
