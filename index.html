@@ -1665,6 +1665,27 @@
     .lotto-pw-err { display: none; font-size: 13px; font-weight: 700; color: #c0392b; min-height: 0; }
     .lotto-pw-err.show { display: block; }
 
+    /* ─── Zámok nedeľného plánu (overlay) ─── */
+    #plan-lock {
+      position: fixed; inset: 0; z-index: 650; display: none;
+      align-items: center; justify-content: center; padding: 18px;
+      background: rgba(15,23,42,0.45); backdrop-filter: blur(4px);
+    }
+    #plan-lock.open { display: flex; }
+    .plan-lock-card {
+      position: relative; width: 100%; max-width: 360px;
+      background: #fff; border-radius: 22px; padding: 30px 24px 26px;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+    }
+    .plan-lock-x {
+      position: absolute; top: 12px; right: 12px;
+      width: 32px; height: 32px; border: none; border-radius: 50%;
+      background: #f1f3f5; color: #475569; font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .plan-lock-x:hover { background: #e2e8f0; }
+
     .lotto-intro { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 14px 18px 6px; }
     .lotto-intro-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--lacc); }
     .lotto-intro-icon { color: var(--lacc); line-height: 0; }
@@ -1815,6 +1836,21 @@
         <button class="food-form-save" onclick="addFoodItem()">Pridať</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ─── ZÁMOK NEDEĽNÉHO PLÁNU ─────────────────────────────── -->
+<div id="plan-lock" aria-hidden="true" onclick="if(event.target===this) closePlanLock()">
+  <div class="plan-lock-card">
+    <button class="plan-lock-x" onclick="closePlanLock()" aria-label="Zavrieť">✕</button>
+    <div class="lotto-lock-icon">🔒</div>
+    <div class="lotto-lock-title">Dnes to na punk nebude</div>
+    <div class="lotto-lock-sub">Nebuď nedočkavý a počkaj si do nedele!</div>
+    <input type="password" id="plan-pw-input" class="lotto-pw-input" placeholder="Heslo" autocomplete="off"
+      onkeydown="if(event.key==='Enter') tryUnlockPlan()"
+      oninput="var e=document.getElementById('plan-pw-err'); if(e) e.classList.remove('show')">
+    <div id="plan-pw-err" class="lotto-pw-err">Nesprávne heslo, skús znova.</div>
+    <button class="lotto-btn" onclick="tryUnlockPlan()">Odomknúť</button>
   </div>
 </div>
 
@@ -3725,6 +3761,8 @@ function toggleCat(cat) {
 function buildDayTabs() {
   document.querySelectorAll('#day-tabs .day-tab').forEach(btn => {
     btn.addEventListener('click', function() {
+      // Nedeľný plán je zamknutý heslom, kým ho neodomkneš
+      if (this.dataset.day === 'sunday' && !lottoUnlocked()) { openPlanLock(); return; }
       document.querySelectorAll('#day-tabs .day-tab').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       activeDay = this.dataset.day;
@@ -4742,6 +4780,34 @@ function tryUnlockLotto(){
   if (inp.value === LOTTO_PASSWORD) {
     unlockLotto();
     renderLottoStep();
+  } else {
+    if (err) err.classList.add('show');
+    inp.value = '';
+    inp.focus();
+  }
+}
+function openPlanLock(){
+  const el = document.getElementById('plan-lock');
+  el.classList.add('open'); el.setAttribute('aria-hidden','false');
+  const err = document.getElementById('plan-pw-err'); if (err) err.classList.remove('show');
+  setTimeout(() => { const i = document.getElementById('plan-pw-input'); if (i){ i.value=''; i.focus(); } }, 80);
+}
+function closePlanLock(){
+  const el = document.getElementById('plan-lock');
+  el.classList.remove('open'); el.setAttribute('aria-hidden','true');
+}
+function tryUnlockPlan(){
+  const inp = document.getElementById('plan-pw-input');
+  const err = document.getElementById('plan-pw-err');
+  if (!inp) return;
+  if (inp.value === LOTTO_PASSWORD) {
+    unlockLotto();
+    closePlanLock();
+    // aktivuj nedeľný filter
+    document.querySelectorAll('#day-tabs .day-tab').forEach(b => b.classList.toggle('active', b.dataset.day === 'sunday'));
+    activeDay = 'sunday';
+    updateItineraryUI();
+    refreshMarkers();
   } else {
     if (err) err.classList.add('show');
     inp.value = '';
