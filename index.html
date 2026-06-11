@@ -941,6 +941,22 @@
       #bottom-actions { bottom: 18px; right: 14px; }
     }
 
+    /* Na mobile schovaj plávajúce mapové tlačidlá, keď je otvorený
+       detail miesta / checklist / itinerár — nech neprekrývajú panel */
+    @media (max-width: 767px) {
+      body:has(#sidebar.open) #bottom-actions,
+      body:has(#sidebar.open) #tile-switcher,
+      body:has(#food-panel.open) #bottom-actions,
+      body:has(#food-panel.open) #tile-switcher,
+      body:has(#itinerary-panel.open) #bottom-actions,
+      body:has(#itinerary-panel.open) #tile-switcher {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .2s ease, visibility .2s ease;
+      }
+    }
+
     /* ─── FAB ─────────────────────────────────────────────── */
     #fab {
       width: 46px; height: 46px;
