@@ -2692,6 +2692,36 @@ const DEFAULTS = [
     note:'Dana & Elka · Raadhuisstraat 31', addr:'Raadhuisstraat 31, 1016 DC Amsterdam',
     price:null, hours:null, rating:null, photo:null, day:null, isCustom:false },
 
+  { id:120, name:'Lockerpoint — úschova batožiny', category:'custom', lat:52.36369, lng:4.89184,
+    description:'Bezpečná úschova batožiny v centre — automatické skrinky rôznych veľkostí, prístupné nonstop. Vstup pri pešom vchode do parkoviska APCOA „Prins & Keizer" na Vijzelstraat, kúsok od FOAM a Museum Van Loon.',
+    note:'Úschova batožiny · vstup z Vijzelstraat (parking Prins & Keizer)', addr:'Keizersgracht 648, 1017 ES Amsterdam',
+    price:null, hours:'Nonstop (24/7)', rating:null, photo:null, day:null, isCustom:false },
+
+  { id:121, name:'Slapadlá Stromma (Prinsengracht / Anne Frank)', category:'zazitok', lat:52.3746743, lng:4.8833291,
+    description:'Druhé mólo Stromma slapadiel — pri Westerkerk a Anne Frank House. Štvorsedadlová loďka, šlapeš vlastnou trasou po kanáloch, 1 hodina. Tento bod jazdí sezónne (apr–sep); v meste sú aj celoročné móla.',
+    note:'Prinsengracht 281 · 4 os / 1 hod · sezónne apr–sep · odporúčaná rezervácia', addr:'Prinsengracht 281, 1016 GW Amsterdam',
+    price:'~€33,50/loďka/hod', hours:'Apr–Sep, ~10:00–17:30', rating:4.3, photo:null, day:null, isCustom:false },
+
+  { id:122, name:'Bagels Cafe', category:'gastro', lat:52.3646501, lng:4.8928187,
+    description:'Útulná raňajková kaviareň — bagely, americké palacinky, wafle a croissanty, čerstvý džús a káva. Obľúbené na ležérne raňajky či brunch v centre.',
+    note:'Vijzelstraat 71-H · bagely + palacinky', addr:'Vijzelstraat 71-H, 1017 HG Amsterdam',
+    price:'~€8–14', hours:'Denne 9:30–17:30', rating:4.4, photo:null, day:null, isCustom:false },
+
+  { id:123, name:'Café Slijterij Oosterling', category:'brown', lat:52.3610743, lng:4.8992559,
+    description:'Národná pamiatka anno 1877 — posledná amsterdamská „café-slijterij": pohárik vypiješ na mieste a fľašu si rovno aj kúpiš domov. Autentický brown café s drevom a históriou; otvorené aj na raňajky.',
+    note:'Utrechtsestraat 140 · café + slijterij (anno 1877)', addr:'Utrechtsestraat 140, 1017 VT Amsterdam',
+    price:null, hours:'Po–Ut 15:00–00:00 · St–So 12:00–01:00 · Ne 13:00–20:00', rating:4.7, photo:null, day:null, isCustom:false },
+
+  { id:124, name:'Back to Black', category:'coffee', lat:52.3610395, lng:4.8885851,
+    description:'Skvele hodnotená pražiareň kávy + pekáreň pár krokov od Rijksmusea (od 2014). Výborné espresso a cappuccino, domáce koláče (espresso brownie!). Majú aj zázvorovú mačku 🐈. Pozn.: notebooky na stoloch nie sú vítané — je to miesto na kávu, nie na prácu.',
+    note:'Weteringstraat 48 · pražiareň + pekáreň · mačka 🐈', addr:'Weteringstraat 48, 1017 SP Amsterdam',
+    price:'~€3–5 káva', hours:'Po–Pi 8:00–18:00 · So–Ne 9:00–18:00', rating:4.7, photo:null, day:null, isCustom:false },
+
+  { id:125, name:'The Mouse Mansion (Het Muizenhuis)', category:'hidden', lat:52.3671947, lng:4.8927025,
+    description:'Mini múzeum a obchodík z obľúbených detských knižiek Het Muizenhuis (Sam & Julia) od Kariny Schaapman — originálne ručne robené dekorácie myšacieho domu do najmenších detailov (cirkus, trh, tajná skrýša pod schodmi). Kúzelné pre deti aj dospelých.',
+    note:'Muntplein 8 · mini múzeum Sam & Julia · over hodiny na webe', addr:'Muntplein 8, 1012 WR Amsterdam',
+    price:null, hours:'St–Ne 11:00–18:00', rating:4.8, photo:null, day:null, isCustom:false },
+
 ];
 
 // ═══════════════════════════════════════════════════
@@ -2949,6 +2979,18 @@ function migrate() {
     const de = DEFAULTS.find(d => d.id === 119);
     if (de && !have.has(119)) { places.push(JSON.parse(JSON.stringify(de))); changed = true; }
     localStorage.setItem('dana_elka_2026_06', '1');
+  }
+
+  // Dávka 2026-06-11 (id 120–125): Lockerpoint, pedal boat Prinsengracht, Bagels Cafe,
+  // Café Oosterling, Back to Black, Mouse Mansion — vlastný flag, pushne aj do uloženej localStorage.
+  if (!localStorage.getItem('new_places_2026_06f')) {
+    const have = new Set(places.map(p => p.id));
+    DEFAULTS.forEach(d => {
+      if (d.id >= 120 && d.id <= 125 && !have.has(d.id)) {
+        places.push(JSON.parse(JSON.stringify(d))); changed = true;
+      }
+    });
+    localStorage.setItem('new_places_2026_06f', '1');
   }
 
   if (changed) save();
