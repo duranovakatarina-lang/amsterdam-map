@@ -2722,6 +2722,11 @@ const DEFAULTS = [
     note:'Muntplein 8 · mini múzeum Sam & Julia · over hodiny na webe', addr:'Muntplein 8, 1012 WR Amsterdam',
     price:null, hours:'St–Ne 11:00–18:00', rating:4.8, photo:null, day:null, isCustom:false },
 
+  { id:126, name:'Dom Anny Frankovej', category:'miesta', lat:52.3751558, lng:4.8840807,
+    description:'Múzeum v dome, kde sa Anne Franková s rodinou 2 roky ukrývala počas okupácie; originálny zadný trakt (Achterhuis) a jej denník. Silný a emotívny zážitok. ⚠️ Lístky LEN online vopred na annefrank.org (nové sa uvoľňujú každý utorok o 10:00) — pri vstupe sa nepredávajú a bývajú rýchlo vypredané.',
+    note:'Prinsengracht 263–267 · vstup Westermarkt 20 · ⚠️ lístky len online vopred!', addr:'Prinsengracht 263–267, 1016 GV Amsterdam',
+    price:'€16,50 dosp. · 10–17 r. €7 · do 10 r. €1', hours:'Denne 9:00–22:00', rating:4.6, photo:null, day:null, isCustom:false },
+
 ];
 
 // ═══════════════════════════════════════════════════
@@ -2991,6 +2996,14 @@ function migrate() {
       }
     });
     localStorage.setItem('new_places_2026_06f', '1');
+  }
+
+  // Dom Anny Frankovej (id 126) — vlastný flag, pushne aj do uloženej localStorage/cloudu.
+  if (!localStorage.getItem('annefrank_2026_06')) {
+    const have = new Set(places.map(p => p.id));
+    const af = DEFAULTS.find(d => d.id === 126);
+    if (af && !have.has(126)) { places.push(JSON.parse(JSON.stringify(af))); changed = true; }
+    localStorage.setItem('annefrank_2026_06', '1');
   }
 
   if (changed) save();
