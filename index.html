@@ -2039,35 +2039,33 @@ const SUNDAY_PLAN = [
     b:{ name:'Albert Heijn', note:'Nákup v obchode a piknik pri kanáli', photo:UP('1534723452862-4c874018d66d') } },
 
   { type:'challenge', title:'Cheese tasting v obchode',
-    desc:'Ochutnaj 3 druhy goudy — mladú, starú a niečo medzi.' },
+    desc:'Ochutnaj 3 druhy goudy' },
 
   { type:'duel', title:'Šlapadlo alebo kolo?',
-    a:{ placeId:40, note:'Šlapadlo po kanáli', photo:UP('1534351590666-13e3e96b5017') },   // Pedal Boat — šlapadlá
-    b:{ name:'Bike tour', note:'Okruh mestom na bicykli', photo:UP('1507035895480-2b3156c31fc8') } },
+    a:{ placeId:40, label:'Pedal boat', photo:UP('1534351590666-13e3e96b5017') },   // Pedal Boat — šlapadlá
+    b:{ name:'Bike tour', photo:UP('1507035895480-2b3156c31fc8') } },
 
   { type:'duel', title:'Ideme na burgr!',
-    a:{ placeId:54, note:'Gourmet burger', photo:UP('1568901346375-23c9450c58cd') },   // Ter Marsch & Co
-    b:{ placeId:100, note:'Fast food klasika', photo:UP('1576107232684-1279f390859f') } }, // McDonald's
+    a:{ placeId:54, label:'Burgr Ter Marsch & Co', photo:UP('1568901346375-23c9450c58cd') },   // Ter Marsch & Co
+    b:{ placeId:100, label:'McDonalds', photo:UP('1576107232684-1279f390859f') } }, // McDonald's
 
   { type:'challenge', title:'Čas na digestív!',
-    desc:'Nájdi pálenicu Wynand Fockink a daj si na bare genever tradičným spôsobom — pohárik plný po okraj, prvý dúšok bez rúk.' },
+    desc:'Nájdi pálenicu Wynand Fockink a vypi na bare Genever tradičným spôsobom' },
 
-  { type:'challenge', title:'Vyskúšaj slaný drop',
-    desc:'Klasický holandský lakricový cukrík — choď do toho a daj si slaný drop (zoute drop).' },
+  { type:'challenge', title:'Vyskúšaj slaný drop' },
 
   { type:'duel', title:'A kam teraz?',
-    a:{ placeId:109, photo:UP('1554118811-1e0d58224f24') },   // The Bulldog The First — Coffee shop
-    b:{ placeId:71, photo:UP('1514933651103-005eec06c04b') } }, // De Sluyswacht — Brown café
+    a:{ placeId:109, note:'Coffee shop', photo:UP('1554118811-1e0d58224f24') },   // The Bulldog The First
+    b:{ placeId:71, note:'Brown café', photo:UP('1514933651103-005eec06c04b') } }, // De Sluyswacht
 
-  { type:'challenge', title:'Vezmi Katarínku za plameniakmi 🦩🫶',
-    desc:'Doveď ju na Artisplein k ružovým plameniakom — vstup je zadarmo a ponad plot ich krásne vidno.' },
+  { type:'challenge', title:'Vezmi Katarínku za plameniakmi 🦩🫶' },
 
   { type:'duel', title:'Čas na pivínko!',
     a:{ placeId:12, note:'Pivovar v starom mlyne', photo:UP('1518176258769-f227c798150e') },   // Brouwerij 't IJ
     b:{ placeId:69, note:'Mestská pláž na streche', photo:UP('1507525428034-b723cf961d3e') } }, // Strand van Oost
 
-  { type:'challenge', title:'Food checklist aspoň na 90 %',
-    desc:'Máš čas do konca dňa — otvor Food & Drink checklist a doraz ho aspoň na 90 %.' },
+  { type:'challenge', title:'Food checklist aspoň na 90 % done',
+    desc:'Máš čas do konca dňa' },
 ];
 
 // Rozbalí Option na vykresliteľný objekt: { kind, name, type, photo, category, iconSvg, placeId }
@@ -2075,8 +2073,8 @@ function resolveOption(opt){
   if (!opt) return { kind:'free', name:'?', type:'', photo:null, category:'custom', iconSvg:CAT_SVG_ICONS.custom };
   if (opt.placeId != null) {
     const p = (typeof places !== 'undefined' ? places : []).find(x => x.id === opt.placeId);
-    if (p) return { kind:'place', placeId:p.id, name:p.name,
-                    type:opt.note || (CATS[p.category] && CATS[p.category].label) || '',
+    if (p) return { kind:'place', placeId:p.id, name:opt.label || p.name,
+                    type:opt.note || '',
                     photo:opt.photo || p.photo || null, category:p.category || 'custom', iconSvg:placeIcon(p) };
   }
   if (opt.type) {
