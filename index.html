@@ -1650,6 +1650,21 @@
 
     /* ── End screen ── */
     /* intro / štart obrazovka */
+    /* ─── Zámok losovačky (lock screen) ─── */
+    .lotto-lock { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 20px 22px; }
+    .lotto-lock-icon { font-size: 52px; line-height: 1; }
+    .lotto-lock-title { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; color: var(--text-1); }
+    .lotto-lock-sub { font-size: 15px; line-height: 1.5; color: var(--text-2); max-width: 320px; }
+    .lotto-pw-input {
+      width: 100%; max-width: 280px; margin-top: 6px;
+      padding: 13px 16px; font-size: 16px; text-align: center;
+      border: 2px solid #d9e0dc; border-radius: 12px; outline: none;
+      background: #fff; color: var(--text-1); transition: border-color .15s ease;
+    }
+    .lotto-pw-input:focus { border-color: var(--lacc); }
+    .lotto-pw-err { display: none; font-size: 13px; font-weight: 700; color: #c0392b; min-height: 0; }
+    .lotto-pw-err.show { display: block; }
+
     .lotto-intro { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 14px 18px 6px; }
     .lotto-intro-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--lacc); }
     .lotto-intro-icon { color: var(--lacc); line-height: 0; }
@@ -4711,6 +4726,46 @@ function deleteFoodItem(id){
 //  LOSOVAČKA — stav, render, mechanika
 // ═══════════════════════════════════════════════════
 const LOTTO_KEY = 'lotto_sunday_v1';
+
+// ─── Zámok losovačky ────────────────────────────────────────
+// Heslo, aby manžel/kamoši nepozreli obsah skôr než začne losovací deň.
+// Pozn.: ide o klientské „mäkké" zamknutie (stránka je statická) — chráni
+// pred zvedavým otvorením, nie pred niekým, kto číta zdrojový kód.
+const LOTTO_PASSWORD = 'krabik';
+const LOTTO_UNLOCK_KEY = 'lotto_unlocked_v1';
+function lottoUnlocked(){ try { return localStorage.getItem(LOTTO_UNLOCK_KEY) === '1'; } catch(e){ return false; } }
+function unlockLotto(){ try { localStorage.setItem(LOTTO_UNLOCK_KEY, '1'); } catch(e){} }
+function tryUnlockLotto(){
+  const inp = document.getElementById('lotto-pw-input');
+  const err = document.getElementById('lotto-pw-err');
+  if (!inp) return;
+  if (inp.value === LOTTO_PASSWORD) {
+    unlockLotto();
+    renderLottoStep();
+  } else {
+    if (err) err.classList.add('show');
+    inp.value = '';
+    inp.focus();
+  }
+}
+function renderLottoLock(){
+  const label = document.getElementById('lotto-step-label');
+  if (label) label.textContent = 'Zamknuté';
+  const dots = document.getElementById('lotto-dots');
+  if (dots) dots.innerHTML = '';
+  const stage = document.getElementById('lotto-stage');
+  stage.innerHTML = `<div class="lotto-lock">
+    <div class="lotto-lock-icon">🔒</div>
+    <div class="lotto-lock-title">Losovačka je zamknutá</div>
+    <div class="lotto-lock-sub">Obsah sa odhalí až v losovací deň.<br>Zadaj heslo pre odomknutie.</div>
+    <input type="password" id="lotto-pw-input" class="lotto-pw-input" placeholder="Heslo" autocomplete="off"
+      onkeydown="if(event.key==='Enter') tryUnlockLotto()"
+      oninput="var e=document.getElementById('lotto-pw-err'); if(e) e.classList.remove('show')">
+    <div id="lotto-pw-err" class="lotto-pw-err">Nesprávne heslo, skús znova.</div>
+    <button class="lotto-btn" onclick="tryUnlockLotto()">Odomknúť</button>
+  </div>`;
+  setTimeout(() => { const i = document.getElementById('lotto-pw-input'); if (i) i.focus(); }, 80);
+}
 let lotto = { step:0, results:[], jokers:{ swap:false, redraw:false }, started:false };
 let lottoAnimating = false;
 
@@ -4799,6 +4854,7 @@ function renderLottoDots(){
 
 function renderLottoStep(){
   lottoAnimating = false;
+  if (!lottoUnlocked()){ renderLottoLock(); return; }
   if (!lotto.started){ renderLottoIntro(); return; }
   renderLottoDots();
   const total = SUNDAY_PLAN.length;
