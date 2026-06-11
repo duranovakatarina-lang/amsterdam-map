@@ -4756,8 +4756,8 @@ function renderLottoLock(){
   const stage = document.getElementById('lotto-stage');
   stage.innerHTML = `<div class="lotto-lock">
     <div class="lotto-lock-icon">🔒</div>
-    <div class="lotto-lock-title">Losovačka je zamknutá</div>
-    <div class="lotto-lock-sub">Obsah sa odhalí až v losovací deň.<br>Zadaj heslo pre odomknutie.</div>
+    <div class="lotto-lock-title">Dnes to na punk nebude</div>
+    <div class="lotto-lock-sub">Nebuď nedočkavý a počkaj si do nedele!</div>
     <input type="password" id="lotto-pw-input" class="lotto-pw-input" placeholder="Heslo" autocomplete="off"
       onkeydown="if(event.key==='Enter') tryUnlockLotto()"
       oninput="var e=document.getElementById('lotto-pw-err'); if(e) e.classList.remove('show')">
