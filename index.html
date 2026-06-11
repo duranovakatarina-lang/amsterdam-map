@@ -2057,7 +2057,7 @@ const SUNDAY_PLAN = [
   { type:'challenge', title:'Cheese tasting v obchode',
     desc:'Ochutnaj 3 druhy goudy' },
 
-  { type:'duel', title:'Šlapadlo alebo kolo?',
+  { type:'duel', title:'Šlapadlo alebo kolo?', rig:'a',   // vždy padne Pedal boat (aj pri „Nový los"); jediná cesta k Bike tour je žolík Výmena
     a:{ placeId:40, label:'Pedal boat', photo:'img/pedal-boat.jpg' },
     b:{ name:'Bike tour', photo:'img/bike-tour.jpg' } },
 
@@ -2070,7 +2070,7 @@ const SUNDAY_PLAN = [
 
   { type:'challenge', title:'Vyskúšaj slaný drop' },
 
-  { type:'duel', title:'A kam teraz?',
+  { type:'duel', title:'A kam teraz?', rig:'b',   // vždy padne Brown café (De Sluyswacht); k Coffee shopu sa dá dostať len žolíkom Výmena
     a:{ placeId:109, label:'Coffee shop', note:'The Bulldog The First', photo:'https://thebulldog.com/wp-content/uploads/2021/11/The-Bulldog-Amsterdam-Coffeeshop-The-First-0M6A2372.jpg' },
     b:{ placeId:71, label:'Brown café', note:'De Sluyswacht', photo:'https://cdn.prod.website-files.com/62e6c9692736d12a70afc63e/63e1319cfb6761ca7e5c8840_Cafe-de-Sluyswacht-foto-1.jpeg' } },
 
@@ -4953,7 +4953,9 @@ function drawDuel(forced){
   const act = stage.querySelector('.lotto-actions');
   if (act){ act.style.opacity = '0.45'; act.style.pointerEvents = 'none'; }
   lottoAnimating = true;
-  const winner = forced || (Math.random() < 0.5 ? 'a' : 'b');
+  const round = SUNDAY_PLAN[lotto.step];
+  // `rig` = napevno daný víťaz losovania (aj pri „Nový los"); žolík Výmena ho vie prebiť
+  const winner = forced || (round && round.rig) || (Math.random() < 0.5 ? 'a' : 'b');
   const totalTicks = 16 + Math.floor(Math.random() * 6);
   let i = 0;
   function tick(){
