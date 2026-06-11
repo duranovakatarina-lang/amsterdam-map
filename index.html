@@ -1640,8 +1640,13 @@
     .lotto-intro-icon svg { width: 48px; height: 48px; }
     .lotto-intro-title { font-size: 36px; font-weight: 800; letter-spacing: -1.1px; line-height: 1.04; color: var(--text-1); }
     .lotto-intro-sub { font-size: 15px; line-height: 1.5; color: var(--text-2); max-width: 330px; }
-    .lotto-intro-jokers { display: inline-flex; align-items: center; gap: 9px; background: rgba(10,90,55,0.08); color: var(--lacc); border-radius: 999px; padding: 10px 18px; font-size: 14.5px; font-weight: 700; margin: 2px 0; }
-    .lotto-intro-jokers svg { width: 19px; height: 19px; }
+    .lotto-intro-jokers { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; margin: 2px 0; }
+    .lotto-intro-jokers .lij-head { font-size: 13px; font-weight: 800; color: var(--lacc); letter-spacing: 0.3px; }
+    .lij-row { display: flex; align-items: center; gap: 11px; background: rgba(10,90,55,0.07); border-radius: 13px; padding: 10px 14px; }
+    .lij-ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: var(--lacc); flex: 0 0 auto; }
+    .lij-ic svg { width: 17px; height: 17px; }
+    .lij-txt { font-size: 14px; color: var(--text-2); text-align: left; }
+    .lij-txt b { color: var(--text-1); font-weight: 700; }
     .lotto-intro .lotto-btn { margin-top: 4px; min-width: 210px; }
 
     .lotto-end { display: flex; flex-direction: column; gap: 16px; }
@@ -4755,7 +4760,11 @@ function renderLottoIntro(){
     <div class="lotto-intro-icon">${LSVG.sparkle}</div>
     <div class="lotto-intro-title">Amsterdam<br>na punk!</div>
     <div class="lotto-intro-sub">Náhodný los rozhodne o tom, čo sa bude dnes diať.</div>
-    <div class="lotto-intro-jokers">${LSVG.swap}${LSVG.redraw}<span>Máš 2 žolíky!</span></div>
+    <div class="lotto-intro-jokers">
+      <div class="lij-head">Máš 2 žolíky!</div>
+      <div class="lij-row"><span class="lij-ic">${LSVG.swap}</span><span class="lij-txt"><b>Výmena</b> — vezmi si to druhé</span></div>
+      <div class="lij-row"><span class="lij-ic">${LSVG.redraw}</span><span class="lij-txt"><b>Nový los</b> — losuj ešte raz</span></div>
+    </div>
     <button class="lotto-btn" onclick="startLotto()">${LSVG.dice} Začať deň</button>
   </div>`;
   stage.scrollTop = 0;
