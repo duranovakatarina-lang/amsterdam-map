@@ -1499,7 +1499,7 @@
       background: var(--lgrad); color: #fff;
       font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
     }
-    .lotto-challenge .lch-title { font-size: 24px; font-weight: 800; color: var(--text-1); letter-spacing: -0.4px; line-height: 1.2; }
+    .lotto-challenge .lch-title { font-size: 24px; font-weight: 800; color: var(--text-1); letter-spacing: -0.4px; line-height: 1.2; white-space: pre-line; }
     .lotto-challenge .lch-desc { font-size: 15px; color: var(--text-2); line-height: 1.5; max-width: 320px; }
     .lch-icon { width: 54px; height: 54px; color: var(--lacc); }
 
@@ -2035,8 +2035,8 @@ const GRADIENTS = {
 const UP = id => `https://images.unsplash.com/photo-${id}?w=800&q=70&auto=format&fit=crop`;
 const SUNDAY_PLAN = [
   { type:'duel', title:'Kam na raňajky?',
-    a:{ placeId:122, note:'Brunch', photo:UP('1509440159596-0249088772ff') },   // Bagels Cafe
-    b:{ name:'Albert Heijn', note:'Nákup v obchode a piknik pri kanáli', photo:UP('1534723452862-4c874018d66d') } },
+    a:{ placeId:122, label:'Brunch', note:'Bagels Cafe', photo:UP('1509440159596-0249088772ff') },
+    b:{ name:'Nákup v obchode a piknik pri kanáli', note:'Albert Heijn', photo:UP('1534723452862-4c874018d66d') } },
 
   { type:'challenge', title:'Cheese tasting v obchode',
     desc:'Ochutnaj 3 druhy goudy' },
@@ -2055,14 +2055,14 @@ const SUNDAY_PLAN = [
   { type:'challenge', title:'Vyskúšaj slaný drop' },
 
   { type:'duel', title:'A kam teraz?',
-    a:{ placeId:109, note:'Coffee shop', photo:UP('1554118811-1e0d58224f24') },   // The Bulldog The First
-    b:{ placeId:71, note:'Brown café', photo:UP('1514933651103-005eec06c04b') } }, // De Sluyswacht
+    a:{ placeId:109, label:'Coffee shop', note:'The Bulldog The First', photo:UP('1554118811-1e0d58224f24') },
+    b:{ placeId:71, label:'Brown café', note:'De Sluyswacht', photo:UP('1514933651103-005eec06c04b') } },
 
-  { type:'challenge', title:'Vezmi Katarínku za plameniakmi 🦩🫶' },
+  { type:'challenge', title:'Vezmi Katarínku za plameniakmi\n🦩🫶' },
 
   { type:'duel', title:'Čas na pivínko!',
-    a:{ placeId:12, note:'Pivovar v starom mlyne', photo:UP('1518176258769-f227c798150e') },   // Brouwerij 't IJ
-    b:{ placeId:69, note:'Mestská pláž na streche', photo:UP('1507525428034-b723cf961d3e') } }, // Strand van Oost
+    a:{ placeId:12, label:'Pivovar v starom mlyne', note:"Brouwerij 't IJ", photo:UP('1518176258769-f227c798150e') },
+    b:{ placeId:69, label:'Mestská pláž na streche', note:'Strand van Oost', photo:UP('1507525428034-b723cf961d3e') } },
 
   { type:'challenge', title:'Food checklist aspoň na 90 % done',
     desc:'Máš čas do konca dňa' },
@@ -4790,7 +4790,7 @@ function duelHTML(round, winner){
     const L = winner === 'a' ? B : A;
     const winNote = W.kind === 'type'
       ? `<div class="lotto-win-note">Vyšlo: <b>${lhtml(W.name)}</b> — konkrétne miesto je na vás.</div>`
-      : `<div class="lotto-win-note">Vyšlo: <b>${lhtml(W.name)}</b></div>`;
+      : `<div class="lotto-win-note">Vyšlo: <b>${lhtml(W.type || W.name)}</b></div>`;
     const mapBtn = (W.placeId != null)
       ? `<button class="lotto-btn secondary" onclick="lottoShowOnMap(${W.placeId})">${LSVG.map} Ukáž na mape</button>` : '';
     const nextLabel = round.challenge ? 'Ďalej na challenge →' : 'Hotovo, ďalej →';
@@ -4994,7 +4994,7 @@ function renderLottoEnd(){
       skipped = res.state !== 'done';
     } else {
       const W = res.winner === 'b' ? resolveOption(round.b) : resolveOption(round.a);
-      text = W.name; sub = round.title;
+      text = W.type || W.name; sub = round.title;
       if (round.challenge && res.challengeState){
         sub += ' · challenge ' + (res.challengeState === 'done' ? 'splnená' : 'preskočená');
       }
